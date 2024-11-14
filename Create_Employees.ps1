@@ -7,7 +7,7 @@
 # Variables for Ivanti ISM connection
 # Use your base url such as 'https://my-tenant.ivanticloud.com/api/odata/businessobject' do NOT include a trailing /
 # If you are ON-PREM be sure to add '/HEAT' between URL and '/api'
-$ismUrl = "{YOUR TENANT URL HERE}" 
+$ismUrl = "{YOUR TENANT URL HERE}/api/odata/businessobject" 
 
 # Replace with the actual business object name. Ensure you have an 's' on the end. if the business object already ends with an 's' you'll need to add an extra one such as "Incident" becomes "Incidents"
 $ismBO = "employees"
