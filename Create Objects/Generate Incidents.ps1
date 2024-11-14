@@ -22,14 +22,14 @@ $ismHeaders = @{
     "Content-Type" = "application/json"
 }
 
-# Teams from previous script for random selection
+# Teams from ISM
 $teams = @("Change Management", "Corporate Audit", "Recruitment", "IT", "Telecommunications Support", "IT Project Management", "Server Support", "Network Administration", "Operations", "Product Marketing", "QA", "Healthcare Benefits", "Service Desk", "Field Sales", "Contracts", "Network Support", "HR", "Emergency Room", "Telephone - Public", "Facilities - Custodial", "Application Development", "Billing Services", "Orthopedic", "Management", "HR Operations")
 
 # Helper functions for generating random data
 function Get-RandomImpactOrUrgency {
     return @("Low", "Medium", "High") | Get-Random
 }
-
+# Feel free to add more!
 function Get-RandomSubject {
     $subjects = @(
         "System outage in department", "Login issues reported by users",
@@ -40,7 +40,7 @@ function Get-RandomSubject {
     )
     return $subjects | Get-Random
 }
-
+# Feel free to add more!
 function Get-RandomSymptom {
     $symptoms = @(
         "The system is intermittently slow and affecting productivity.",
@@ -71,8 +71,8 @@ catch {
     return
 }
 
-# Generate and POST random incidents
-for ($i = 0; $i -lt 5; $i++) {  # Adjust the loop count here to control the number of incidents created
+# Generate and POST random incidents - default of 5
+for ($i = 0; $i -lt 5; $i++) { 
     $randomEmployee = $employees | Get-Random
     $randomTeam = $teams | Get-Random
 
@@ -94,7 +94,7 @@ for ($i = 0; $i -lt 5; $i++) {  # Adjust the loop count here to control the numb
 
     try {
         $response = Invoke-RestMethod -Uri $ismUrl/$incObj -Headers $ismHeaders -Method Post -Body $jsonPayload
-        Write-Host "Incident $($i + 1) created successfully for Employee RecId $($randomEmployee.RecId)"
+        Write-Host "Incident $($i + 1) created successfully for Employee RecId $($randomEmployee.DisplayName)"
     }
     catch {
         Write-Host "Failed to create incident $($i + 1): $_"
