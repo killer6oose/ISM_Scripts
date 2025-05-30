@@ -10,6 +10,7 @@ This repository contains a collection of PowerShell scripts designed to streamli
 - [Folders](#folders)
   - [Create Objects](#create-objects)
   - [Delete Records](#delete-records)
+  - [Misc (use discretion)](#Misc (use discretion))
 - [Contributing](#contributing)
 - [License](#license)
 
