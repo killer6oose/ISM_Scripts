@@ -21,12 +21,12 @@ $ismHeaders = @{
     "Content-Type" = "application/json"
 }
 
-# Random data options
+# Random data options - Uses data from the OOTB Ivanti ITSM Departments, Teams, and Job Titles
 $departments = @("Healthcare IT", "Corporate Marketing", "Health and Safety", "Healthcare Finance", "Corporate Purchasing", "Corporate Sales", "Healthcare Admissions", "Healthcare Purchasing", "Healthcare HR", "Healthcare Medical Services", "Corporate IT", "Corporate Customer Service", "Accounting", "Corporate Services and Training", "Patient Services", "Administration", "Corporate Legal", "Corporate Facilities", "Pharmaceutical Services", "Healthcare Facilities", "Corporate HR", "Healthcare Clinical Services", "Corporate Finance", "Executive")
 $teams = @("Change Management", "Corporate Audit", "Recruitment", "IT", "Telecommunications Support", "IT Project Management", "Server Support", "Network Administration", "Operations", "Product Marketing", "QA", "Healthcare Benefits", "Service Desk", "Field Sales", "Contracts", "Network Support", "HR", "Emergency Room", "Telephone - Public", "Facilities - Custodial", "Application Development", "Billing Services", "Orthopedic", "Management", "HR Operations")
 $titles = @("Facilities Engineer", "Change Manager", "IT Manager", "Change Coordinator", "Product Manager", "Customer Service Rep", "Associate Technician", "Problem Manager", "Tech Support Supervisor", "Administrator", "Jr. Consultant")
 
-# Lists to keep track of unique login IDs and emails
+# Lists to keep track of unique login IDs and emails. List off the ones you've auto generated to prevent trying to create duplicates
 $usedLogins = @{}
 $usedEmails = @{}
 
