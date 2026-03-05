@@ -1,0 +1,1751 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Metadata Name="Custom Logging Object for EntraAD Syncing" Description="Used to import a Custom Logging object AND the EntraAD Syncing script to import supplemental data into ISM and have it logged in this custom object. The script option &quot;Enable_Custom_Debug&quot; is set to 'true' if you import this package." TimeZone="UTC;0;(UTC) Coordinated Universal Time;Coordinated Universal Time;Coordinated Universal Time;;" TimeStamp="2026-03-05T16:53:35.0116318Z" ClientSchemaVersion="1.1" PackageType="incremental" Exported="True">
+  <Source Host="andrewpso-try.trysaasit.com" Role="Admin" RoleName="Admin" Username="andrew.hatton@ivanti.com" TenantID="andrewpso-try.trysaasit.com" TimeZone="UTC;0;(UTC) Coordinated Universal Time;Coordinated Universal Time;Coordinated Universal Time;;" TimeStamp="2026-03-05T16:53:35.0116318Z" SystemVersion="2026.1 (65b8fdcd)" SystemTableVersion="754.0" SystemSchemaVersion="1.0" />
+  <Target Host="andrewpso-try.trysaasit.com" Role="Admin" RoleName="Admin" Username="andrew.hatton@ivanti.com" TenantID="andrewpso-try.trysaasit.com" TimeZone="UTC;0;(UTC) Coordinated Universal Time;Coordinated Universal Time;Coordinated Universal Time;;" TimeStamp="2026-03-05T16:53:35.0116318Z" SystemVersion="2026.1 (65b8fdcd)" SystemTableVersion="754.0" SystemSchemaVersion="1.0" />
+  <Differences>
+    <Updates>
+      <BusinessObjects Seq="4144" DbRevision="754">
+  <Inserts>
+    <BusinessObject FRS_ID="ead_CustomLogging#" CLR_Type="MetaDataDefinition.Revisions.R1.TableMetaData" ObjectType="ead_CustomLogging#">
+      <Annotations AggregateType="Dictionary" />
+      <AuditedFieldsAndRelationships AggregateType="Set" />
+      <AuditObjectChanges CLR_Type="System.Boolean">false</AuditObjectChanges>
+      <AuditObjectView CLR_Type="System.Boolean">false</AuditObjectView>
+      <CalculatedRules AggregateType="Dictionary" />
+      <ClusteredIdFieldRef nil="true" CLR_Type="System.String" />
+      <ClusteredPrimaryKey CLR_Type="System.Boolean">false</ClusteredPrimaryKey>
+      <CommonlyUsed CLR_Type="System.Boolean">false</CommonlyUsed>
+      <CompositeBase nil="true" CLR_Type="System.String" />
+      <CompositeContracts AggregateType="List" />
+      <CompositeType nil="true" CLR_Type="System.String" />
+      <Description CLR_Type="System.String">Used by the Entra Sync script found in my repository under https://github.com/killer6oose/ISM_Scripts/Packages</Description>
+      <DesignerName CLR_Type="System.String">ead_CustomLogging</DesignerName>
+      <DisplayFieldRef CLR_Type="System.String"></DisplayFieldRef>
+      <DisplayName CLR_Type="System.String">Custom Logging Obj for EntraAD</DisplayName>
+      <EditInFinalState CLR_Type="System.Boolean">false</EditInFinalState>
+      <ExternalTable nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExternalTableMetaData" />
+      <Fields AggregateType="Dictionary">
+        <Field AggregateType="Object" FRS_ID="RecId" DisplayName="Record Identifier">
+          <ReadOnly CLR_Type="System.String">ReadOnly</ReadOnly>
+          <RecIdSuffix CLR_Type="System.String">_RecID</RecIdSuffix>
+          <CategorySuffix CLR_Type="System.String">_Category</CategorySuffix>
+          <ValidSuffix CLR_Type="System.String">_Valid</ValidSuffix>
+          <CurrencySuffix CLR_Type="System.String">_Currency</CurrencySuffix>
+          <CurrencyValidSuffix CLR_Type="System.String">_CurrencyValid</CurrencyValidSuffix>
+          <TimezoneSuffix CLR_Type="System.String">_timezone</TimezoneSuffix>
+          <Annotations nil="true" CLR_Type="System.Collections.Generic.Dictionary`2[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[System.Object, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]" />
+          <CommonlySearched CLR_Type="System.Boolean">false</CommonlySearched>
+          <ComputeHash CLR_Type="System.Boolean">true</ComputeHash>
+          <DataType CLR_Type="MetaDataDefinition.DBDataType">Text</DataType>
+          <Description CLR_Type="System.String">Uniquely identifies the definition record.</Description>
+          <DesignerName nil="true" CLR_Type="System.String" />
+          <DisplayName CLR_Type="System.String">Record Identifier</DisplayName>
+          <FieldName CLR_Type="System.String">RecId</FieldName>
+          <FieldType CLR_Type="MetaDataDefinition.Revisions.R1.FieldType">Simple</FieldType>
+          <Format nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.IFieldFormat" />
+          <HideFromUI CLR_Type="System.Boolean">true</HideFromUI>
+          <AllowedTagAttributeSetName nil="true" CLR_Type="System.String" />
+          <AllowedTagAttributeSetValue nil="true" CLR_Type="System.String" />
+          <IsCommonlyUsed CLR_Type="System.Boolean">false</IsCommonlyUsed>
+          <IsFrsOwned CLR_Type="System.Boolean">true</IsFrsOwned>
+          <IsInternal CLR_Type="System.Boolean">false</IsInternal>
+          <IsLocalizable CLR_Type="System.Boolean">false</IsLocalizable>
+          <Length CLR_Type="System.Int32">32</Length>
+          <Link nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.LinkMetaData" />
+          <Nullable CLR_Type="System.Boolean">false</Nullable>
+          <Permissions />
+          <Scale CLR_Type="System.Int32">0</Scale>
+          <SourceFieldName nil="true" CLR_Type="System.String" />
+          <SourceTableRef nil="true" CLR_Type="System.String" />
+          <Stored CLR_Type="System.Boolean">true</Stored>
+          <System CLR_Type="System.Boolean">true</System>
+          <Unique CLR_Type="System.Boolean">true</Unique>
+          <FieldSynonyms nil="true" CLR_Type="System.String" />
+          <IsSemanticField CLR_Type="System.Boolean">false</IsSemanticField>
+          <SemanticFieldType CLR_Type="MetaDataDefinition.Revisions.R1.SemanticFieldType">Single</SemanticFieldType>
+          <IsContractField CLR_Type="System.Boolean">false</IsContractField>
+        </Field>
+        <Field AggregateType="Object" FRS_ID="CreatedBy" DisplayName="Created By">
+          <ReadOnly CLR_Type="System.String">ReadOnly</ReadOnly>
+          <RecIdSuffix CLR_Type="System.String">_RecID</RecIdSuffix>
+          <CategorySuffix CLR_Type="System.String">_Category</CategorySuffix>
+          <ValidSuffix CLR_Type="System.String">_Valid</ValidSuffix>
+          <CurrencySuffix CLR_Type="System.String">_Currency</CurrencySuffix>
+          <CurrencyValidSuffix CLR_Type="System.String">_CurrencyValid</CurrencyValidSuffix>
+          <TimezoneSuffix CLR_Type="System.String">_timezone</TimezoneSuffix>
+          <Annotations nil="true" CLR_Type="System.Collections.Generic.Dictionary`2[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[System.Object, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]" />
+          <CommonlySearched CLR_Type="System.Boolean">false</CommonlySearched>
+          <ComputeHash CLR_Type="System.Boolean">true</ComputeHash>
+          <DataType CLR_Type="MetaDataDefinition.DBDataType">UnicodeText</DataType>
+          <Description CLR_Type="System.String">The user who created this record.</Description>
+          <DesignerName nil="true" CLR_Type="System.String" />
+          <DisplayName CLR_Type="System.String">Created By</DisplayName>
+          <FieldName CLR_Type="System.String">CreatedBy</FieldName>
+          <FieldType CLR_Type="MetaDataDefinition.Revisions.R1.FieldType">Simple</FieldType>
+          <Format nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.IFieldFormat" />
+          <HideFromUI CLR_Type="System.Boolean">false</HideFromUI>
+          <AllowedTagAttributeSetName nil="true" CLR_Type="System.String" />
+          <AllowedTagAttributeSetValue nil="true" CLR_Type="System.String" />
+          <IsCommonlyUsed CLR_Type="System.Boolean">false</IsCommonlyUsed>
+          <IsFrsOwned CLR_Type="System.Boolean">true</IsFrsOwned>
+          <IsInternal CLR_Type="System.Boolean">false</IsInternal>
+          <IsLocalizable CLR_Type="System.Boolean">false</IsLocalizable>
+          <Length CLR_Type="System.Int32">100</Length>
+          <Link nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.LinkMetaData" />
+          <Nullable CLR_Type="System.Boolean">false</Nullable>
+          <Permissions />
+          <Scale CLR_Type="System.Int32">0</Scale>
+          <SourceFieldName nil="true" CLR_Type="System.String" />
+          <SourceTableRef nil="true" CLR_Type="System.String" />
+          <Stored CLR_Type="System.Boolean">true</Stored>
+          <System CLR_Type="System.Boolean">true</System>
+          <Unique CLR_Type="System.Boolean">false</Unique>
+          <FieldSynonyms nil="true" CLR_Type="System.String" />
+          <IsSemanticField CLR_Type="System.Boolean">false</IsSemanticField>
+          <SemanticFieldType CLR_Type="MetaDataDefinition.Revisions.R1.SemanticFieldType">Single</SemanticFieldType>
+          <IsContractField CLR_Type="System.Boolean">false</IsContractField>
+        </Field>
+        <Field AggregateType="Object" FRS_ID="CreatedDateTime" DisplayName="Created On">
+          <ReadOnly CLR_Type="System.String">ReadOnly</ReadOnly>
+          <RecIdSuffix CLR_Type="System.String">_RecID</RecIdSuffix>
+          <CategorySuffix CLR_Type="System.String">_Category</CategorySuffix>
+          <ValidSuffix CLR_Type="System.String">_Valid</ValidSuffix>
+          <CurrencySuffix CLR_Type="System.String">_Currency</CurrencySuffix>
+          <CurrencyValidSuffix CLR_Type="System.String">_CurrencyValid</CurrencyValidSuffix>
+          <TimezoneSuffix CLR_Type="System.String">_timezone</TimezoneSuffix>
+          <Annotations nil="true" CLR_Type="System.Collections.Generic.Dictionary`2[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[System.Object, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]" />
+          <CommonlySearched CLR_Type="System.Boolean">false</CommonlySearched>
+          <ComputeHash CLR_Type="System.Boolean">true</ComputeHash>
+          <DataType CLR_Type="MetaDataDefinition.DBDataType">DateTime</DataType>
+          <Description CLR_Type="System.String">Date time record was created.</Description>
+          <DesignerName nil="true" CLR_Type="System.String" />
+          <DisplayName CLR_Type="System.String">Created On</DisplayName>
+          <FieldName CLR_Type="System.String">CreatedDateTime</FieldName>
+          <FieldType CLR_Type="MetaDataDefinition.Revisions.R1.FieldType">Simple</FieldType>
+          <Format nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.IFieldFormat" />
+          <HideFromUI CLR_Type="System.Boolean">false</HideFromUI>
+          <AllowedTagAttributeSetName nil="true" CLR_Type="System.String" />
+          <AllowedTagAttributeSetValue nil="true" CLR_Type="System.String" />
+          <IsCommonlyUsed CLR_Type="System.Boolean">false</IsCommonlyUsed>
+          <IsFrsOwned CLR_Type="System.Boolean">true</IsFrsOwned>
+          <IsInternal CLR_Type="System.Boolean">false</IsInternal>
+          <IsLocalizable CLR_Type="System.Boolean">false</IsLocalizable>
+          <Length CLR_Type="System.Int32">0</Length>
+          <Link nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.LinkMetaData" />
+          <Nullable CLR_Type="System.Boolean">false</Nullable>
+          <Permissions />
+          <Scale CLR_Type="System.Int32">0</Scale>
+          <SourceFieldName nil="true" CLR_Type="System.String" />
+          <SourceTableRef nil="true" CLR_Type="System.String" />
+          <Stored CLR_Type="System.Boolean">true</Stored>
+          <System CLR_Type="System.Boolean">true</System>
+          <Unique CLR_Type="System.Boolean">false</Unique>
+          <FieldSynonyms nil="true" CLR_Type="System.String" />
+          <IsSemanticField CLR_Type="System.Boolean">false</IsSemanticField>
+          <SemanticFieldType CLR_Type="MetaDataDefinition.Revisions.R1.SemanticFieldType">Single</SemanticFieldType>
+          <IsContractField CLR_Type="System.Boolean">false</IsContractField>
+        </Field>
+        <Field AggregateType="Object" FRS_ID="LastModBy" DisplayName="Modified By">
+          <ReadOnly CLR_Type="System.String">ReadOnly</ReadOnly>
+          <RecIdSuffix CLR_Type="System.String">_RecID</RecIdSuffix>
+          <CategorySuffix CLR_Type="System.String">_Category</CategorySuffix>
+          <ValidSuffix CLR_Type="System.String">_Valid</ValidSuffix>
+          <CurrencySuffix CLR_Type="System.String">_Currency</CurrencySuffix>
+          <CurrencyValidSuffix CLR_Type="System.String">_CurrencyValid</CurrencyValidSuffix>
+          <TimezoneSuffix CLR_Type="System.String">_timezone</TimezoneSuffix>
+          <Annotations nil="true" CLR_Type="System.Collections.Generic.Dictionary`2[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[System.Object, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]" />
+          <CommonlySearched CLR_Type="System.Boolean">false</CommonlySearched>
+          <ComputeHash CLR_Type="System.Boolean">true</ComputeHash>
+          <DataType CLR_Type="MetaDataDefinition.DBDataType">UnicodeText</DataType>
+          <Description CLR_Type="System.String">The last user to modify the record.</Description>
+          <DesignerName nil="true" CLR_Type="System.String" />
+          <DisplayName CLR_Type="System.String">Modified By</DisplayName>
+          <FieldName CLR_Type="System.String">LastModBy</FieldName>
+          <FieldType CLR_Type="MetaDataDefinition.Revisions.R1.FieldType">Simple</FieldType>
+          <Format nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.IFieldFormat" />
+          <HideFromUI CLR_Type="System.Boolean">false</HideFromUI>
+          <AllowedTagAttributeSetName nil="true" CLR_Type="System.String" />
+          <AllowedTagAttributeSetValue nil="true" CLR_Type="System.String" />
+          <IsCommonlyUsed CLR_Type="System.Boolean">false</IsCommonlyUsed>
+          <IsFrsOwned CLR_Type="System.Boolean">true</IsFrsOwned>
+          <IsInternal CLR_Type="System.Boolean">false</IsInternal>
+          <IsLocalizable CLR_Type="System.Boolean">false</IsLocalizable>
+          <Length CLR_Type="System.Int32">100</Length>
+          <Link nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.LinkMetaData" />
+          <Nullable CLR_Type="System.Boolean">false</Nullable>
+          <Permissions />
+          <Scale CLR_Type="System.Int32">0</Scale>
+          <SourceFieldName nil="true" CLR_Type="System.String" />
+          <SourceTableRef nil="true" CLR_Type="System.String" />
+          <Stored CLR_Type="System.Boolean">true</Stored>
+          <System CLR_Type="System.Boolean">true</System>
+          <Unique CLR_Type="System.Boolean">false</Unique>
+          <FieldSynonyms nil="true" CLR_Type="System.String" />
+          <IsSemanticField CLR_Type="System.Boolean">false</IsSemanticField>
+          <SemanticFieldType CLR_Type="MetaDataDefinition.Revisions.R1.SemanticFieldType">Single</SemanticFieldType>
+          <IsContractField CLR_Type="System.Boolean">false</IsContractField>
+        </Field>
+        <Field AggregateType="Object" FRS_ID="LastModDateTime" DisplayName="Modified On">
+          <ReadOnly CLR_Type="System.String">ReadOnly</ReadOnly>
+          <RecIdSuffix CLR_Type="System.String">_RecID</RecIdSuffix>
+          <CategorySuffix CLR_Type="System.String">_Category</CategorySuffix>
+          <ValidSuffix CLR_Type="System.String">_Valid</ValidSuffix>
+          <CurrencySuffix CLR_Type="System.String">_Currency</CurrencySuffix>
+          <CurrencyValidSuffix CLR_Type="System.String">_CurrencyValid</CurrencyValidSuffix>
+          <TimezoneSuffix CLR_Type="System.String">_timezone</TimezoneSuffix>
+          <Annotations nil="true" CLR_Type="System.Collections.Generic.Dictionary`2[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[System.Object, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]" />
+          <CommonlySearched CLR_Type="System.Boolean">false</CommonlySearched>
+          <ComputeHash CLR_Type="System.Boolean">true</ComputeHash>
+          <DataType CLR_Type="MetaDataDefinition.DBDataType">DateTime</DataType>
+          <Description CLR_Type="System.String">The date and time the record was last modified.</Description>
+          <DesignerName nil="true" CLR_Type="System.String" />
+          <DisplayName CLR_Type="System.String">Modified On</DisplayName>
+          <FieldName CLR_Type="System.String">LastModDateTime</FieldName>
+          <FieldType CLR_Type="MetaDataDefinition.Revisions.R1.FieldType">Simple</FieldType>
+          <Format nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.IFieldFormat" />
+          <HideFromUI CLR_Type="System.Boolean">false</HideFromUI>
+          <AllowedTagAttributeSetName nil="true" CLR_Type="System.String" />
+          <AllowedTagAttributeSetValue nil="true" CLR_Type="System.String" />
+          <IsCommonlyUsed CLR_Type="System.Boolean">false</IsCommonlyUsed>
+          <IsFrsOwned CLR_Type="System.Boolean">true</IsFrsOwned>
+          <IsInternal CLR_Type="System.Boolean">false</IsInternal>
+          <IsLocalizable CLR_Type="System.Boolean">false</IsLocalizable>
+          <Length CLR_Type="System.Int32">0</Length>
+          <Link nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.LinkMetaData" />
+          <Nullable CLR_Type="System.Boolean">false</Nullable>
+          <Permissions />
+          <Scale CLR_Type="System.Int32">0</Scale>
+          <SourceFieldName nil="true" CLR_Type="System.String" />
+          <SourceTableRef nil="true" CLR_Type="System.String" />
+          <Stored CLR_Type="System.Boolean">true</Stored>
+          <System CLR_Type="System.Boolean">true</System>
+          <Unique CLR_Type="System.Boolean">false</Unique>
+          <FieldSynonyms nil="true" CLR_Type="System.String" />
+          <IsSemanticField CLR_Type="System.Boolean">false</IsSemanticField>
+          <SemanticFieldType CLR_Type="MetaDataDefinition.Revisions.R1.SemanticFieldType">Single</SemanticFieldType>
+          <IsContractField CLR_Type="System.Boolean">false</IsContractField>
+        </Field>
+        <Field AggregateType="Object" FRS_ID="ReadOnly" DisplayName="ReadOnly">
+          <ReadOnly CLR_Type="System.String">ReadOnly</ReadOnly>
+          <RecIdSuffix CLR_Type="System.String">_RecID</RecIdSuffix>
+          <CategorySuffix CLR_Type="System.String">_Category</CategorySuffix>
+          <ValidSuffix CLR_Type="System.String">_Valid</ValidSuffix>
+          <CurrencySuffix CLR_Type="System.String">_Currency</CurrencySuffix>
+          <CurrencyValidSuffix CLR_Type="System.String">_CurrencyValid</CurrencyValidSuffix>
+          <TimezoneSuffix CLR_Type="System.String">_timezone</TimezoneSuffix>
+          <Annotations nil="true" CLR_Type="System.Collections.Generic.Dictionary`2[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[System.Object, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]" />
+          <CommonlySearched CLR_Type="System.Boolean">false</CommonlySearched>
+          <ComputeHash CLR_Type="System.Boolean">true</ComputeHash>
+          <DataType CLR_Type="MetaDataDefinition.DBDataType">Int1</DataType>
+          <Description CLR_Type="System.String">Allows object change its state to read only mode.</Description>
+          <DesignerName nil="true" CLR_Type="System.String" />
+          <DisplayName CLR_Type="System.String">ReadOnly</DisplayName>
+          <FieldName CLR_Type="System.String">ReadOnly</FieldName>
+          <FieldType CLR_Type="MetaDataDefinition.Revisions.R1.FieldType">Simple</FieldType>
+          <Format nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.IFieldFormat" />
+          <HideFromUI CLR_Type="System.Boolean">true</HideFromUI>
+          <AllowedTagAttributeSetName nil="true" CLR_Type="System.String" />
+          <AllowedTagAttributeSetValue nil="true" CLR_Type="System.String" />
+          <IsCommonlyUsed CLR_Type="System.Boolean">false</IsCommonlyUsed>
+          <IsFrsOwned CLR_Type="System.Boolean">true</IsFrsOwned>
+          <IsInternal CLR_Type="System.Boolean">false</IsInternal>
+          <IsLocalizable CLR_Type="System.Boolean">false</IsLocalizable>
+          <Length CLR_Type="System.Int32">0</Length>
+          <Link nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.LinkMetaData" />
+          <Nullable CLR_Type="System.Boolean">true</Nullable>
+          <Permissions />
+          <Scale CLR_Type="System.Int32">0</Scale>
+          <SourceFieldName nil="true" CLR_Type="System.String" />
+          <SourceTableRef nil="true" CLR_Type="System.String" />
+          <Stored CLR_Type="System.Boolean">true</Stored>
+          <System CLR_Type="System.Boolean">true</System>
+          <Unique CLR_Type="System.Boolean">false</Unique>
+          <FieldSynonyms nil="true" CLR_Type="System.String" />
+          <IsSemanticField CLR_Type="System.Boolean">false</IsSemanticField>
+          <SemanticFieldType CLR_Type="MetaDataDefinition.Revisions.R1.SemanticFieldType">Single</SemanticFieldType>
+          <IsContractField CLR_Type="System.Boolean">false</IsContractField>
+        </Field>
+        <Field AggregateType="Object" FRS_ID="LogOutput" DisplayName="Log Output">
+          <ReadOnly CLR_Type="System.String">ReadOnly</ReadOnly>
+          <RecIdSuffix CLR_Type="System.String">_RecID</RecIdSuffix>
+          <CategorySuffix CLR_Type="System.String">_Category</CategorySuffix>
+          <ValidSuffix CLR_Type="System.String">_Valid</ValidSuffix>
+          <CurrencySuffix CLR_Type="System.String">_Currency</CurrencySuffix>
+          <CurrencyValidSuffix CLR_Type="System.String">_CurrencyValid</CurrencyValidSuffix>
+          <TimezoneSuffix CLR_Type="System.String">_timezone</TimezoneSuffix>
+          <Annotations nil="true" CLR_Type="System.Collections.Generic.Dictionary`2[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[System.Object, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]" />
+          <CommonlySearched CLR_Type="System.Boolean">true</CommonlySearched>
+          <ComputeHash CLR_Type="System.Boolean">true</ComputeHash>
+          <DataType CLR_Type="MetaDataDefinition.DBDataType">UnicodeTextMax</DataType>
+          <Description CLR_Type="System.String"></Description>
+          <DesignerName nil="true" CLR_Type="System.String" />
+          <DisplayName CLR_Type="System.String">Log Output</DisplayName>
+          <FieldName CLR_Type="System.String">LogOutput</FieldName>
+          <FieldType CLR_Type="MetaDataDefinition.Revisions.R1.FieldType">Simple</FieldType>
+          <Format nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.IFieldFormat" />
+          <HideFromUI CLR_Type="System.Boolean">false</HideFromUI>
+          <AllowedTagAttributeSetName nil="true" CLR_Type="System.String" />
+          <AllowedTagAttributeSetValue nil="true" CLR_Type="System.String" />
+          <IsCommonlyUsed CLR_Type="System.Boolean">false</IsCommonlyUsed>
+          <IsFrsOwned CLR_Type="System.Boolean">false</IsFrsOwned>
+          <IsInternal CLR_Type="System.Boolean">false</IsInternal>
+          <IsLocalizable CLR_Type="System.Boolean">false</IsLocalizable>
+          <Length CLR_Type="System.Int32">0</Length>
+          <Link nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.LinkMetaData" />
+          <Nullable CLR_Type="System.Boolean">true</Nullable>
+          <Permissions CLR_Type="MetaDataDefinition.Revisions.R1.Permissions">Delete, Update</Permissions>
+          <Scale CLR_Type="System.Int32">0</Scale>
+          <SourceFieldName nil="true" CLR_Type="System.String" />
+          <SourceTableRef nil="true" CLR_Type="System.String" />
+          <Stored CLR_Type="System.Boolean">true</Stored>
+          <System CLR_Type="System.Boolean">false</System>
+          <Unique CLR_Type="System.Boolean">false</Unique>
+          <FieldSynonyms nil="true" CLR_Type="System.String" />
+          <IsSemanticField CLR_Type="System.Boolean">false</IsSemanticField>
+          <SemanticFieldType CLR_Type="MetaDataDefinition.Revisions.R1.SemanticFieldType">Single</SemanticFieldType>
+          <IsContractField CLR_Type="System.Boolean">false</IsContractField>
+        </Field>
+      </Fields>
+      <FieldsEncryptions AggregateType="Dictionary" CLR_Name="FieldsEncryption" />
+      <FieldsPublicEncryptions AggregateType="Dictionary" CLR_Name="FieldsPublicEncryption" />
+      <FullTextSearchIndex nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.FullTextSearchIndexMetaData" />
+      <IsNeuronsWorkflowExecutedFieldRef CLR_Type="System.String"></IsNeuronsWorkflowExecutedFieldRef>
+      <IsRecordLockingEnabled CLR_Type="System.Boolean">false</IsRecordLockingEnabled>
+      <TableSynonyms CLR_Type="System.String"></TableSynonyms>
+      <Indexes AggregateType="Dictionary">
+        <Index AggregateType="Object" FRS_ID="PK_ead_CustomLogging">
+          <Conditions AggregateType="List" />
+          <Description nil="true" CLR_Type="System.String" />
+          <Fields AggregateType="List">
+            <Field AggregateType="Object" FRS_Index="0">
+              <FieldRef CLR_Type="System.String">RecId</FieldRef>
+              <Order CLR_Type="MetaDataDefinition.Revisions.R1.IndexFieldOrder">Ascending</Order>
+              <Included CLR_Type="System.Boolean">false</Included>
+              <KeyOrdinal CLR_Type="System.Int32">1</KeyOrdinal>
+              <Rank CLR_Type="System.Int32">0</Rank>
+            </Field>
+          </Fields>
+          <IndexName CLR_Type="System.String">PK_ead_CustomLogging</IndexName>
+          <IsClustered CLR_Type="System.Boolean">false</IsClustered>
+          <IsDisabled CLR_Type="System.Boolean">false</IsDisabled>
+          <IsPrimaryKey CLR_Type="System.Boolean">true</IsPrimaryKey>
+          <Origin CLR_Type="MetaDataDefinition.Revisions.R1.IndexOrigin">AutoCreated</Origin>
+          <System CLR_Type="System.Boolean">true</System>
+          <Unique CLR_Type="System.Boolean">true</Unique>
+        </Index>
+      </Indexes>
+      <IsFrsOwned CLR_Type="System.Boolean">false</IsFrsOwned>
+      <IsInChangeControl CLR_Type="System.Boolean">false</IsInChangeControl>
+      <LinkInFinalState CLR_Type="System.Boolean">false</LinkInFinalState>
+      <TenantMetaRevision CLR_Type="System.Int32">0</TenantMetaRevision>
+      <ModalForm nil="true" CLR_Type="System.String" />
+      <ObjectType CLR_Type="MetaDataDefinition.Revisions.R1.ObjectType">Simple</ObjectType>
+      <PrimaryKeyFieldRef CLR_Type="System.String">RecId</PrimaryKeyFieldRef>
+      <PureValidationObject CLR_Type="System.Boolean">false</PureValidationObject>
+      <PutInRecallState CLR_Type="System.Boolean">false</PutInRecallState>
+      <ReadOnly CLR_Type="System.Boolean">false</ReadOnly>
+      <Rel2s AggregateType="Dictionary" CLR_Name="Rel2" />
+      <Relationships AggregateType="Dictionary" />
+      <SearchDefaultFields nil="true" />
+      <SearchPreviewFields nil="true" />
+      <StateFieldRef CLR_Type="System.String"></StateFieldRef>
+      <SubtypeName CLR_Type="System.String"></SubtypeName>
+      <System CLR_Type="System.Boolean">false</System>
+      <TableName CLR_Type="System.String">ead_CustomLogging</TableName>
+      <TableRef CLR_Type="System.String">ead_CustomLogging#</TableRef>
+      <TypeSelectorFieldRef CLR_Type="System.String"></TypeSelectorFieldRef>
+      <ValidatedFields AggregateType="Dictionary" />
+      <DefaultSearch nil="true" CLR_Type="System.String" />
+      <Definition nil="true" CLR_Type="System.String" />
+      <Id CLR_Type="System.String">ead_CustomLogging#</Id>
+      <IsExternalData CLR_Type="System.Boolean">false</IsExternalData>
+      <ExternalData nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ReadOnly.ExternalData" />
+    </BusinessObject>
+  </Inserts>
+</BusinessObjects>
+      <Forms Seq="4146" DbRevision="754">
+  <Inserts>
+    <Form FRS_ID="CustomLogForm" CLR_Type="MetaDataDefinition.Revisions.R1.FormMetaData" ObjectType="ead_CustomLogging#">
+      <DefaultControlLabelStyleExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+      <DefaultControlStyleExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+      <FormStyleExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+      <AuditObjectViews CLR_Type="System.Boolean">false</AuditObjectViews>
+      <Cells AggregateType="List">
+        <Cell AggregateType="Object" FRS_Index="0">
+          <SectionBreak CLR_Type="System.Boolean">false</SectionBreak>
+          <Row CLR_Type="System.Int32">0</Row>
+          <Column CLR_Type="System.Int32">0</Column>
+          <RowSpan CLR_Type="System.Int32">1</RowSpan>
+          <ColSpan CLR_Type="System.Int32">1</ColSpan>
+          <ControlNames AggregateType="List">
+            <ControlName CLR_Type="System.String" FRS_Index="0">LogOutput</ControlName>
+          </ControlNames>
+          <ControlPlacement CLR_Type="MetaDataDefinition.Revisions.R1.FormCellMetaData+ControlPlacementKind">Vertical</ControlPlacement>
+          <CellStyle CLR_Type="System.String"></CellStyle>
+          <CellStyleExpression nil="true" CLR_Type="System.String" />
+          <CellVAlign nil="true" CLR_Type="System.String" />
+          <Margins nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.HtmlMargins" />
+        </Cell>
+      </Cells>
+      <Controls AggregateType="Dictionary">
+        <Control AggregateType="Object" FRS_ID="LogOutput">
+          <FieldRef CLR_Type="System.String">LogOutput</FieldRef>
+          <Searchable CLR_Type="System.Boolean">false</Searchable>
+          <Editable CLR_Type="System.Boolean">false</Editable>
+          <Scannable CLR_Type="System.Boolean">false</Scannable>
+          <LabelPos CLR_Type="MetaDataDefinition.Revisions.R1.FormControlLabelPos">Top</LabelPos>
+          <Label CLR_Type="System.String">Log Output</Label>
+          <LabelExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+          <LabelWrapType nil="true" CLR_Type="System.String" />
+          <Category CLR_Type="MetaDataDefinition.Revisions.R1.FormControlCategory">Text</Category>
+          <customEditMask nil="true" CLR_Type="System.String" />
+          <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+          <editMask nil="true" CLR_Type="System.String" />
+          <Height CLR_Type="System.Int32">10</Height>
+          <LabelStyleExpression AggregateType="Object" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" ExpressionType="System.String">
+            <Description nil="true" CLR_Type="System.String" />
+            <FieldRefs AggregateType="List" />
+            <IsFullExpression CLR_Type="System.Boolean">false</IsFullExpression>
+            <Name nil="true" CLR_Type="System.String" />
+            <Tree AggregateType="Object">
+              <Value CLR_Type="System.String">AUSparkLabelLeft</Value>
+              <LongImage nil="true" CLR_Type="System.String" />
+              <IsHex CLR_Type="System.Boolean">false</IsHex>
+              <IsVerbatimText CLR_Type="System.Boolean">false</IsVerbatimText>
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData+NodeKind">Literal</Kind>
+            </Tree>
+            <Source CLR_Type="System.String">AUSparkLabelLeft</Source>
+            <ValidationStatus CLR_Type="MetaDataDefinition.Revisions.R1.ReadOnly.ExpressionValidationStatus">Ok</ValidationStatus>
+          </LabelStyleExpression>
+          <Name CLR_Type="System.String">LogOutput</Name>
+          <Style CLR_Type="System.String">AUSparkField</Style>
+          <StyleExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+          <TabIndex CLR_Type="System.Int32">0</TabIndex>
+          <Visible CLR_Type="System.Boolean">false</Visible>
+          <VisibleExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+          <Width CLR_Type="System.Int32">40</Width>
+        </Control>
+      </Controls>
+      <DefaultCellMargins nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.HtmlMargins" />
+      <Description CLR_Type="System.String"></Description>
+      <DisplayName CLR_Type="System.String"></DisplayName>
+      <IsCommonlyUsed CLR_Type="System.Boolean">false</IsCommonlyUsed>
+      <IsFrsOwned CLR_Type="System.Boolean">false</IsFrsOwned>
+      <IsMobile CLR_Type="System.Boolean">false</IsMobile>
+      <IsOutOfTheBox CLR_Type="System.Boolean">false</IsOutOfTheBox>
+      <Permissions CLR_Type="MetaDataDefinition.Revisions.R1.Permissions">Delete, Update</Permissions>
+      <TenantMetaRevision CLR_Type="System.Int32">0</TenantMetaRevision>
+      <Name CLR_Type="System.String">CustomLogForm</Name>
+      <Perspective CLR_Type="System.String">(Base)</Perspective>
+      <TableRef CLR_Type="System.String">ead_CustomLogging#</TableRef>
+      <IsUIV3 CLR_Type="System.Boolean">false</IsUIV3>
+      <Id CLR_Type="System.String">CustomLogForm</Id>
+    </Form>
+  </Inserts>
+</Forms>
+      <RuleOverrides Seq="4147" DbRevision="754">
+  <Inserts>
+    <RuleOverride FRS_ID="CustomLogForm" CLR_Type="MetaDataDefinition.Revisions.R1.RuleOverrideMetaData" ObjectType="ead_CustomLogging#">
+      <TableRef CLR_Type="System.String">ead_CustomLogging#</TableRef>
+      <OverrideKey CLR_Type="System.String">CustomLogForm</OverrideKey>
+      <DefaultValues AggregateType="List" />
+      <TenantMetaRevision CLR_Type="System.Int32">0</TenantMetaRevision>
+      <ReadOnlies AggregateType="Dictionary" CLR_Name="ReadOnly">
+        <ReadOnly AggregateType="Object" FRS_ID="LogOutput" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" ExpressionType="System.Boolean">
+          <Description nil="true" CLR_Type="System.String" />
+          <FieldRefs AggregateType="List" />
+          <IsFullExpression CLR_Type="System.Boolean">true</IsFullExpression>
+          <Name nil="true" CLR_Type="System.String" />
+          <Tree AggregateType="Object">
+            <Value CLR_Type="System.Boolean">true</Value>
+            <LongImage nil="true" CLR_Type="System.String" />
+            <IsHex CLR_Type="System.Boolean">false</IsHex>
+            <IsVerbatimText CLR_Type="System.Boolean">false</IsVerbatimText>
+            <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData+NodeKind">Literal</Kind>
+          </Tree>
+          <Source CLR_Type="System.String">$(true)</Source>
+          <ValidationStatus CLR_Type="MetaDataDefinition.Revisions.R1.ReadOnly.ExpressionValidationStatus">Ok</ValidationStatus>
+        </ReadOnly>
+      </ReadOnlies>
+      <Requireds AggregateType="Dictionary" CLR_Name="Required" />
+      <ReadOnlyDisableds AggregateType="Dictionary" CLR_Name="ReadOnlyDisabled" />
+      <ReadOnlyStricts AggregateType="Dictionary" CLR_Name="ReadOnlyStrict" />
+      <RequiredDisableds AggregateType="Dictionary" CLR_Name="RequiredDisabled" />
+      <ReadOnlyCompleteOverrides AggregateType="List" CLR_Name="ReadOnlyCompleteOverride" />
+      <RequiredCompleteOverrides AggregateType="List" CLR_Name="RequiredCompleteOverride" />
+      <RegExValidationRules AggregateType="Dictionary" />
+      <Id CLR_Type="System.String">ead_CustomLogging#|CustomLogForm</Id>
+    </RuleOverride>
+  </Inserts>
+</RuleOverrides>
+      <Grids Seq="4148" DbRevision="754">
+  <Inserts>
+    <Grid FRS_ID="CustomLogging List" CLR_Type="MetaDataDefinition.Revisions.R1.GridMetaData" ObjectType="ead_CustomLogging#">
+      <Columns AggregateType="List">
+        <Column AggregateType="Object" FRS_ID="LogOutput" FRS_Index="0">
+          <Name CLR_Type="System.String">Log Output</Name>
+          <Alignment CLR_Type="MetaDataDefinition.Revisions.R1.GridColumnAlignment">Left</Alignment>
+          <Width CLR_Type="System.Int32">300</Width>
+          <FollowGridResize CLR_Type="System.Int32">0</FollowGridResize>
+          <FieldRef CLR_Type="System.String">LogOutput</FieldRef>
+          <Id CLR_Type="System.String">0</Id>
+          <Header CLR_Type="System.String">Log Output</Header>
+          <WordWrap CLR_Type="System.Boolean">false</WordWrap>
+          <Hidden CLR_Type="System.Boolean">false</Hidden>
+          <AllowTips CLR_Type="System.Boolean">false</AllowTips>
+          <LinkColumnConfig nil="true" CLR_Type="System.String" />
+          <NotSortable CLR_Type="System.Boolean">true</NotSortable>
+          <NotGroupedBy CLR_Type="System.Boolean">true</NotGroupedBy>
+          <StyleExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+          <ColumnRenderer nil="true" CLR_Type="System.String" />
+          <FormattingExpr CLR_Type="System.String"></FormattingExpr>
+          <ImageExpression CLR_Type="System.String"></ImageExpression>
+          <RowSpan CLR_Type="System.Int32">0</RowSpan>
+          <ValueExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+          <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+        </Column>
+      </Columns>
+      <Condition nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+      <DefaultGroupByName CLR_Type="System.String"></DefaultGroupByName>
+      <DefaultPageSize AggregateType="Object">
+        <Workspace CLR_Type="System.Int32">100</Workspace>
+        <Dashboard CLR_Type="System.Int32">10</Dashboard>
+        <Popup CLR_Type="System.Int32">100</Popup>
+        <ChildPanel CLR_Type="System.Int32">100</ChildPanel>
+      </DefaultPageSize>
+      <DefaultSortDir CLR_Type="System.String">ASC</DefaultSortDir>
+      <DefaultSortField CLR_Type="System.String"></DefaultSortField>
+      <DefaultSortFields nil="true" />
+      <Description CLR_Type="System.String"></Description>
+      <DisplayName nil="true" CLR_Type="System.String" />
+      <Editable CLR_Type="System.Boolean">true</Editable>
+      <FilterFields nil="true" />
+      <IsCommonlyUsed CLR_Type="System.Boolean">false</IsCommonlyUsed>
+      <IsFrsOwned CLR_Type="System.Boolean">false</IsFrsOwned>
+      <IsOutOfTheBox CLR_Type="System.Boolean">false</IsOutOfTheBox>
+      <Joins nil="true" />
+      <MaxRows CLR_Type="System.Int32">1000</MaxRows>
+      <Permissions CLR_Type="MetaDataDefinition.Revisions.R1.Permissions">Delete, Update</Permissions>
+      <TenantMetaRevision CLR_Type="System.Int32">0</TenantMetaRevision>
+      <Name CLR_Type="System.String">CustomLogging List</Name>
+      <OpenInNewTab CLR_Type="System.Boolean">false</OpenInNewTab>
+      <Perspective CLR_Type="System.String">(Base)</Perspective>
+      <RelatedObject nil="true" CLR_Type="System.String" />
+      <RowFormattingExpr CLR_Type="System.String"></RowFormattingExpr>
+      <System CLR_Type="System.Boolean">false</System>
+      <TableRef CLR_Type="System.String">ead_CustomLogging#</TableRef>
+      <TemplateName nil="true" CLR_Type="System.String" />
+      <IsUIV3 CLR_Type="System.Boolean">false</IsUIV3>
+      <ViewSettings nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ViewSettings" />
+      <Id CLR_Type="System.String">CustomLogging List</Id>
+    </Grid>
+  </Inserts>
+</Grids>
+      <Layouts Seq="4149" DbRevision="754">
+  <Inserts>
+    <Layout FRS_ID="CustomLoggin Layout" CLR_Type="MetaDataDefinition.Revisions.R1.LayoutMetaData" ObjectType="ead_CustomLogging#">
+      <DefaultViewName CLR_Type="System.String">ListView</DefaultViewName>
+      <PageTitle nil="true" CLR_Type="System.String" />
+      <DisplayAdvancedControls CLR_Type="System.Boolean">true</DisplayAdvancedControls>
+      <DisplaySimpleControls CLR_Type="System.Boolean">true</DisplaySimpleControls>
+      <DoNotSortSearch CLR_Type="System.Boolean">false</DoNotSortSearch>
+      <EnableTypeAheadSearch CLR_Type="System.Boolean">true</EnableTypeAheadSearch>
+      <IsFrsOwned CLR_Type="System.Boolean">false</IsFrsOwned>
+      <IsMobile CLR_Type="System.Boolean">false</IsMobile>
+      <TenantMetaRevision CLR_Type="System.Int32">0</TenantMetaRevision>
+      <ModalForms AggregateType="Dictionary" />
+      <Name CLR_Type="System.String">CustomLoggin Layout</Name>
+      <PartialWordSearch CLR_Type="System.Boolean">false</PartialWordSearch>
+      <Permissions CLR_Type="MetaDataDefinition.Revisions.R1.Permissions">Delete, Update</Permissions>
+      <ShowSavedSearch CLR_Type="System.Boolean">false</ShowSavedSearch>
+      <TableRef CLR_Type="System.String">ead_CustomLogging#</TableRef>
+      <UseLikeSearch CLR_Type="System.Boolean">false</UseLikeSearch>
+      <Views AggregateType="Set">
+        <View AggregateType="Object" FRS_ID="FormView" ObjectType="ead_CustomLogging#">
+          <AuditObjectViews CLR_Type="System.Boolean">false</AuditObjectViews>
+          <BrowserBack CLR_Type="System.Boolean">false</BrowserBack>
+          <ChildPanels AggregateType="List" />
+          <CostDef nil="true" CLR_Type="System.String" />
+          <EnableCost CLR_Type="System.Boolean">false</EnableCost>
+          <EnableNextPrev CLR_Type="System.Boolean">true</EnableNextPrev>
+          <EnableSmartFill CLR_Type="System.Boolean">false</EnableSmartFill>
+          <LayoutCssClass nil="true" CLR_Type="System.String" />
+          <MainFormName CLR_Type="System.String">CustomLogForm</MainFormName>
+          <MainFormCssClass nil="true" CLR_Type="System.String" />
+          <ObjectMatchingName nil="true" CLR_Type="System.String" />
+          <SavedFormViewName nil="true" CLR_Type="System.String" />
+          <ShowTransactions CLR_Type="System.Boolean">true</ShowTransactions>
+          <TableRef CLR_Type="System.String">ead_CustomLogging#</TableRef>
+          <TabControlCssClass CLR_Type="System.String">xWidth100</TabControlCssClass>
+          <TransactionsSummaryDef CLR_Type="System.String">{"aggregateField":"Price","filterField":"LastModDateTime","translationSettings":{"IsCapitalExpense":{"trueText":"CapEx","falseText":"OpEx","nullText":"null"},"IsDirectCost":{"trueText":"Direct Cost","falseText":"Indirect Cost","nullText":"null"},"IsFixedCost":{"trueText":"Fixed","falseText":"Variable","nullText":"null"},"IsBillable":{"trueText":"Billable","falseText":"Non billable","nullText":"null"},"IsCancelled":{"trueText":"Cancelled","falseText":"Not cancelled","nullText":"null"}}}</TransactionsSummaryDef>
+          <EnableTicketClassification CLR_Type="System.Boolean">false</EnableTicketClassification>
+          <TicketClassificationConfigDef nil="true" CLR_Type="System.String" />
+          <Name CLR_Type="System.String">FormView</Name>
+          <Type CLR_Type="MetaDataDefinition.Revisions.R1.LayoutViewType">FormView</Type>
+          <IsActive CLR_Type="System.Boolean">false</IsActive>
+          <Toolbars AggregateType="List" CLR_Name="Toolbar">
+            <Toolbar AggregateType="Object" FRS_Index="0">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Command</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text CLR_Type="System.String">List View</Text>
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon CLR_Type="System.String">../common/SaasToListView.png</Icon>
+              <ToolTip CLR_Type="System.String">To List View</ToolTip>
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">ToListView</Command>
+              <Submenus AggregateType="List" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 CLR_Type="System.String"></Parameter1>
+              <Parameter2 CLR_Type="System.String"></Parameter2>
+              <ShortcutKey CLR_Type="System.String"></ShortcutKey>
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+            <Toolbar AggregateType="Object" FRS_Index="1">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Command</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text CLR_Type="System.String">New Record Menu</Text>
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon CLR_Type="System.String">../common/SaasNewRecordMenu.png</Icon>
+              <ToolTip CLR_Type="System.String">New Record Menu</ToolTip>
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">NewRecordMenu</Command>
+              <Submenus AggregateType="List" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 CLR_Type="System.String"></Parameter1>
+              <Parameter2 CLR_Type="System.String"></Parameter2>
+              <ShortcutKey CLR_Type="System.String"></ShortcutKey>
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+            <Toolbar AggregateType="Object" FRS_Index="2">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Command</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text CLR_Type="System.String">Save</Text>
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon CLR_Type="System.String">../common/SaasSaveRecord.png</Icon>
+              <ToolTip CLR_Type="System.String">Save Record</ToolTip>
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">SaveRecord</Command>
+              <Submenus AggregateType="List" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 CLR_Type="System.String"></Parameter1>
+              <Parameter2 CLR_Type="System.String"></Parameter2>
+              <ShortcutKey CLR_Type="System.String"></ShortcutKey>
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+            <Toolbar AggregateType="Object" FRS_Index="3">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Command</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text CLR_Type="System.String">Refresh</Text>
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon CLR_Type="System.String">../common/SaasRefresh.png</Icon>
+              <ToolTip CLR_Type="System.String">Refresh</ToolTip>
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">Refresh</Command>
+              <Submenus AggregateType="List" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 CLR_Type="System.String"></Parameter1>
+              <Parameter2 CLR_Type="System.String"></Parameter2>
+              <ShortcutKey CLR_Type="System.String"></ShortcutKey>
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+            <Toolbar AggregateType="Object" FRS_Index="4">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Filler</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text nil="true" CLR_Type="System.String" />
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon nil="true" CLR_Type="System.String" />
+              <ToolTip nil="true" CLR_Type="System.String" />
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">NewRecord</Command>
+              <Submenus nil="true" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 nil="true" CLR_Type="System.String" />
+              <Parameter2 nil="true" CLR_Type="System.String" />
+              <ShortcutKey nil="true" CLR_Type="System.String" />
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+            <Toolbar AggregateType="Object" FRS_Index="5">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Command</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text CLR_Type="System.String">Action menu</Text>
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon CLR_Type="System.String">../common/SaasActionMenu.png</Icon>
+              <ToolTip CLR_Type="System.String">Action Menu</ToolTip>
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">ActionMenu</Command>
+              <Submenus AggregateType="List" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 nil="true" CLR_Type="System.String" />
+              <Parameter2 nil="true" CLR_Type="System.String" />
+              <ShortcutKey CLR_Type="System.String"></ShortcutKey>
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+          </Toolbars>
+          <RefFormViewLayout nil="true" CLR_Type="System.String" />
+        </View>
+        <View AggregateType="Object" FRS_ID="ListView">
+          <GridName CLR_Type="System.String">CustomLogging List</GridName>
+          <RememberPersonalSettings CLR_Type="System.Boolean">true</RememberPersonalSettings>
+          <PreviewFormName CLR_Type="System.String"></PreviewFormName>
+          <PreviewForms nil="true" />
+          <NewObjectFormViewName CLR_Type="System.String">FormView</NewObjectFormViewName>
+          <NewObjectFormViews nil="true" />
+          <EditObjectFormViewName CLR_Type="System.String">FormView</EditObjectFormViewName>
+          <EditObjectFormViews nil="true" />
+          <Name CLR_Type="System.String">ListView</Name>
+          <Type CLR_Type="MetaDataDefinition.Revisions.R1.LayoutViewType">ListView</Type>
+          <IsActive CLR_Type="System.Boolean">false</IsActive>
+          <Toolbars AggregateType="List" CLR_Name="Toolbar">
+            <Toolbar AggregateType="Object" FRS_Index="0">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Command</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text CLR_Type="System.String">New Record Menu</Text>
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon CLR_Type="System.String">../common/SaasNewRecordMenu.png</Icon>
+              <ToolTip CLR_Type="System.String">New Record Menu</ToolTip>
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">NewRecordMenu</Command>
+              <Submenus AggregateType="List" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 CLR_Type="System.String"></Parameter1>
+              <Parameter2 CLR_Type="System.String"></Parameter2>
+              <ShortcutKey CLR_Type="System.String"></ShortcutKey>
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+            <Toolbar AggregateType="Object" FRS_Index="1">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Command</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text CLR_Type="System.String">Delete</Text>
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon CLR_Type="System.String">../common/SaasDeleteRecord.png</Icon>
+              <ToolTip CLR_Type="System.String">Delete Record</ToolTip>
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">DeleteRecord</Command>
+              <Submenus AggregateType="List" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 CLR_Type="System.String"></Parameter1>
+              <Parameter2 CLR_Type="System.String"></Parameter2>
+              <ShortcutKey CLR_Type="System.String"></ShortcutKey>
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+            <Toolbar AggregateType="Object" FRS_Index="2">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Command</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text CLR_Type="System.String">Refresh</Text>
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon CLR_Type="System.String">../common/SaasRefresh.png</Icon>
+              <ToolTip CLR_Type="System.String">Refresh</ToolTip>
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">Refresh</Command>
+              <Submenus AggregateType="List" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 CLR_Type="System.String"></Parameter1>
+              <Parameter2 CLR_Type="System.String"></Parameter2>
+              <ShortcutKey CLR_Type="System.String"></ShortcutKey>
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+            <Toolbar AggregateType="Object" FRS_Index="3">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Filler</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text nil="true" CLR_Type="System.String" />
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon nil="true" CLR_Type="System.String" />
+              <ToolTip nil="true" CLR_Type="System.String" />
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">NewRecord</Command>
+              <Submenus nil="true" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 nil="true" CLR_Type="System.String" />
+              <Parameter2 nil="true" CLR_Type="System.String" />
+              <ShortcutKey nil="true" CLR_Type="System.String" />
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+            <Toolbar AggregateType="Object" FRS_Index="4">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Command</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text CLR_Type="System.String">Action menu</Text>
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon CLR_Type="System.String">../common/SaasActionMenu.png</Icon>
+              <ToolTip CLR_Type="System.String">Action Menu</ToolTip>
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">ActionMenu</Command>
+              <Submenus AggregateType="List" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 nil="true" CLR_Type="System.String" />
+              <Parameter2 nil="true" CLR_Type="System.String" />
+              <ShortcutKey CLR_Type="System.String"></ShortcutKey>
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+          </Toolbars>
+          <RefFormViewLayout nil="true" CLR_Type="System.String" />
+        </View>
+      </Views>
+      <IsUIV3 CLR_Type="System.Boolean">false</IsUIV3>
+      <Id CLR_Type="System.String">CustomLoggin Layout</Id>
+    </Layout>
+  </Inserts>
+</Layouts>
+      <Layouts Seq="4150" DbRevision="754">
+  <Deletes>
+    <Layout FRS_ID="CustomLoggin Layout" CLR_Type="MetaDataDefinition.Revisions.R1.LayoutMetaData" ObjectType="ead_CustomLogging#">
+      <DefaultViewName CLR_Type="System.String">ListView</DefaultViewName>
+      <PageTitle nil="true" CLR_Type="System.String" />
+      <DisplayAdvancedControls CLR_Type="System.Boolean">true</DisplayAdvancedControls>
+      <DisplaySimpleControls CLR_Type="System.Boolean">true</DisplaySimpleControls>
+      <DoNotSortSearch CLR_Type="System.Boolean">false</DoNotSortSearch>
+      <EnableTypeAheadSearch CLR_Type="System.Boolean">true</EnableTypeAheadSearch>
+      <IsFrsOwned CLR_Type="System.Boolean">false</IsFrsOwned>
+      <IsMobile CLR_Type="System.Boolean">false</IsMobile>
+      <TenantMetaRevision CLR_Type="System.Int32">754</TenantMetaRevision>
+      <ModalForms AggregateType="Dictionary" />
+      <Name CLR_Type="System.String">CustomLoggin Layout</Name>
+      <PartialWordSearch CLR_Type="System.Boolean">false</PartialWordSearch>
+      <Permissions CLR_Type="MetaDataDefinition.Revisions.R1.Permissions">Delete, Update</Permissions>
+      <ShowSavedSearch CLR_Type="System.Boolean">false</ShowSavedSearch>
+      <TableRef CLR_Type="System.String">ead_CustomLogging#</TableRef>
+      <UseLikeSearch CLR_Type="System.Boolean">false</UseLikeSearch>
+      <Views AggregateType="Set">
+        <View AggregateType="Object" FRS_ID="FormView" ObjectType="ead_CustomLogging#">
+          <AuditObjectViews CLR_Type="System.Boolean">false</AuditObjectViews>
+          <BrowserBack CLR_Type="System.Boolean">false</BrowserBack>
+          <ChildPanels AggregateType="List" />
+          <CostDef nil="true" CLR_Type="System.String" />
+          <EnableCost CLR_Type="System.Boolean">false</EnableCost>
+          <EnableNextPrev CLR_Type="System.Boolean">true</EnableNextPrev>
+          <EnableSmartFill CLR_Type="System.Boolean">false</EnableSmartFill>
+          <LayoutCssClass nil="true" CLR_Type="System.String" />
+          <MainFormName CLR_Type="System.String">CustomLogForm</MainFormName>
+          <MainFormCssClass nil="true" CLR_Type="System.String" />
+          <ObjectMatchingName nil="true" CLR_Type="System.String" />
+          <SavedFormViewName nil="true" CLR_Type="System.String" />
+          <ShowTransactions CLR_Type="System.Boolean">true</ShowTransactions>
+          <TableRef CLR_Type="System.String">ead_CustomLogging#</TableRef>
+          <TabControlCssClass CLR_Type="System.String">xWidth100</TabControlCssClass>
+          <TransactionsSummaryDef CLR_Type="System.String">{"aggregateField":"Price","filterField":"LastModDateTime","translationSettings":{"IsCapitalExpense":{"trueText":"CapEx","falseText":"OpEx","nullText":"null"},"IsDirectCost":{"trueText":"Direct Cost","falseText":"Indirect Cost","nullText":"null"},"IsFixedCost":{"trueText":"Fixed","falseText":"Variable","nullText":"null"},"IsBillable":{"trueText":"Billable","falseText":"Non billable","nullText":"null"},"IsCancelled":{"trueText":"Cancelled","falseText":"Not cancelled","nullText":"null"}}}</TransactionsSummaryDef>
+          <EnableTicketClassification CLR_Type="System.Boolean">false</EnableTicketClassification>
+          <TicketClassificationConfigDef nil="true" CLR_Type="System.String" />
+          <Name CLR_Type="System.String">FormView</Name>
+          <Type CLR_Type="MetaDataDefinition.Revisions.R1.LayoutViewType">FormView</Type>
+          <IsActive CLR_Type="System.Boolean">false</IsActive>
+          <Toolbars AggregateType="List" CLR_Name="Toolbar">
+            <Toolbar AggregateType="Object" FRS_Index="0">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Command</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text CLR_Type="System.String">List View</Text>
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon CLR_Type="System.String">../common/SaasToListView.png</Icon>
+              <ToolTip CLR_Type="System.String">To List View</ToolTip>
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">ToListView</Command>
+              <Submenus AggregateType="List" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 CLR_Type="System.String"></Parameter1>
+              <Parameter2 CLR_Type="System.String"></Parameter2>
+              <ShortcutKey CLR_Type="System.String"></ShortcutKey>
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+            <Toolbar AggregateType="Object" FRS_Index="1">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Command</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text CLR_Type="System.String">New Record Menu</Text>
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon CLR_Type="System.String">../common/SaasNewRecordMenu.png</Icon>
+              <ToolTip CLR_Type="System.String">New Record Menu</ToolTip>
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">NewRecordMenu</Command>
+              <Submenus AggregateType="List" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 CLR_Type="System.String"></Parameter1>
+              <Parameter2 CLR_Type="System.String"></Parameter2>
+              <ShortcutKey CLR_Type="System.String"></ShortcutKey>
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+            <Toolbar AggregateType="Object" FRS_Index="2">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Command</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text CLR_Type="System.String">Save</Text>
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon CLR_Type="System.String">../common/SaasSaveRecord.png</Icon>
+              <ToolTip CLR_Type="System.String">Save Record</ToolTip>
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">SaveRecord</Command>
+              <Submenus AggregateType="List" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 CLR_Type="System.String"></Parameter1>
+              <Parameter2 CLR_Type="System.String"></Parameter2>
+              <ShortcutKey CLR_Type="System.String"></ShortcutKey>
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+            <Toolbar AggregateType="Object" FRS_Index="3">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Command</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text CLR_Type="System.String">Refresh</Text>
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon CLR_Type="System.String">../common/SaasRefresh.png</Icon>
+              <ToolTip CLR_Type="System.String">Refresh</ToolTip>
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">Refresh</Command>
+              <Submenus AggregateType="List" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 CLR_Type="System.String"></Parameter1>
+              <Parameter2 CLR_Type="System.String"></Parameter2>
+              <ShortcutKey CLR_Type="System.String"></ShortcutKey>
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+            <Toolbar AggregateType="Object" FRS_Index="4">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Filler</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text nil="true" CLR_Type="System.String" />
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon nil="true" CLR_Type="System.String" />
+              <ToolTip nil="true" CLR_Type="System.String" />
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">NewRecord</Command>
+              <Submenus nil="true" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 nil="true" CLR_Type="System.String" />
+              <Parameter2 nil="true" CLR_Type="System.String" />
+              <ShortcutKey nil="true" CLR_Type="System.String" />
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+            <Toolbar AggregateType="Object" FRS_Index="5">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Command</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text CLR_Type="System.String">Action menu</Text>
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon CLR_Type="System.String">../common/SaasActionMenu.png</Icon>
+              <ToolTip CLR_Type="System.String">Action Menu</ToolTip>
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">ActionMenu</Command>
+              <Submenus AggregateType="List" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 nil="true" CLR_Type="System.String" />
+              <Parameter2 nil="true" CLR_Type="System.String" />
+              <ShortcutKey CLR_Type="System.String"></ShortcutKey>
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+          </Toolbars>
+          <RefFormViewLayout nil="true" CLR_Type="System.String" />
+        </View>
+        <View AggregateType="Object" FRS_ID="ListView">
+          <GridName CLR_Type="System.String">CustomLogging List</GridName>
+          <RememberPersonalSettings CLR_Type="System.Boolean">true</RememberPersonalSettings>
+          <PreviewFormName CLR_Type="System.String"></PreviewFormName>
+          <PreviewForms nil="true" />
+          <NewObjectFormViewName CLR_Type="System.String">FormView</NewObjectFormViewName>
+          <NewObjectFormViews nil="true" />
+          <EditObjectFormViewName CLR_Type="System.String">FormView</EditObjectFormViewName>
+          <EditObjectFormViews nil="true" />
+          <Name CLR_Type="System.String">ListView</Name>
+          <Type CLR_Type="MetaDataDefinition.Revisions.R1.LayoutViewType">ListView</Type>
+          <IsActive CLR_Type="System.Boolean">false</IsActive>
+          <Toolbars AggregateType="List" CLR_Name="Toolbar">
+            <Toolbar AggregateType="Object" FRS_Index="0">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Command</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text CLR_Type="System.String">New Record Menu</Text>
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon CLR_Type="System.String">../common/SaasNewRecordMenu.png</Icon>
+              <ToolTip CLR_Type="System.String">New Record Menu</ToolTip>
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">NewRecordMenu</Command>
+              <Submenus AggregateType="List" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 CLR_Type="System.String"></Parameter1>
+              <Parameter2 CLR_Type="System.String"></Parameter2>
+              <ShortcutKey CLR_Type="System.String"></ShortcutKey>
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+            <Toolbar AggregateType="Object" FRS_Index="1">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Command</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text CLR_Type="System.String">Delete</Text>
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon CLR_Type="System.String">../common/SaasDeleteRecord.png</Icon>
+              <ToolTip CLR_Type="System.String">Delete Record</ToolTip>
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">DeleteRecord</Command>
+              <Submenus AggregateType="List" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 CLR_Type="System.String"></Parameter1>
+              <Parameter2 CLR_Type="System.String"></Parameter2>
+              <ShortcutKey CLR_Type="System.String"></ShortcutKey>
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+            <Toolbar AggregateType="Object" FRS_Index="2">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Command</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text CLR_Type="System.String">Refresh</Text>
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon CLR_Type="System.String">../common/SaasRefresh.png</Icon>
+              <ToolTip CLR_Type="System.String">Refresh</ToolTip>
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">Refresh</Command>
+              <Submenus AggregateType="List" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 CLR_Type="System.String"></Parameter1>
+              <Parameter2 CLR_Type="System.String"></Parameter2>
+              <ShortcutKey CLR_Type="System.String"></ShortcutKey>
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+            <Toolbar AggregateType="Object" FRS_Index="3">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Filler</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text nil="true" CLR_Type="System.String" />
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon nil="true" CLR_Type="System.String" />
+              <ToolTip nil="true" CLR_Type="System.String" />
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">NewRecord</Command>
+              <Submenus nil="true" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 nil="true" CLR_Type="System.String" />
+              <Parameter2 nil="true" CLR_Type="System.String" />
+              <ShortcutKey nil="true" CLR_Type="System.String" />
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+            <Toolbar AggregateType="Object" FRS_Index="4">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Command</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text CLR_Type="System.String">Action menu</Text>
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon CLR_Type="System.String">../common/SaasActionMenu.png</Icon>
+              <ToolTip CLR_Type="System.String">Action Menu</ToolTip>
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">ActionMenu</Command>
+              <Submenus AggregateType="List" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 nil="true" CLR_Type="System.String" />
+              <Parameter2 nil="true" CLR_Type="System.String" />
+              <ShortcutKey CLR_Type="System.String"></ShortcutKey>
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+          </Toolbars>
+          <RefFormViewLayout nil="true" CLR_Type="System.String" />
+        </View>
+      </Views>
+      <IsUIV3 CLR_Type="System.Boolean">false</IsUIV3>
+      <Id CLR_Type="System.String">CustomLoggin Layout</Id>
+    </Layout>
+  </Deletes>
+</Layouts>
+      <Layouts Seq="4151" DbRevision="754">
+  <Inserts>
+    <Layout FRS_ID="CustomLogging Layout" CLR_Type="MetaDataDefinition.Revisions.R1.LayoutMetaData" ObjectType="ead_CustomLogging#">
+      <DefaultViewName CLR_Type="System.String">ListView</DefaultViewName>
+      <PageTitle nil="true" CLR_Type="System.String" />
+      <DisplayAdvancedControls CLR_Type="System.Boolean">true</DisplayAdvancedControls>
+      <DisplaySimpleControls CLR_Type="System.Boolean">true</DisplaySimpleControls>
+      <DoNotSortSearch CLR_Type="System.Boolean">false</DoNotSortSearch>
+      <EnableTypeAheadSearch CLR_Type="System.Boolean">true</EnableTypeAheadSearch>
+      <IsFrsOwned CLR_Type="System.Boolean">false</IsFrsOwned>
+      <IsMobile CLR_Type="System.Boolean">false</IsMobile>
+      <TenantMetaRevision CLR_Type="System.Int32">0</TenantMetaRevision>
+      <ModalForms AggregateType="Dictionary" />
+      <Name CLR_Type="System.String">CustomLogging Layout</Name>
+      <PartialWordSearch CLR_Type="System.Boolean">false</PartialWordSearch>
+      <Permissions CLR_Type="MetaDataDefinition.Revisions.R1.Permissions">Delete, Update</Permissions>
+      <ShowSavedSearch CLR_Type="System.Boolean">false</ShowSavedSearch>
+      <TableRef CLR_Type="System.String">ead_CustomLogging#</TableRef>
+      <UseLikeSearch CLR_Type="System.Boolean">false</UseLikeSearch>
+      <Views AggregateType="Set">
+        <View AggregateType="Object" FRS_ID="FormView" ObjectType="ead_CustomLogging#">
+          <AuditObjectViews CLR_Type="System.Boolean">false</AuditObjectViews>
+          <BrowserBack CLR_Type="System.Boolean">false</BrowserBack>
+          <ChildPanels AggregateType="List" />
+          <CostDef nil="true" CLR_Type="System.String" />
+          <EnableCost CLR_Type="System.Boolean">false</EnableCost>
+          <EnableNextPrev CLR_Type="System.Boolean">true</EnableNextPrev>
+          <EnableSmartFill CLR_Type="System.Boolean">false</EnableSmartFill>
+          <LayoutCssClass nil="true" CLR_Type="System.String" />
+          <MainFormName CLR_Type="System.String">CustomLogForm</MainFormName>
+          <MainFormCssClass nil="true" CLR_Type="System.String" />
+          <ObjectMatchingName nil="true" CLR_Type="System.String" />
+          <SavedFormViewName nil="true" CLR_Type="System.String" />
+          <ShowTransactions CLR_Type="System.Boolean">true</ShowTransactions>
+          <TableRef CLR_Type="System.String">ead_CustomLogging#</TableRef>
+          <TabControlCssClass CLR_Type="System.String">xWidth100</TabControlCssClass>
+          <TransactionsSummaryDef CLR_Type="System.String">{"aggregateField":"Price","filterField":"LastModDateTime","translationSettings":{"IsCapitalExpense":{"trueText":"CapEx","falseText":"OpEx","nullText":"null"},"IsDirectCost":{"trueText":"Direct Cost","falseText":"Indirect Cost","nullText":"null"},"IsFixedCost":{"trueText":"Fixed","falseText":"Variable","nullText":"null"},"IsBillable":{"trueText":"Billable","falseText":"Non billable","nullText":"null"},"IsCancelled":{"trueText":"Cancelled","falseText":"Not cancelled","nullText":"null"}}}</TransactionsSummaryDef>
+          <EnableTicketClassification CLR_Type="System.Boolean">false</EnableTicketClassification>
+          <TicketClassificationConfigDef nil="true" CLR_Type="System.String" />
+          <Name CLR_Type="System.String">FormView</Name>
+          <Type CLR_Type="MetaDataDefinition.Revisions.R1.LayoutViewType">FormView</Type>
+          <IsActive CLR_Type="System.Boolean">false</IsActive>
+          <Toolbars AggregateType="List" CLR_Name="Toolbar">
+            <Toolbar AggregateType="Object" FRS_Index="0">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Command</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text CLR_Type="System.String">List View</Text>
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon CLR_Type="System.String">../common/SaasToListView.png</Icon>
+              <ToolTip CLR_Type="System.String">To List View</ToolTip>
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">ToListView</Command>
+              <Submenus AggregateType="List" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 CLR_Type="System.String"></Parameter1>
+              <Parameter2 CLR_Type="System.String"></Parameter2>
+              <ShortcutKey CLR_Type="System.String"></ShortcutKey>
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+            <Toolbar AggregateType="Object" FRS_Index="1">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Command</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text CLR_Type="System.String">New Record Menu</Text>
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon CLR_Type="System.String">../common/SaasNewRecordMenu.png</Icon>
+              <ToolTip CLR_Type="System.String">New Record Menu</ToolTip>
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">NewRecordMenu</Command>
+              <Submenus AggregateType="List" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 CLR_Type="System.String"></Parameter1>
+              <Parameter2 CLR_Type="System.String"></Parameter2>
+              <ShortcutKey CLR_Type="System.String"></ShortcutKey>
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+            <Toolbar AggregateType="Object" FRS_Index="2">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Command</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text CLR_Type="System.String">Save</Text>
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon CLR_Type="System.String">../common/SaasSaveRecord.png</Icon>
+              <ToolTip CLR_Type="System.String">Save Record</ToolTip>
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">SaveRecord</Command>
+              <Submenus AggregateType="List" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 CLR_Type="System.String"></Parameter1>
+              <Parameter2 CLR_Type="System.String"></Parameter2>
+              <ShortcutKey CLR_Type="System.String"></ShortcutKey>
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+            <Toolbar AggregateType="Object" FRS_Index="3">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Command</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text CLR_Type="System.String">Refresh</Text>
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon CLR_Type="System.String">../common/SaasRefresh.png</Icon>
+              <ToolTip CLR_Type="System.String">Refresh</ToolTip>
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">Refresh</Command>
+              <Submenus AggregateType="List" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 CLR_Type="System.String"></Parameter1>
+              <Parameter2 CLR_Type="System.String"></Parameter2>
+              <ShortcutKey CLR_Type="System.String"></ShortcutKey>
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+            <Toolbar AggregateType="Object" FRS_Index="4">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Filler</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text nil="true" CLR_Type="System.String" />
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon nil="true" CLR_Type="System.String" />
+              <ToolTip nil="true" CLR_Type="System.String" />
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">NewRecord</Command>
+              <Submenus nil="true" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 nil="true" CLR_Type="System.String" />
+              <Parameter2 nil="true" CLR_Type="System.String" />
+              <ShortcutKey nil="true" CLR_Type="System.String" />
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+            <Toolbar AggregateType="Object" FRS_Index="5">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Command</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text CLR_Type="System.String">Action menu</Text>
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon CLR_Type="System.String">../common/SaasActionMenu.png</Icon>
+              <ToolTip CLR_Type="System.String">Action Menu</ToolTip>
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">ActionMenu</Command>
+              <Submenus AggregateType="List" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 nil="true" CLR_Type="System.String" />
+              <Parameter2 nil="true" CLR_Type="System.String" />
+              <ShortcutKey CLR_Type="System.String"></ShortcutKey>
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+          </Toolbars>
+          <RefFormViewLayout nil="true" CLR_Type="System.String" />
+        </View>
+        <View AggregateType="Object" FRS_ID="ListView">
+          <GridName CLR_Type="System.String">CustomLogging List</GridName>
+          <RememberPersonalSettings CLR_Type="System.Boolean">true</RememberPersonalSettings>
+          <PreviewFormName CLR_Type="System.String"></PreviewFormName>
+          <PreviewForms nil="true" />
+          <NewObjectFormViewName CLR_Type="System.String">FormView</NewObjectFormViewName>
+          <NewObjectFormViews nil="true" />
+          <EditObjectFormViewName CLR_Type="System.String">FormView</EditObjectFormViewName>
+          <EditObjectFormViews nil="true" />
+          <Name CLR_Type="System.String">ListView</Name>
+          <Type CLR_Type="MetaDataDefinition.Revisions.R1.LayoutViewType">ListView</Type>
+          <IsActive CLR_Type="System.Boolean">false</IsActive>
+          <Toolbars AggregateType="List" CLR_Name="Toolbar">
+            <Toolbar AggregateType="Object" FRS_Index="0">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Command</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text CLR_Type="System.String">New Record Menu</Text>
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon CLR_Type="System.String">../common/SaasNewRecordMenu.png</Icon>
+              <ToolTip CLR_Type="System.String">New Record Menu</ToolTip>
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">NewRecordMenu</Command>
+              <Submenus AggregateType="List" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 CLR_Type="System.String"></Parameter1>
+              <Parameter2 CLR_Type="System.String"></Parameter2>
+              <ShortcutKey CLR_Type="System.String"></ShortcutKey>
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+            <Toolbar AggregateType="Object" FRS_Index="1">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Command</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text CLR_Type="System.String">Delete</Text>
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon CLR_Type="System.String">../common/SaasDeleteRecord.png</Icon>
+              <ToolTip CLR_Type="System.String">Delete Record</ToolTip>
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">DeleteRecord</Command>
+              <Submenus AggregateType="List" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 CLR_Type="System.String"></Parameter1>
+              <Parameter2 CLR_Type="System.String"></Parameter2>
+              <ShortcutKey CLR_Type="System.String"></ShortcutKey>
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+            <Toolbar AggregateType="Object" FRS_Index="2">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Command</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text CLR_Type="System.String">Refresh</Text>
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon CLR_Type="System.String">../common/SaasRefresh.png</Icon>
+              <ToolTip CLR_Type="System.String">Refresh</ToolTip>
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">Refresh</Command>
+              <Submenus AggregateType="List" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 CLR_Type="System.String"></Parameter1>
+              <Parameter2 CLR_Type="System.String"></Parameter2>
+              <ShortcutKey CLR_Type="System.String"></ShortcutKey>
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+            <Toolbar AggregateType="Object" FRS_Index="3">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Filler</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text nil="true" CLR_Type="System.String" />
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon nil="true" CLR_Type="System.String" />
+              <ToolTip nil="true" CLR_Type="System.String" />
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">NewRecord</Command>
+              <Submenus nil="true" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 nil="true" CLR_Type="System.String" />
+              <Parameter2 nil="true" CLR_Type="System.String" />
+              <ShortcutKey nil="true" CLR_Type="System.String" />
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+            <Toolbar AggregateType="Object" FRS_Index="4">
+              <Kind CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarItemKind">Command</Kind>
+              <HideText CLR_Type="System.Boolean">false</HideText>
+              <UseCustomText CLR_Type="System.Boolean">false</UseCustomText>
+              <Text CLR_Type="System.String">Action menu</Text>
+              <HideIcon CLR_Type="System.Boolean">false</HideIcon>
+              <Icon CLR_Type="System.String">../common/SaasActionMenu.png</Icon>
+              <ToolTip CLR_Type="System.String">Action Menu</ToolTip>
+              <ActionId nil="true" CLR_Type="System.String" />
+              <Command CLR_Type="MetaDataDefinition.Revisions.R1.ObjectToolbarCommand">ActionMenu</Command>
+              <Submenus AggregateType="List" CLR_Name="Submenu" />
+              <HiddenExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <DisabledExpression nil="true" CLR_Type="MetaDataDefinition.Revisions.R1.ExpressionMetaData" />
+              <Private CLR_Type="System.Boolean">false</Private>
+              <Parameter1 nil="true" CLR_Type="System.String" />
+              <Parameter2 nil="true" CLR_Type="System.String" />
+              <ShortcutKey CLR_Type="System.String"></ShortcutKey>
+              <AlignmentType CLR_Type="MetaDataDefinition.Revisions.R1.ToolbarAlignmentType">Left</AlignmentType>
+            </Toolbar>
+          </Toolbars>
+          <RefFormViewLayout nil="true" CLR_Type="System.String" />
+        </View>
+      </Views>
+      <IsUIV3 CLR_Type="System.Boolean">false</IsUIV3>
+      <Id CLR_Type="System.String">CustomLogging Layout</Id>
+    </Layout>
+  </Inserts>
+</Layouts>
+      <Frs_def_Common_Connections Seq="4152" DbRevision="754">
+  <Inserts>
+    <Frs_def_Common_Connection FRS_ID="9080200078234B4090F5821DB2CF19C1">
+      <RecId>9080200078234B4090F5821DB2CF19C1</RecId>
+      <CreatedBy>andrew.hatton@ivanti.com</CreatedBy>
+      <CreatedDateTime>2026-03-05 16:44:50Z</CreatedDateTime>
+      <ReadOnly></ReadOnly>
+      <Name>ead_Entra Sync with Supp Data</Name>
+      <Description>Syncs employee records with Entra to pull down supplemental data such as CostCentre, custom attributes, etc</Description>
+      <Active>True</Active>
+      <ResponseXml>DbNull</ResponseXml>
+      <Type></Type>
+    </Frs_def_Common_Connection>
+  </Inserts>
+</Frs_def_Common_Connections>
+      <Frs_def_integration_connections Seq="4153" DbRevision="754">
+  <Inserts>
+    <Frs_def_integration_connection FRS_ID="5CA5D7F493EA45C19C573E90BB3BF6C4">
+      <RecId>5CA5D7F493EA45C19C573E90BB3BF6C4</RecId>
+      <CreatedBy>andrew.hatton@ivanti.com</CreatedBy>
+      <CreatedDateTime>2026-03-05 16:45:57Z</CreatedDateTime>
+      <ReadOnly></ReadOnly>
+      <Name>ead_Entra Sync with Supp Data_con</Name>
+      <Type>FrontRange.Integration.Adapter.Connection.WebAdapterConnectionDef</Type>
+      <Description>DbNull</Description>
+      <Server></Server>
+      <DB></DB>
+      <Login>DbNull</Login>
+      <Password>DbNull</Password>
+      <SSL>False</SSL>
+      <Settings>DbNull</Settings>
+      <Version>1</Version>
+      <XSLT>// Author: Andrew Hatton
+// Disclaimer: THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE. IMPORTANT: Please take care when executing this script on a live database or system. It is recommended that a full backup is first performed.
+
+// Requires the Graph API permission of `User.Read.All`
+
+// Purpose: Pulls specified Entra AD attributes for the current Employee record using the user's Entra GUID (ID field),
+// falling back to email search if the GUID lookup fails, then writes the returned values to the matching ISM fields.
+
+// ============================================================
+// LOGGING CONFIG
+// Prevent or allow specific kinds of logs
+// ============================================================
+var Enable_Debug = false;
+var Enable_Warn = false;
+
+// ============================================================
+// Custom Logging is disabled by default. To use this functionality
+// - Create a new Logging object and place the object's name next to the
+// `var Custom_Debug_Obj` including the # symbol
+// - Create at least one field to hold the debug msg which contains the 
+// Debug and Errors that occur after execution, by creating a record in this object
+//
+// If you would like to use my custom logging object I built, download it from
+// 
+// ============================================================
+
+var Enable_Custom_Debug = true;
+var Custom_Debug_Obj = 'ead_CustomLogging#';
+var Custom_Debug_Fld = 'LogOutput';
+
+// ============================================================
+// ENTRA AD CONFIG
+// ============================================================
+
+// Your Entra tenant ID and a valid OAuth client credentials token endpoint
+var ENTRA_TENANT_ID     = 'YOUR_TENANT_ID_HERE';
+var ENTRA_CLIENT_ID     = 'YOUR_CLIENT_ID_HERE';
+var ENTRA_CLIENT_SECRET = 'YOUR_CLIENT_SECRET_HERE';
+var ENTRA_GRAPH_BASE    = 'https://graph.microsoft.com/v1.0/users/';
+
+// Add or remove Entra attribute names here -- these are passed directly in the $select query param
+// Use the exact Graph API property names (camelCase as Microsoft defines them)
+// This sample pulls in the user's status, AccountExpiration, and CostCentre of the user
+var eadAttributes = [
+    'accountEnabled',
+    'extension_c757c08fb08b44f09fecf998142a13f1_accountExpires',
+    'extension_c757c08fb08b44f09fecf998142a13f1_costCenter'
+];
+
+// ============================================================
+// FIELD MAPPING -- Entra attribute name -&gt; ISM field name
+// Add a pair here for every attribute in eadAttributes that
+// does NOT share the exact same name as its ISM counterpart.
+// If the names match perfectly, you don't need an entry here.
+// Adding values here is needed for the comparison lines down
+// below, where it looks to see if the responding field matches
+// these specified variables and their values.
+// ============================================================
+
+// Entra source field names
+// the prefix 'ead...' helps to understand this variable comes from EntraAD
+var eadAccntExp   = 'extension_c757c08fb08b44f09fecf998142a13f1_accountExpires';
+var eadCostCenter = 'extension_c757c08fb08b44f09fecf998142a13f1_costCenter';
+// var eadAttributeNameHere = '{YOUR_CUSTOM_ATTRIBUTE}';
+
+// ISM destination field names (the actual field names on the Employee# record)
+var ismAccntExp   = 'AccountExpirationDate'; // This is NOT OOTB, created as a sample field in my tenant
+var ismCostCenter = 'CostCentre';
+//var ismOtherField = '{INTERNAL_FIELD_NAME}';
+
+// ISM table ref and field names for the current record
+var ISM_EMPLOYEE_TABLE = 'Employee#';
+var ISM_GUID_FIELD     = 'AzureAD_ID';   // the Entra GUID stored on the ISM Employee record
+var ISM_EMAIL_FIELD    = 'PrimaryEmail'; // fallback lookup field in case the user does not yet have an AzureAD_ID
+
+// ============================================================
+// LOGGING HELPERS
+// ============================================================
+var debugLog = '';
+
+function log(message) {
+    if (Enable_Debug) {
+        console.debug(message);
+    }
+    if (Enable_Custom_Debug) {
+        debugLog = debugLog + '\n' + message;
+    }
+}
+
+function warn(message) {
+    if (Enable_Warn) {
+        console.warn(message);
+    }
+}
+
+// ============================================================
+// MAIN
+// ============================================================
+try {
+    var currRecord = Get(ISM_EMPLOYEE_TABLE, '$(RecId)');
+    if (!currRecord) {
+        console.error('Could not retrieve the current Employee record.');
+        throw new Error('Employee record not found for RecId $(RecId)');
+    }
+
+    var entraGuid = String(currRecord.Fields[ISM_GUID_FIELD]  || '');
+    var userEmail = String(currRecord.Fields[ISM_EMAIL_FIELD] || '');
+
+    log('Employee RecId: $(RecId) | Entra GUID: ' + entraGuid + ' | Email: ' + userEmail);
+
+    // -- Step 1: get an OAuth token via client credentials --
+    var tokenUrl = 'https://login.microsoftonline.com/' + ENTRA_TENANT_ID + '/oauth2/v2.0/token';
+    var tokenBody = 'grant_type=client_credentials'
+        + '&amp;client_id='     + ENTRA_CLIENT_ID
+        + '&amp;client_secret=' + ENTRA_CLIENT_SECRET
+        + '&amp;scope=https%3A%2F%2Fgraph.microsoft.com%2F.default';
+
+    log('Requesting Entra OAuth token...');
+    var tokenResponse;
+    try {
+        tokenResponse = ExecuteWebRequest('POST', tokenUrl, tokenBody, {
+            Headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        });
+        log('Token response StatusCode: ' + tokenResponse.StatusCode);
+    } catch (eToken) {
+        console.error('Token request threw an exception: ' + eToken.toString());
+        if (Enable_Custom_Debug) { debugLog = debugLog + '\n[ERROR] Token request threw: ' + eToken.toString(); }
+        throw eToken;
+    }
+
+    if (tokenResponse.StatusCode !== 200) {
+        console.error('Token request failed. Status: ' + tokenResponse.StatusCode + ' Body: ' + tokenResponse.Data);
+        throw new Error('Could not obtain Entra access token.');
+    }
+
+    var tokenJson = JSON.parse(tokenResponse.Data);
+    var accessToken = tokenJson.access_token;
+    log('Token obtained successfully.');
+
+    // -- Step 2: build the $select query from our attributes array --
+    var selectParam = '';
+    for (var i = 0; i &lt; eadAttributes.length; i++) {
+        selectParam = selectParam + (i &gt; 0 ? ',' : '') + eadAttributes[i];
+    }
+
+    var authHeaders = {
+        Headers: {
+            'Authorization': 'Bearer ' + accessToken,
+            'Content-Type':  'application/json'
+        }
+    };
+
+    // -- Step 3: try GUID lookup first, fall back to email filter --
+    var graphUser = null;
+
+    if (entraGuid) {
+        log('Looking up Entra user by GUID: ' + entraGuid);
+        var guidUrl = ENTRA_GRAPH_BASE + entraGuid + '?$select=' + selectParam;
+        var guidResp;
+        try {
+            guidResp = ExecuteWebRequest('GET', guidUrl, '', authHeaders);
+        } catch (eGuid) {
+            console.error('GUID lookup threw an exception: ' + eGuid.toString());
+            if (Enable_Custom_Debug) { debugLog = debugLog + '\n[ERROR] GUID lookup threw: ' + eGuid.toString(); }
+        }
+
+        if (guidResp &amp;&amp; guidResp.StatusCode === 200) {
+            graphUser = JSON.parse(guidResp.Data);
+            log('Entra user found by GUID.');
+        } else {
+            warn('GUID lookup returned status ' + (guidResp ? guidResp.StatusCode : 'N/A') + '. Will try email fallback.');
+        }
+    } else {
+        warn('No Entra GUID on record -- skipping GUID lookup, going to email fallback.');
+    }
+
+    // email fallback -- uses the /users?$filter= endpoint
+    if (!graphUser &amp;&amp; userEmail) {
+        log('Falling back to email lookup for: ' + userEmail);
+        var emailUrl = ENTRA_GRAPH_BASE + '?$filter=mail%20eq%20%27' + userEmail + '%27&amp;$select=' + selectParam;
+        var emailResp;
+        try {
+            emailResp = ExecuteWebRequest('GET', emailUrl, '', authHeaders);
+        } catch (eEmail) {
+            console.error('Email lookup threw an exception: ' + eEmail.toString());
+            if (Enable_Custom_Debug) { debugLog = debugLog + '\n[ERROR] Email lookup threw: ' + eEmail.toString(); }
+        }
+
+        if (emailResp &amp;&amp; emailResp.StatusCode === 200) {
+            var emailResult = JSON.parse(emailResp.Data);
+            // Graph returns a value array for filter queries
+            if (emailResult.value &amp;&amp; emailResult.value.length &gt; 0) {
+                graphUser = emailResult.value[0];
+                log('Entra user found by email.');
+            } else {
+                warn('Email filter returned no matching users for: ' + userEmail);
+            }
+        } else {
+            warn('Email lookup returned status ' + (emailResp ? emailResp.StatusCode : 'N/A'));
+        }
+    }
+
+    if (!graphUser) {
+        console.error('No Entra user could be found by GUID or email for Employee $(RecId). No fields will be updated.');
+        throw new Error('Entra user not found -- aborting ISM update.');
+    }
+
+    // -- Step 4: build the ISM update payload --
+    // For attributes with matching names, map them straight across.
+    // For the ones with different names, use our explicit variables above.
+    var ismFields = {};
+
+    for (var j = 0; j &lt; eadAttributes.length; j++) {
+        var attr = eadAttributes[j];
+
+        if (attr === eadAccntExp) {
+            // accountExpires comes back as a Windows FILETIME -- 100-nanosecond ticks since 1601-01-01.
+            // we need to convert it to a readable date before writing to ISM's date field.
+            var filetimeTicks = graphUser[attr];
+            if (filetimeTicks &amp;&amp; filetimeTicks !== 0) {
+                var epochOffsetMs = 11644473600000; // ms between 1601-01-01 and 1970-01-01
+                var expDateMs = (filetimeTicks / 10000) - epochOffsetMs;
+                var expDate = new Date(expDateMs);
+                var expMonth = expDate.getUTCMonth() + 1;
+                var expDay   = expDate.getUTCDate();
+                ismFields[ismAccntExp] = expDate.getUTCFullYear()
+                    + '-' + (expMonth &lt; 10 ? '0' + expMonth : String(expMonth))
+                    + '-' + (expDay   &lt; 10 ? '0' + expDay   : String(expDay));
+                log('Converted accountExpires FILETIME ' + filetimeTicks + ' -&gt; ' + ismFields[ismAccntExp]);
+            } else {
+                warn('Entra attribute [' + attr + '] was null or zero -- skipping.');
+            }
+
+        } else if (attr === eadCostCenter) {
+            if (typeof graphUser[attr] !== 'undefined' &amp;&amp; graphUser[attr] !== null) {
+                ismFields[ismCostCenter] = String(graphUser[attr]);
+                log('Mapping ' + attr + ' -&gt; ' + ismCostCenter + ' = ' + ismFields[ismCostCenter]);
+            } else {
+                warn('Entra attribute [' + attr + '] was null or missing in Graph response.');
+            }
+
+        } else {
+            // names match -- write directly using the Entra attribute name as the ISM field name
+            if (typeof graphUser[attr] !== 'undefined' &amp;&amp; graphUser[attr] !== null) {
+                ismFields[attr] = String(graphUser[attr]);
+                log('Direct mapping ' + attr + ' = ' + ismFields[attr]);
+            } else {
+                warn('Entra attribute [' + attr + '] was null or missing -- skipping.');
+            }
+        }
+    }
+
+    log('Updating ISM Employee record with ' + Object.keys(ismFields).length + ' field(s)...');
+    currRecord.Update(ismFields);
+    log('ISM Employee record updated successfully.');
+
+} catch (eTop) {
+    console.error('Script failed: ' + eTop.toString());
+    if (Enable_Custom_Debug) { debugLog = debugLog + '\n[ERROR] Script failed: ' + eTop.toString(); }
+    throw eTop;
+}
+
+// write accumulated debug output to a custom record if configured
+if (Enable_Custom_Debug &amp;&amp; Custom_Debug_Obj &amp;&amp; Custom_Debug_Fld) {
+    var debugRecord = Create(Custom_Debug_Obj);
+    var debugFields = {};
+    debugFields[Custom_Debug_Fld] = debugLog;
+    debugRecord.Update(debugFields);
+}</XSLT>
+      <CommonLink_Category>Frs_def_Common_Connection</CommonLink_Category>
+      <CommonLink_RecID>9080200078234B4090F5821DB2CF19C1</CommonLink_RecID>
+      <Active></Active>
+      <ivnt_UIVisible></ivnt_UIVisible>
+      <ivnt_dataendpoint>DbNull</ivnt_dataendpoint>
+      <ivnt_tokenendpoint>DbNull</ivnt_tokenendpoint>
+      <ivnt_graphapiendpoint>DbNull</ivnt_graphapiendpoint>
+    </Frs_def_integration_connection>
+  </Inserts>
+</Frs_def_integration_connections>
+      <Frs_def_integrations Seq="4154" DbRevision="754">
+  <Inserts>
+    <Frs_def_integration FRS_ID="A8296C933F574BF394F0D9CADC0291AC" ManageConnectionLink_RecID="DbNull">
+      <RecId>A8296C933F574BF394F0D9CADC0291AC</RecId>
+      <CreatedBy>andrew.hatton@ivanti.com</CreatedBy>
+      <CreatedDateTime>2026-03-05 16:45:57Z</CreatedDateTime>
+      <ReadOnly></ReadOnly>
+      <Name>ead_Entra Sync with Supp Data_job</Name>
+      <ConnectionLink_Category>Frs_def_integration_connection</ConnectionLink_Category>
+      <ConnectionLink_RecID>5CA5D7F493EA45C19C573E90BB3BF6C4</ConnectionLink_RecID>
+      <IsExport>False</IsExport>
+      <SeedTime></SeedTime>
+      <BatchSize>20</BatchSize>
+      <MaxSize>500</MaxSize>
+      <Settings>DbNull</Settings>
+      <Active></Active>
+      <Published></Published>
+      <NextSync></NextSync>
+      <TargetConnectionLink_Category>Frs_def_integration_connection</TargetConnectionLink_Category>
+      <TargetConnectionLink_RecID>AE4BAE5BC9404980BA29CF7AECF0D2FF</TargetConnectionLink_RecID>
+      <Version>1</Version>
+      <ManageConnectionLink_Category>DbNull</ManageConnectionLink_Category>
+      <ManageConnectionLink_RecID>DbNull</ManageConnectionLink_RecID>
+      <ivnt_PageSize></ivnt_PageSize>
+    </Frs_def_integration>
+  </Inserts>
+</Frs_def_integrations>
+      <Frs_def_integration_mappings Seq="4155" DbRevision="754">
+  <Inserts>
+    <Frs_def_integration_mapping FRS_ID="96F93498D1324772B5A098899CAE59B5">
+      <RecId>96F93498D1324772B5A098899CAE59B5</RecId>
+      <CreatedBy>andrew.hatton@ivanti.com</CreatedBy>
+      <CreatedDateTime>2026-03-05 16:45:57Z</CreatedDateTime>
+      <ReadOnly></ReadOnly>
+      <MappingDefinition>DbNull</MappingDefinition>
+      <MapVersion></MapVersion>
+      <Published></Published>
+      <Active></Active>
+      <IntegrationLink_Category>Frs_def_integration</IntegrationLink_Category>
+      <IntegrationLink_RecID>A8296C933F574BF394F0D9CADC0291AC</IntegrationLink_RecID>
+    </Frs_def_integration_mapping>
+  </Inserts>
+</Frs_def_integration_mappings>
+      <Frs_def_integrations Seq="4156" DbRevision="754">
+  <Updates>
+    <Frs_def_integration FRS_ID="A8296C933F574BF394F0D9CADC0291AC" ManageConnectionLink_RecID="DbNull" DisplayName="ead_Entra Sync with Supp Data_job">
+      <Updates>
+        <Active>
+          <First>True</First>
+          <Second></Second>
+        </Active>
+        <Published>
+          <First>True</First>
+          <Second></Second>
+        </Published>
+      </Updates>
+    </Frs_def_integration>
+  </Updates>
+</Frs_def_integrations>
+    </Updates>
+  </Differences>
+  <Views>
+    <Related />
+    <Unrelated />
+  </Views>
+</Metadata>
