@@ -5,7 +5,8 @@
   - IncidentEmailTemplates.zip
   - ServiceReqEmailTemplates.zip
   - ChangeEmailTemplates.zip
-  - TaskEmailTemplates.zip
+  - Frs_ApprovalVoteTracking.zip
+  - (TBD) TaskEmailTemplates.zip
   - (TBD) GRCExceptionEmailTemplates.zip
   - (TBD) GRCRiskEmailTemplates.zip
   - (TBD) GRCRiskAssessmentEmailTemplates.zip
