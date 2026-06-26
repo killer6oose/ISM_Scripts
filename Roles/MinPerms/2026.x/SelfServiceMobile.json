@@ -172,50 +172,6 @@
       "_comment": "Preserved exactly as ISM stores it - not rebuilt by the script",
       "type": "preserve_ootb"
     },
-    "Incident#": {
-      "_comment": "3-leaf Or - user can see records they created, own, or are the subject of",
-      "type": "or_group",
-      "permission": "write",
-      "conditions": [
-        {
-          "kind": "function",
-          "field": "CreatedBy",
-          "fn": "CurrentLoginId"
-        },
-        {
-          "kind": "function",
-          "field": "Owner",
-          "fn": "CurrentLoginId"
-        },
-        {
-          "kind": "function",
-          "field": "ProfileLink_RecID",
-          "fn": "CurrentUserRecId"
-        }
-      ]
-    },
-    "ServiceReq#": {
-      "_comment": "Same 3-leaf Or as Incident# - SR can be raised on a user's behalf",
-      "type": "or_group",
-      "permission": "write",
-      "conditions": [
-        {
-          "kind": "function",
-          "field": "CreatedBy",
-          "fn": "CurrentLoginId"
-        },
-        {
-          "kind": "function",
-          "field": "Owner",
-          "fn": "CurrentLoginId"
-        },
-        {
-          "kind": "function",
-          "field": "ProfileLink_RecID",
-          "fn": "CurrentUserRecId"
-        }
-      ]
-    },
     "MyShelfItem#": {
       "type": "single",
       "permission": "write",
