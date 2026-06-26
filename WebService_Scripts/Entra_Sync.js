@@ -44,8 +44,8 @@ var ENTRA_GRAPH_BASE    = 'https://graph.microsoft.com/v1.0/users/';
 // This sample pulls in the user's status, AccountExpiration, and CostCentre of the user
 var eadAttributes = [
     'accountEnabled',
-    'extension_c757c08fb08b44f09fecf998142a13f1_accountExpires',
-    'extension_c757c08fb08b44f09fecf998142a13f1_costCenter'
+    'extension__accountExpires',
+    'extension__costCenter'
 ];
 
 // ============================================================
@@ -60,8 +60,8 @@ var eadAttributes = [
 
 // Entra source field names
 // the prefix 'ead...' helps to understand this variable comes from EntraAD
-var eadAccntExp   = 'extension_c757c08fb08b44f09fecf998142a13f1_accountExpires';
-var eadCostCenter = 'extension_c757c08fb08b44f09fecf998142a13f1_costCenter';
+var eadAccntExp   = 'extension__accountExpires';
+var eadCostCenter = 'extension__costCenter';
 // var eadAttributeNameHere = '{YOUR_CUSTOM_ATTRIBUTE}';
 
 // ISM destination field names (the actual field names on the Employee# record)
