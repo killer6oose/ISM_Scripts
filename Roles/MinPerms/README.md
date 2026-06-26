@@ -14,7 +14,7 @@
 
 Two browser console scripts for managing ISM role permissions without API keys, installed tools, or server-side changes. You paste them into the browser developer console while logged into ISM as an admin.
 
-`AHPatcher-v4.js` is the main tool. It locks down Business Object rights, zeros the global defaults, applies row-level conditions so self-service users only see their own records, and optionally restricts access at the individual field level. It also runs in snapshot mode - pick a previously captured snapshot file and it copies that role's exact permissions onto whatever role you have open.
+`AHPatcher-v5.js` is the main tool. Rather than using hardcoded permission sets, it fetches per-role configuration files from a public GitHub repository at runtime. A 4-step wizard modal guides through version checking, role config selection, mode choice, and optional overrides before arming the interceptor. It applies a loaded config, or restores from a previously saved snapshot.
 
 `AHPatcher-Interceptor-v2.js` is the capture tool. It sits in the background, intercepts the next save on any Object Permissions page, and exports the role's current state as both a raw JSON snapshot and a human-readable YAML report. It does not modify anything. It re-installs itself after each capture so you can snapshot multiple roles in a single session.
 
@@ -24,8 +24,86 @@ Two browser console scripts for managing ISM role permissions without API keys, 
 
 | File | Lines | What it does |
 |---|---|---|
-| `AHPatcher-v4.js` | 1242 | Applies minimum-privilege rights and row conditions, or restores from a snapshot |
+| `AHPatcher-v5.js` | 1233 | GitHub-driven role patcher with 4-step wizard UI |
 | `AHPatcher-Interceptor-v2.js` | 309 | Captures current role permissions to JSON + YAML, no modifications |
+
+---
+
+## GitHub config repository
+
+Role permission sets live in a separate public repository rather than in the script itself. This means updating permissions for any role does not require editing or redistributing the script.
+
+**Repo:** `killer6oose/ISM_Scripts`
+**Path:** `Roles/MinPerms/2026.x/`
+**Version file:** `Roles/MinPerms/version.txt`
+
+Each role has its own JSON file in that directory:
+
+```
+Roles/MinPerms/2026.x/
+  SelfServiceMobile.json
+  GRCManager.json
+  GRCAnalyst.json
+  etc.json......
+  version.txt          <-- plain text, contains current version e.g. 5.0.0
+```
+
+When the script is pasted it fetches the directory listing from the GitHub API, presents the available files in a dropdown, and fetches the chosen config before opening the file picker.
+
+### Role config file format
+
+Each `.json` file contains three sections:
+
+```json
+{
+  "role": "SelfServiceMobile",
+  "version": "2026.x",
+  "description": "...",
+  "business_object_rights": {
+    "Incident#": 7,
+    "ServiceReq#": 7,
+    "Employee#": 1
+  },
+  "field_rights": {
+    "Employee#": {
+      "FirstName": 1,
+      "LastName": 1,
+      "LoginID": 1
+    }
+  },
+  "row_conditions": {
+    "Incident#": {
+      "type": "or_group",
+      "permission": "write",
+      "conditions": [
+        { "kind": "function", "field": "CreatedBy", "fn": "CurrentLoginId" },
+        { "kind": "function", "field": "Owner",     "fn": "CurrentLoginId" },
+        { "kind": "function", "field": "ProfileLink_RecID", "fn": "CurrentUserRecId" }
+      ]
+    },
+    "FRS_MyItem#": {
+      "type": "preserve_ootb"
+    }
+  }
+}
+```
+
+**Rights values in `business_object_rights`** use numeric bitmasks (see the access levels table below).
+
+**`field_rights`** locks a BO down to named fields only. All unlisted fields on that BO get `DefaultFieldRights: null`. Leave this block empty `{}` if no field-level restrictions are needed.
+
+**`row_conditions`** supports four types:
+
+| Type | Description |
+|---|---|
+| `preserve_ootb` | Keep whatever ISM has stored for this BO unchanged |
+| `single` with `kind: "function"` | `$(field == ISMFunction())` - e.g. `CurrentLoginId` |
+| `single` with `kind: "literal"` | `$(field == "value")` or `$(field == true)` for booleans |
+| `or_group` | Multiple conditions joined by OR |
+
+### Adding a new role config
+
+Create a new `.json` file in `Roles/MinPerms/2026.x/` following the format above. Push it to the repo. The next time anyone pastes the script, the new role appears automatically in the wizard dropdown - no script changes required.
 
 ---
 
@@ -34,29 +112,64 @@ Two browser console scripts for managing ISM role permissions without API keys, 
 - Logged into your ISM tenant as a user with admin access to Roles
 - Browser developer console open (F12, then the Console tab)
 - On the **Object Permissions** page for the role you want to target
+- Network access to `api.github.com` and `raw.githubusercontent.com` from the browser
 
 ---
 
-## AHPatcher-v4.js - script structure
+## AHPatcher-v5.js - script structure
 
 | Lines | Section | What it does |
 |---|---|---|
-| 58-88 | **Configuration** | `TENANT_HAS_LOB` toggle - set to `true` if this tenant has Line of Business modules installed |
-| 90-92 | **Rights constants** | `R.VIEW`, `R.VIEW_ADD_EDIT`, `R.FULL` etc. - bitmask shorthand used throughout |
-| 95-238 | **MINIMUM_SET** | ~125 business objects and their access levels. Edit this block to change the default minimum set |
-| 246-280 | **LOB_SET** | Additional BOs granted when `TENANT_HAS_LOB = true` - Security Incidents, HR Cases, Work Orders, Demand/PPM, and their lookup tables |
-| 309-340 | **FIELD_RIGHTS** | Optional per-BO field-level access control. Add entries here to lock specific BOs down to named fields only |
-| 358-387 | **Helpers** | `getTimestamp`, `downloadFile`, `findObjectEnd`, `replaceIntField`, `rightsLabel` |
-| 388-425 | **getCasingVariants** | Generates original, lowercase, title-cased, and camelCase variants of every BO name automatically so you do not need to list duplicates manually |
-| 427-444 | **getEffectiveSet** | Returns MINIMUM_SET merged with LOB_SET when enabled |
-| 446-510 | **promptCustomObjects** | Runs before the interceptor installs - lets you add or override BOs at paste time without editing the script |
-| 512-582 | **buildNewBOR** | Builds the new BusinessObjectRights dictionary - merges the effective set, FIELD_RIGHTS, custom objects, and explicitly locks everything else to 0. Fans out casing variants for every entry |
-| 584-766 | **patchRowConditions** | Builds and injects row-level conditions for 8 BOs. Preserves FRS_MyItem# as-is. Drops all other pre-existing conditions |
-| 768-833 | **applyMinimumSet** | Orchestrates the minimum set patch - zeros defaults, replaces BOR block, patches row conditions |
-| 835-929 | **buildPreYaml** | Builds the pre-change YAML report capturing the role's state before any modifications |
-| 931-1017 | **buildAppliedYaml** | Builds the applied report YAML for minimum set mode - lists core set, LOB set, custom objects, field rights, and row conditions |
-| 1019-1091 | **installInterceptor** | Generic interceptor used by both modes - downloads pre-patcher snapshot and YAML, applies the payload, downloads the applied report on success |
-| 1093-1242 | **File picker and mode branching** | Opens the file picker on paste, detects cancel, branches into snapshot mode or minimum set mode |
+| 52-70 | **GitHub config** | Repo owner, repo name, path, branch, raw URL base, `SCRIPT_VERSION`, `GH_VERSION_URL`, `GH_SCRIPT_URL` |
+| 71-82 | **Rights labels** | Human-readable label map for bitmask values |
+| 83-138 | **Helpers** | `getTimestamp`, `downloadFile`, `rightsLabel`, `findObjectEnd`, `replaceIntField`, `getCasingVariants` |
+| 139-219 | **GitHub fetchers** | `detectRoleFromPage`, `fetchRoleList`, `fetchRoleConfig` |
+| 220-244 | **Version check** | `fetchLatestVersion`, `compareVersions` |
+| 245-734 | **showWizard** | The 4-step wizard modal - version check, role config selection, mode selection, custom overrides |
+| 735-860 | **Row condition builders** | `_RC` enum constants, `buildLeaf`, `buildLiteralLeaf`, `buildMixedOrGroup`, `buildLeafFromSpec`, `buildConditionFromSpec`, `buildRowConditions` |
+| 861-918 | **buildNewBOR** | Builds the BusinessObjectRights dictionary from the loaded config, applying casing variants and field rights |
+| 919-978 | **applyConfig** | Zeros defaults, replaces BOR block, patches row conditions |
+| 979-1092 | **YAML reports** | `buildPreYaml`, `buildAppliedYaml` |
+| 1093-1143 | **installInterceptor** | Hooks `Sys.Net.WebServiceProxy.invoke`, downloads pre-patcher snapshot and YAML, applies payload |
+| 1144-1233 | **Main flow** | Detects role, fetches GitHub file list, runs wizard, installs interceptor in config or snapshot mode |
+
+---
+
+## The wizard - step by step
+
+When the script is pasted, a modal opens and walks through four steps. The step indicator at the top of the modal shows which step is active and which are complete.
+
+### Step 1 - Version check
+
+The script fetches `version.txt` from the GitHub repo and compares it against the `SCRIPT_VERSION` constant baked into the script.
+
+- **Up to date** - green confirmation, auto-advances to step 2 after a moment
+- **Outdated** - orange warning with a link to the repo and a "Continue anyway" button
+- **Unreachable** - grey notice, auto-advances after a moment
+
+### Step 2 - Role config
+
+The script queries the GitHub API for all `.json` files in `Roles/MinPerms/2026.x/` and presents them in a dropdown. If the role name was auto-detected from the current page (URL, page title, or DOM elements), the matching file is pre-selected.
+
+If no match is found, or if you need a file not yet in the repo, use the manual filename input below the dropdown. Enter the name without the `.json` extension.
+
+Once a file is selected and loaded, the step auto-advances.
+
+### Step 3 - Mode
+
+Two cards are shown:
+
+**Apply Config** - replaces all current permissions with the loaded GitHub configuration. This is the standard path.
+
+**Restore from Snapshot** - applies a previously saved RolePolicy JSON. Selecting this card reveals an inline file picker. The file is validated immediately after selection (BO count shown). Useful for rolling back changes or copying permissions from another role.
+
+### Step 4 - Custom overrides
+
+Optionally add or override individual business object rights on top of the loaded config. Enter a BO name (must include `#`), choose an access level from the dropdown, and click `+ Add`. Added overrides are shown in a running list with a remove button on each row.
+
+Proceed with an empty list to use the config rights as-is.
+
+Clicking **Arm Interceptor** closes the wizard and installs the hook. Nothing is modified until you tick a checkbox and click Save on the Object Permissions page.
 
 ---
 
@@ -72,84 +185,42 @@ Two browser console scripts for managing ISM role permissions without API keys, 
 
 ---
 
-## Row conditions applied by AHPatcher-v4.js
-
-| Business object | Type | Permission | Logic |
-|---|---|---|---|
-| `FRS_MyItem#` | Preserved | - | Kept exactly as ISM stored it (OOTB condition) |
-| `Incident#` | Or group | Write | `CreatedBy == CurrentLoginId()` OR `Owner == CurrentLoginId()` OR `ProfileLink_RecID == CurrentUserRecId()` |
-| `ServiceReq#` | Or group | Write | Same 3-leaf Or group as Incident# |
-| `MyShelfItem#` | Single | Write | `CreatedBy == CurrentLoginId()` |
-| `FRS_Knowledge#` | Single | Write | `Status == "Published"` |
-| `Announcement#` | Single | Read | `Status == "Published"` |
-| `Journal#` | Or group | Write | `CreatedBy == CurrentLoginId()` OR `PublishToWeb == true` |
-| `Journal#Email` | Single | Write | `PublishToWeb == true` |
-| `Journal#Notes` | Single | Write | `PublishToWeb == true` |
-
-All other pre-existing row conditions are removed. Because `DefaultBusinessObjectRights` is zeroed, removed conditions leave no residual access.
-
----
-
-## Using AHPatcher-v4.js
+## Using AHPatcher-v5.js
 
 ### Step 1 - Get to the right page
 
-Log into ISM, go to **Admin > Roles**, click your target role (e.g. `SelfService`), then click the **Object Permissions** tab.
+Log into ISM, go to **Admin > Roles**, click your target role, then click the **Object Permissions** tab.
 
-### Step 2 - Configure the script (if needed)
+### Step 2 - Paste the script
 
-Before pasting, check the two config sections near the top of the file:
+Paste the entire contents of `AHPatcher-v5.js` into the console and press Enter. The wizard opens immediately.
 
-```javascript
-var TENANT_HAS_LOB = false;
-```
+### Step 3 - Work through the wizard
 
-Set this to `true` if the tenant has LOB modules. If you only want the core minimum set, leave it as `false`.
+Follow the four steps described above. At step 3, choose Config or Snapshot mode. At step 4, add any overrides or leave the list empty.
 
-```javascript
-var FIELD_RIGHTS = {
-  // 'Employee#': {
-  //   'FirstName'   : R.VIEW,
-  //   'LastName'    : R.VIEW,
-  //   'LoginID'     : R.VIEW,
-  //   'PrimaryEmail': R.VIEW
-  // }
-};
-```
+### Step 4 - Arm and trigger
 
-Add entries here for any BO where you want to restrict access to specific fields only. BOs listed here get `DefaultFieldRights: null` - unlisted fields are blocked.
-
-### Step 3 - Paste the script
-
-Paste the entire script into the console and press Enter. A file picker opens immediately.
-
-### Step 4 - Choose your mode
-
-**Snapshot mode** - pick a JSON snapshot file. The script applies that snapshot's exact permissions to the role you have open. The snapshot can come from `AHPatcher-Interceptor-v2.js`, from a previous `AHPatcher-v4.js` run, or from any role - it does not have to match the target role.
-
-**Minimum set mode** - click Cancel in the file picker. The script switches to minimum set mode and shows a prompt asking if you want to add any custom BOs on top.
-
-### Step 5 - Trigger the save
-
-Tick or untick any checkbox on the page, then click **Save**. Before anything reaches the server the script:
+After clicking **Arm Interceptor**, tick or untick any checkbox on the Object Permissions page and click **Save**. Before anything reaches the server the script:
 
 1. Downloads `<RoleID>_pre-patcher_snapshot_<timestamp>.json` - the role's current state
 2. Downloads `<RoleID>_pre-patcher_permissions_<timestamp>.yaml` - a readable summary of the current state
-3. Applies the snapshot or minimum set
+3. Applies the config or snapshot
 
-On success in minimum set mode, it also downloads `<RoleID>_applied_<timestamp>.yaml`.
+On success in config mode, it also downloads `<RoleID>_applied_<timestamp>.yaml`.
 
-A successful minimum set run looks like this in the console:
+A successful config mode run looks like this in the console:
 
 ```
-[AHPatcher] Intercepted SaveRole for role: SelfService
-[AHPatcher] Pre-patcher snapshot saved: SelfService_pre-patcher_snapshot_2026-05-26T16-10-00.json
-[AHPatcher] Pre-patcher YAML saved: SelfService_pre-patcher_permissions_2026-05-26T16-10-00.yaml
+[AHPatcher] Intercepted SaveRole for: SelfServiceMobile
+[AHPatcher] Pre-patcher snapshot saved.
+[AHPatcher] Pre-patcher YAML saved.
 [AHPatcher] Set DefaultBusinessObjectRights: 7 -> 0
-[AHPatcher] BOR stats: existing=57, granted=125, explicitly locked=29
+[AHPatcher] BOR: existing=57, granted=162, locked=31
 [AHPatcher] Row condition preserved: FRS_MyItem#
 [AHPatcher] Row conditions applied: Incident#, ServiceReq#, MyShelfItem#, FRS_Knowledge#, Announcement#, Journal#, Journal#Email, Journal#Notes
 [AHPatcher] PATCHER SUCCEEDED. Navigate away and back to Object Permissions to confirm changes.
+[AHPatcher] Applied YAML saved.
 ```
 
 ---
@@ -181,56 +252,41 @@ Paste and press Enter. You will see:
 
 Tick or untick any checkbox and click Save. Two files download:
 
-- `<RoleID>_snapshot_<timestamp>.json` - the raw RolePolicy, compatible with AHPatcher-v4.js snapshot mode
+- `<RoleID>_snapshot_<timestamp>.json` - the raw RolePolicy, compatible with AHPatcher-v5.js snapshot mode
 - `<RoleID>_permissions_<timestamp>.yaml` - human-readable BO rights summary including any field-level rights blocks
 
 The interceptor re-installs automatically. Navigate to another role and repeat without re-pasting.
 
 ### Using it as a pre-flight check
 
-Run the interceptor on the role you are about to patch. Check the YAML to confirm what is currently set. Then switch to AHPatcher-v4.js for the actual changes.
+Run the interceptor on the role you are about to patch. Check the YAML to confirm what is currently set. Then switch to AHPatcher-v5.js for the actual changes.
 
-### Using AHPatcher-v4.js as a permissions copy tool
+### Using AHPatcher-v5.js as a permissions copy tool
 
-The target role is determined by which Object Permissions page you are on - not by what is in the snapshot file. This means you can use it to copy permissions between roles:
+The target role is determined by which Object Permissions page you are on - not by what is in the snapshot file:
 
 1. Run `AHPatcher-Interceptor-v2.js` on Role A to get `RoleA_snapshot_<ts>.json`
 2. Navigate to Role B's Object Permissions page
-3. Paste `AHPatcher-v4.js`, pick `RoleA_snapshot_<ts>.json`
+3. Paste `AHPatcher-v5.js`, work through the wizard, at step 3 choose Restore from Snapshot and pick `RoleA_snapshot_<ts>.json`
 4. Role B now has Role A's exact permissions
 
 ---
 
-## FIELD_RIGHTS - field-level access control
+## Version management
 
-By default every granted BO gets `DefaultFieldRights: 5` (View + Edit on all fields). If you need tighter control, add the BO to the `FIELD_RIGHTS` block before pasting:
+The script checks `version.txt` in the GitHub repo each time it runs. To manage versions:
 
-```javascript
-var FIELD_RIGHTS = {
-  'Employee#': {
-    'FirstName'    : R.VIEW,
-    'LastName'     : R.VIEW,
-    'LoginID'      : R.VIEW,
-    'PrimaryEmail' : R.VIEW,
-    'Department'   : R.VIEW
-  }
-};
-```
+1. Keep `version.txt` containing the current release version, e.g. `5.0.0`
+2. Update `SCRIPT_VERSION` at line 67 of `AHPatcher-v5.js` when publishing a new release
+3. Push the updated `version.txt` and script to the repo
 
-When a BO is listed here:
-- Only the named fields get the specified rights (`R.VIEW` = 1, `R.VIEW_EDIT` = 5)
-- All other fields on that BO are locked (`DefaultFieldRights: null`)
-- The BO-level rights value from MINIMUM_SET or LOB_SET still applies as normal
-
-Add and Delete do not apply at field level - only View (1) and View + Edit (5) are valid.
-
-Casing variants are applied to FIELD_RIGHTS entries the same as BO names - you do not need to list `employee#` separately.
+Anyone running an older copy of the script will see an orange warning in step 1 of the wizard with a link to the repo.
 
 ---
 
 ## Automatic casing variants
 
-ISM's AppServer does not always look up business object names consistently with casing. Rather than listing every variant manually, `getCasingVariants` generates all realistic forms for every BO in the effective set, in FIELD_RIGHTS, and for runtime custom objects.
+ISM's AppServer does not always look up business object names consistently with casing. `getCasingVariants` generates all realistic forms for every BO in the loaded config and for runtime custom objects, so you do not need to list duplicates in the JSON file.
 
 For any BO name, the script produces:
 
@@ -243,7 +299,7 @@ For any BO name, the script produces:
 
 Duplicates are removed.
 
-One known limitation: compound PascalCase words without a delimiter (e.g. `ServiceReq`, `FulfillmentItem`) cannot be reconstructed from a fully lowercase input. Write the canonical ISM name in MINIMUM_SET and the lowercase form is generated automatically. The reverse works fine for single-word names like `Incident#`.
+One known limitation: compound PascalCase words without a delimiter (e.g. `ServiceReq`, `FulfillmentItem`) cannot be reconstructed from a fully lowercase input. Use the canonical ISM name in the config file and the lowercase variant is generated automatically.
 
 ---
 
@@ -260,20 +316,29 @@ One known limitation: compound PascalCase words without a delimiter (e.g. `Servi
 
 ---
 
-## What the minimum set actually changes
+## What applying a config actually changes
 
 **Zeros the global defaults**
 `DefaultBusinessObjectRights` and `DefaultBusinessObjectFieldRights` are both set to 0. Any BO not explicitly listed gets no access at all.
 
 **Applies Business Object Rights**
-Around 125 core BOs are explicitly granted the minimum rights needed for self-service functionality. If `TENANT_HAS_LOB = true`, LOB BOs are added on top. Everything else is explicitly locked to `Rights: 0`. Casing variants are written for each entry.
+Every BO in the `business_object_rights` section of the config JSON is explicitly granted its specified rights. Everything else already in the role is explicitly locked to `Rights: 0`. Casing variants are written for each entry.
+
+**Applies field-level rights (if configured)**
+BOs listed in the `field_rights` section of the config get explicit per-field access control. Unlisted fields on those BOs are locked (`DefaultFieldRights: null`). BOs not in `field_rights` get `DefaultFieldRights: 5` (View + Edit on all fields).
 
 **Applies row-level conditions**
-Row conditions are applied to 9 BOs - see the table above. FRS_MyItem# is preserved as-is from whatever ISM has stored. All other pre-existing row conditions are removed.
+Row conditions are built from the `row_conditions` section of the config. `preserve_ootb` entries keep whatever ISM has stored. All other pre-existing row conditions are removed.
 
 ---
 
 ## Troubleshooting
+
+**The wizard does not open or shows a blank modal**
+Check the console for errors. If you see a network error on the GitHub fetch, confirm that `api.github.com` and `raw.githubusercontent.com` are reachable from your browser on the ISM domain.
+
+**Step 2 shows no configs in the dropdown**
+The script could not reach the GitHub API or the directory is empty. Use the manual filename input to enter a role name directly - the script will fetch it from the raw URL.
 
 **The script loads but nothing happens when I click Save**
 ISM will not fire a SaveRole request if it thinks nothing changed. Make sure you have ticked or unticked at least one checkbox before clicking Save.
@@ -290,11 +355,14 @@ Your browser may have blocked the automatic downloads. Check your browser's down
 **I want to target a different role**
 Navigate to that role's Object Permissions page first, then paste the script. The target role is determined entirely by which page you are on.
 
-**I need to change the minimum set permanently**
-Edit the `MINIMUM_SET` block directly in the script before pasting (lines 95-238). LOB-specific entries are in the `LOB_SET` block (lines 246-280).
+**I need to change what a role gets permanently**
+Edit the role's JSON file in the GitHub repo. No script changes are needed. The next paste of the script picks up the new config automatically.
 
-**A custom BO I added does not seem to have taken effect**
-The script generates casing variants automatically, but compound PascalCase words (e.g. `ServiceReq`) cannot be reconstructed from an all-lowercase input. Use the canonical ISM name when adding custom BOs at the prompt.
+**A custom BO added in the wizard did not take effect**
+The script generates casing variants automatically, but compound PascalCase words (e.g. `ServiceReq`) cannot be reconstructed from an all-lowercase input. Use the canonical ISM name when adding custom BOs in the wizard.
+
+**Version check shows outdated but I just updated**
+The version check uses `cache: 'no-store'` so it bypasses the browser cache. If it still shows outdated, confirm `version.txt` in the repo was updated and the push completed.
 
 ---
 
@@ -310,7 +378,7 @@ The script generates casing variants automatically, but compound PascalCase word
 
 ## Disclaimer
 
-**Author:** Andrew Hatton - Andrew.Hatton@ivanti.com
+**Author:** Andrew Hatton - Andrew.Hatton@ivanti.com | Andrew.Hatton@cronotech.us
 
 THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE. IMPORTANT: Please take care when executing this script on a live database or system. It is recommended that a full backup is first performed.
 
