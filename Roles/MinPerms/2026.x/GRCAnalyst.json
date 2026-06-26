@@ -230,7 +230,12 @@
     "FRS_ops_dsm_integration#": 7,
     "ReleaseMilestone#": 7,
     "FulfillmentItem#": 1,
-    "ivnt_TaskObjectMap#": 1
+    "ivnt_TaskObjectMap#": 1,
+    "Journal#VoiceActivity": 7,
+    "Journal#RemoteControlSession": 7,
+    "Audit_Task#": 7,
+    "Frs_def_escalation_setting#": 1,
+    "Frs_def_escalation_schedule#": 1
   },
   "field_rights": {},
   "row_conditions": {}
