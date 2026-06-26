@@ -66,7 +66,20 @@
   // Update both that file and SCRIPT_VERSION here whenever publishing a new release.
   var SCRIPT_VERSION  = '5.0.0';
   var GH_VERSION_URL  = 'https://raw.githubusercontent.com/' + GH_OWNER + '/' + GH_REPO + '/' + GH_BRANCH + '/Roles/MinPerms/version.txt';
-  var GH_SCRIPT_URL   = 'https://github.com/' + GH_OWNER + '/' + GH_REPO + '/tree/' + GH_BRANCH + '/Roles/MinPerms';
+  // Link shown when the script is out of date.
+  // Change this to any URL - defaults to a pre-filled email to request the latest version.
+  // The mailto body is built dynamically in the version check step so it includes version numbers.
+  var UPDATE_CONTACT_URL = 'mailto:andrew.hatton@ivanti.com';
+
+  // ---------------------------------------------------------------------------
+  // GITHUB_PAT -- leave empty for a public repo (default).
+  // For a private repo, create a fine-grained Personal Access Token scoped to
+  // this repo with Contents: Read-only permission, then paste it here.
+  // The token will be visible to anyone who can open devtools on this page,
+  // so use a read-only token and set an expiry date.
+  //   GitHub > Settings > Developer settings > Fine-grained personal access tokens
+  // ---------------------------------------------------------------------------
+  var GITHUB_PAT = '';
 
   // ===========================================================================
   // RIGHTS LABELS
@@ -197,20 +210,63 @@
   // GITHUB FETCHERS
   // ===========================================================================
 
+  // Returns the correct Authorization header set for the configured access mode.
+  // When GITHUB_PAT is empty the Accept header alone is returned (public repo).
+  function ghHeaders() {
+    var h = { Accept: 'application/vnd.github.v3+json' };
+    if (GITHUB_PAT) h['Authorization'] = 'Bearer ' + GITHUB_PAT;
+    return h;
+  }
+
+  // Decodes the base64-encoded file content that the GitHub Contents API returns.
+  function decodeGHContent(b64) {
+    return atob(b64.replace(/\n/g, ''));
+  }
+
+  // Builds the URL used to fetch an individual config file.
+  // Public mode: raw.githubusercontent.com (plain JSON response).
+  // Private mode: api.github.com/contents (base64-encoded JSON in response.content).
+  function buildFileUrl(filename) {
+    if (GITHUB_PAT) {
+      return 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO +
+             '/contents/' + GH_PATH + '/' + filename;
+    }
+    return GH_RAW + encodeURIComponent(filename);
+  }
+
   async function fetchRoleList() {
-    var resp = await fetch(GH_API, { headers: { Accept: 'application/vnd.github.v3+json' } });
+    var resp = await fetch(GH_API, { headers: ghHeaders() });
     if (!resp.ok) throw new Error('GitHub API returned ' + resp.status + ' for ' + GH_PATH);
     var files = await resp.json();
     return files
       .filter(function (f) { return f.type === 'file' && /\.json$/i.test(f.name); })
-      .map(function (f) { return { name: f.name, roleName: f.name.replace(/\.json$/i, ''), rawUrl: f.download_url }; });
+      .map(function (f) {
+        return {
+          name    : f.name,
+          roleName: f.name.replace(/\.json$/i, ''),
+          // Private mode: use the API url (f.url) so auth header can be applied.
+          // Public mode:  use download_url (raw githubusercontent, no auth needed).
+          rawUrl  : GITHUB_PAT ? f.url : f.download_url
+        };
+      });
   }
 
-  async function fetchRoleConfig(rawUrl) {
-    var resp = await fetch(rawUrl);
+  async function fetchRoleConfig(url) {
+    var resp = await fetch(url, { headers: ghHeaders() });
     if (resp.status === 404) throw new Error('not_found');
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    var config = await resp.json();
+
+    var config;
+    // The GitHub Contents API wraps file data in JSON with a base64 'content' field.
+    // A raw URL returns the file directly as JSON -- detect which we have by checking
+    // for the presence of 'api.github.com' in the URL or a non-empty PAT.
+    if (GITHUB_PAT || url.indexOf('api.github.com') !== -1) {
+      var wrapper = await resp.json();
+      config = JSON.parse(decodeGHContent(wrapper.content));
+    } else {
+      config = await resp.json();
+    }
+
     if (!config.business_object_rights || typeof config.business_object_rights !== 'object') {
       throw new Error('"business_object_rights" key missing -- is this an AHPatcher config file?');
     }
@@ -225,6 +281,16 @@
   // ===========================================================================
 
   async function fetchLatestVersion() {
+    // Private mode: use the Contents API so the auth header can be applied.
+    // Public mode:  fetch version.txt directly from raw.githubusercontent.com.
+    if (GITHUB_PAT) {
+      var apiUrl = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO +
+                   '/contents/Roles/MinPerms/version.txt';
+      var resp = await fetch(apiUrl, { cache: 'no-store', headers: ghHeaders() });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      var data = await resp.json();
+      return decodeGHContent(data.content).trim();
+    }
     var resp = await fetch(GH_VERSION_URL, { cache: 'no-store' });
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     return (await resp.text()).trim();
@@ -403,9 +469,19 @@
                    'Checking for updates\u2026');
         bodyEl.appendChild(h);
 
+        // Start with Next disabled while the fetch is in flight.
+        // enableBtn() corrects both the HTML attribute and the inline opacity/cursor
+        // that mkBtn bakes in at creation time.
         var nextBtn = mkBtn('Next \u203a', true, true);
         nextBtn.addEventListener('click', function () { goToStep(2); });
         footerEl.appendChild(abortBtn()); footerEl.appendChild(nextBtn);
+
+        function enableBtn(btn, label) {
+          btn.disabled      = false;
+          btn.style.opacity = '1';
+          btn.style.cursor  = 'pointer';
+          if (label) btn.textContent = label;
+        }
 
         try {
           wState.latestVersion = await fetchLatestVersion();
@@ -418,7 +494,7 @@
             bodyEl.appendChild(h);
             bodyEl.appendChild(notice(
               '<strong>You are running the latest version</strong> (v' + SCRIPT_VERSION + ').', 'success'));
-            nextBtn.disabled = false;
+            enableBtn(nextBtn);
             setTimeout(function () { if (document.body.contains(overlay)) goToStep(2); }, 1200);
 
           } else {
@@ -426,20 +502,34 @@
             bodyEl.appendChild(h);
             bodyEl.appendChild(notice(
               '<strong>A newer version is available: v' + wState.latestVersion + '</strong><br>' +
-              'You are running v' + SCRIPT_VERSION + '. Using the latest version is recommended.', 'warn'));
+              'You are running v' + SCRIPT_VERSION + '. Using the latest version is recommended ' +
+              'but you can continue with the current version.', 'warn'));
+
+            // Build a pre-filled mailto so the user can request the latest script in one click
+            var mailSubject = encodeURIComponent('AHPatcher Script Update Request');
+            var mailBody    = encodeURIComponent(
+              'Hi Andrew,\n\n' +
+              'I am currently running AHPatcher v' + SCRIPT_VERSION + ' and see that ' +
+              'v' + wState.latestVersion + ' is available.\n\n' +
+              'Could you please send me the latest version of the script?\n\n' +
+              'Regards,');
+            var contactHref = UPDATE_CONTACT_URL +
+              '?subject=' + mailSubject + '&body=' + mailBody;
+
             var a = el('a', 'color:#2E75B6;font-size:12px;display:block;margin-top:8px;',
-                       'View latest version on GitHub \u2197');
-            a.href = GH_SCRIPT_URL; a.target = '_blank';
+                       'Request latest version \u2709');
+            a.href = contactHref;
             bodyEl.appendChild(a);
-            nextBtn.textContent = 'Continue anyway \u203a';
-            nextBtn.disabled = false;
+
+            // Always allow continuing - user is not forced to update
+            enableBtn(nextBtn, 'Continue with current version \u203a');
           }
 
         } catch (e) {
           clearBody();
           bodyEl.appendChild(notice(
             'Could not check for updates (v' + SCRIPT_VERSION + ' assumed current). Continuing.', 'info'));
-          nextBtn.disabled = false;
+          enableBtn(nextBtn);
           setTimeout(function () { if (document.body.contains(overlay)) goToStep(2); }, 900);
         }
       }
@@ -483,7 +573,7 @@
         nextBtn.addEventListener('click', async function () {
           var customName = custInp.value.trim();
           var rawUrl = customName
-            ? GH_RAW + encodeURIComponent(/\.json$/i.test(customName) ? customName : customName + '.json')
+            ? buildFileUrl(/\.json$/i.test(customName) ? customName : customName + '.json')
             : sel2.value;
           if (!rawUrl) {
             statusEl.style.color = CLR.orange;
