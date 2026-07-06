@@ -242,22 +242,13 @@
       "valueType": "string"
     },
     "Journal#": {
-      "_comment": "Or group - user sees journals they created or any published-to-web entry",
-      "type": "or_group",
+      "_comment": "Only journals published to the web portal are visible to self-service users.",
+      "type": "single",
       "permission": "write",
-      "conditions": [
-        {
-          "kind": "function",
-          "field": "CreatedBy",
-          "fn": "CurrentLoginId"
-        },
-        {
-          "kind": "literal",
-          "field": "PublishToWeb",
-          "value": true,
-          "valueType": "boolean"
-        }
-      ]
+      "kind": "literal",
+      "field": "PublishToWeb",
+      "value": true,
+      "valueType": "boolean"
     },
     "Journal#Email": {
       "_comment": "Journal subtypes have no Status field - PublishToWeb is the correct filter",
@@ -277,7 +268,7 @@
       "valueType": "boolean"
     },
     "ivnt_HRCase#": {
-      "_comment": "Self-service users can only see HR cases where they are the profile subject or the reporter.",
+      "_comment": "Self-service users can see and update HR cases where they are the subject (ProfileLink) or the reporter (ReportedByLoginId).",
       "type": "or_group",
       "permission": "write",
       "conditions": [
@@ -288,10 +279,26 @@
         },
         {
           "kind": "function",
-          "field": "ivnt_ReportedBy",
-          "fn": "CurrentUserDisplayName"
+          "field": "ivnt_ReportedByLoginId",
+          "fn": "CurrentLoginId"
         }
       ]
+    },
+    "ServiceReqParam#": {
+      "_comment": "Self-service users can only modify SR parameters they created (cart line items).",
+      "type": "single",
+      "permission": "write",
+      "kind": "function",
+      "field": "CreatedBy",
+      "fn": "CurrentLoginId"
+    },
+    "Attachment#": {
+      "_comment": "Self-service users can only modify attachments they created.",
+      "type": "single",
+      "permission": "write",
+      "kind": "function",
+      "field": "CreatedBy",
+      "fn": "CurrentLoginId"
     }
   }
 }
