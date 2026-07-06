@@ -726,8 +726,8 @@
         // Main notice
         bodyEl.appendChild(notice(
           'The <strong>Attachment</strong> object has restrictions applied by this script that ' +
-          'may prevent users from downloading files attached to Service Requests and other records. ' +
-          'The row condition limits write access to attachments the user created themselves.',
+          'may prevent users from downloading files attached to Request Offerings intended for them to download them.' +
+          'The row condition limits access to attachments the user created themselves.',
           'warn'));
 
         // What to do
