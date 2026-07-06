@@ -22,10 +22,10 @@ Two browser console scripts for managing ISM role permissions without API keys, 
 
 ## Files
 
-| File | Lines | What it does |
-|---|---|---|
-| `AHPatcher-v5.js` | 1233 | GitHub-driven role patcher with 4-step wizard UI |
-| `AHPatcher-Interceptor-v2.js` | 309 | Captures current role permissions to JSON + YAML, no modifications |
+| File | What it does |
+|---|---|
+| `AHPatcher-latest.js`| GitHub-driven role patcher with a multi-step wizard UI |
+| `AHPatcher-Interceptor-v2.js` | Captures current role permissions to JSON + YAML, no modifications |
 
 ---
 
@@ -33,11 +33,7 @@ Two browser console scripts for managing ISM role permissions without API keys, 
 
 Role permission sets live in a separate public repository rather than in the script itself. This means updating permissions for any role does not require editing or redistributing the script.
 
-**Repo:** `killer6oose/ISM_Scripts`
-**Path:** `Roles/MinPerms/2026.x/`
-**Version file:** `Roles/MinPerms/version.txt`
-
-Each role has its own JSON file in that directory:
+Each role has its own JSON file in the 2026.x (or whatever version you are looking for) directory:
 
 ```
 Roles/MinPerms/2026.x/
@@ -119,19 +115,19 @@ Create a new `.json` file in `Roles/MinPerms/2026.x/` following the format above
 ## AHPatcher-v5.js - script structure
 
 | Lines | Section | What it does |
-|---|---|---|
-| 52-70 | **GitHub config** | Repo owner, repo name, path, branch, raw URL base, `SCRIPT_VERSION`, `GH_VERSION_URL`, `GH_SCRIPT_URL` |
-| 71-82 | **Rights labels** | Human-readable label map for bitmask values |
-| 83-138 | **Helpers** | `getTimestamp`, `downloadFile`, `rightsLabel`, `findObjectEnd`, `replaceIntField`, `getCasingVariants` |
-| 139-219 | **GitHub fetchers** | `detectRoleFromPage`, `fetchRoleList`, `fetchRoleConfig` |
-| 220-244 | **Version check** | `fetchLatestVersion`, `compareVersions` |
-| 245-734 | **showWizard** | The 4-step wizard modal - version check, role config selection, mode selection, custom overrides |
-| 735-860 | **Row condition builders** | `_RC` enum constants, `buildLeaf`, `buildLiteralLeaf`, `buildMixedOrGroup`, `buildLeafFromSpec`, `buildConditionFromSpec`, `buildRowConditions` |
-| 861-918 | **buildNewBOR** | Builds the BusinessObjectRights dictionary from the loaded config, applying casing variants and field rights |
-| 919-978 | **applyConfig** | Zeros defaults, replaces BOR block, patches row conditions |
-| 979-1092 | **YAML reports** | `buildPreYaml`, `buildAppliedYaml` |
-| 1093-1143 | **installInterceptor** | Hooks `Sys.Net.WebServiceProxy.invoke`, downloads pre-patcher snapshot and YAML, applies payload |
-| 1144-1233 | **Main flow** | Detects role, fetches GitHub file list, runs wizard, installs interceptor in config or snapshot mode |
+|---|---|
+|**GitHub config** | Repo owner, repo name, path, branch, raw URL base, `SCRIPT_VERSION`, `GH_VERSION_URL`, `GH_SCRIPT_URL` |
+| **Rights labels** | Human-readable label map for bitmask values |
+| **Helpers** | `getTimestamp`, `downloadFile`, `rightsLabel`, `findObjectEnd`, `replaceIntField`, `getCasingVariants` |
+| **GitHub fetchers** | `detectRoleFromPage`, `fetchRoleList`, `fetchRoleConfig` |
+| **Version check** | `fetchLatestVersion`, `compareVersions` |
+| **showWizard** | The 4-step wizard modal - version check, role config selection, mode selection, custom overrides |
+| **Row condition builders** | `_RC` enum constants, `buildLeaf`, `buildLiteralLeaf`, `buildMixedOrGroup`, `buildLeafFromSpec`, `buildConditionFromSpec`, `buildRowConditions` |
+| **buildNewBOR** | Builds the BusinessObjectRights dictionary from the loaded config, applying casing variants and field rights |
+| **applyConfig** | Zeros defaults, replaces BOR block, patches row conditions |
+| **YAML reports** | `buildPreYaml`, `buildAppliedYaml` |
+| **installInterceptor** | Hooks `Sys.Net.WebServiceProxy.invoke`, downloads pre-patcher snapshot and YAML, applies payload |
+| **Main flow** | Detects role, fetches GitHub file list, runs wizard, installs interceptor in config or snapshot mode |
 
 ---
 
@@ -173,19 +169,7 @@ Clicking **Arm Interceptor** closes the wizard and installs the hook. Nothing is
 
 ---
 
-## AHPatcher-Interceptor-v2.js - script structure
-
-| Lines | Section | What it does |
-|---|---|---|
-| 46-60 | **Constants** | `LOG` prefix, capture counter, rights label map |
-| 62-101 | **Helpers** | `getTimestamp`, `downloadFile`, `rightsLabel`, `findObjectEnd` |
-| 103-243 | **buildYaml** | Builds the permissions YAML - lists all granted BOs with rights labels, field-level rights blocks where present, DefaultFieldRights, and a row conditions summary |
-| 244-295 | **installInterceptor** | Hooks `Sys.Net.WebServiceProxy.invoke`, fires on the next SaveRole call, downloads JSON + YAML, then re-installs for the next save |
-| 296-309 | **Ready banner** | Console output confirming the script is loaded and waiting |
-
----
-
-## Using AHPatcher-v5.js
+## Using the Patcher
 
 ### Step 1 - Get to the right page
 
