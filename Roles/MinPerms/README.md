@@ -1,6 +1,6 @@
 # ISM SelfService Role Permission Patcher
 
-**Author:** Andrew Hatton - That's me!
+**Author:** Andrew Hatton - [That's me!](https://andrewhatton.com)
 ##### **Issues/Contact:** Use the Issues!
 ---
 
