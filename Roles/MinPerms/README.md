@@ -1,7 +1,7 @@
 # ISM SelfService Role Permission Patcher
 
-**Author:** Andrew Hatton - Andrew.Hatton@ivanti.com
-
+**Author:** Andrew Hatton - That's me!
+##### **Issues/Contact:** Use the Issues!
 ---
 
 > **Before you do anything else, please read this.**
