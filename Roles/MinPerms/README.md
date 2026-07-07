@@ -1,22 +1,20 @@
-# ISM SelfService Role Permission Patcher
+# ISM Role Permission Patcher
 
 **Author:** Andrew Hatton - [That's me!](https://andrewhatton.com)
-##### **Issues/Contact:** Use the Issues!
+##### **Issues/Contact:** Use the Issues, or andrew.hatton@ivanti.com
 ---
 
 > **Before you do anything else, please read this.**
 >
-> These scripts make direct, live changes to role permissions in Ivanti Neurons for ITSM by intercepting the browser's save mechanism. They are not reversible through an "undo" button. Always run in a Staging or UAT environment first. Always capture a snapshot before applying changes to Production.
+> This script makes direct, live changes to role permissions in Ivanti Neurons for ITSM by intercepting the browser's save mechanism. It is not reversible through an "undo" button. Always run in a Staging or UAT environment first. Always keep the pre-patcher snapshot that's downloaded automatically before applying changes to Production.
 
 ---
 
 ## What is this?
 
-Two browser console scripts for managing ISM role permissions without API keys, installed tools, or server-side changes. You paste them into the browser developer console while logged into ISM as an admin.
+A single browser console script for managing ISM role permissions without API keys, installed tools, or server-side changes. Paste it into the browser developer console while logged into ISM as an admin, on the target role's Object Permissions page.
 
-`AHPatcher-v5.js` is the main tool. Rather than using hardcoded permission sets, it fetches per-role configuration files from a public GitHub repository at runtime. A 4-step wizard modal guides through version checking, role config selection, mode choice, and optional overrides before arming the interceptor. It applies a loaded config, or restores from a previously saved snapshot.
-
-`AHPatcher-Interceptor-v2.js` is the capture tool. It sits in the background, intercepts the next save on any Object Permissions page, and exports the role's current state as both a raw JSON snapshot and a human-readable YAML report. It does not modify anything. It re-installs itself after each capture so you can snapshot multiple roles in a single session.
+`AHPatcher-latest.js` fetches per-role configuration files from a public GitHub repository at runtime rather than using hardcoded permission sets. A 6-step wizard modal guides you through version checking, role config selection, mode choice, an Attachment object notice, optional business object overrides, and System Permissions before arming the interceptor. It applies a loaded config, or restores from a previously saved snapshot. Every step has an Abort button.
 
 ---
 
@@ -24,8 +22,7 @@ Two browser console scripts for managing ISM role permissions without API keys, 
 
 | File | What it does |
 |---|---|
-| `AHPatcher-latest.js`| GitHub-driven role patcher with a multi-step wizard UI |
-| `AHPatcher-Interceptor-v2.js` | Captures current role permissions to JSON + YAML, no modifications |
+| `AHPatcher-latest.js` | GitHub-driven role patcher with a multi-step wizard UI |
 
 ---
 
@@ -33,7 +30,7 @@ Two browser console scripts for managing ISM role permissions without API keys, 
 
 Role permission sets live in a separate public repository rather than in the script itself. This means updating permissions for any role does not require editing or redistributing the script.
 
-Each role has its own JSON file in the 2026.x (or whatever version you are looking for) directory:
+Each role has its own JSON file in the `2026.x` (or whatever version you are looking for) directory:
 
 ```
 Roles/MinPerms/2026.x/
@@ -41,7 +38,7 @@ Roles/MinPerms/2026.x/
   GRCManager.json
   GRCAnalyst.json
   etc.json......
-  version.txt          <-- plain text, contains current version e.g. 5.0.0
+  version.txt          <-- plain text, contains current version e.g. 5.3.3
 ```
 
 When the script is pasted it fetches the directory listing from the GitHub API, presents the available files in a dropdown, and fetches the chosen config before opening the file picker.
@@ -112,35 +109,16 @@ Create a new `.json` file in `Roles/MinPerms/2026.x/` following the format above
 
 ---
 
-## AHPatcher-v5.js - script structure
-
-| Lines | Section | What it does |
-|---|---|
-|**GitHub config** | Repo owner, repo name, path, branch, raw URL base, `SCRIPT_VERSION`, `GH_VERSION_URL`, `GH_SCRIPT_URL` |
-| **Rights labels** | Human-readable label map for bitmask values |
-| **Helpers** | `getTimestamp`, `downloadFile`, `rightsLabel`, `findObjectEnd`, `replaceIntField`, `getCasingVariants` |
-| **GitHub fetchers** | `detectRoleFromPage`, `fetchRoleList`, `fetchRoleConfig` |
-| **Version check** | `fetchLatestVersion`, `compareVersions` |
-| **showWizard** | The 4-step wizard modal - version check, role config selection, mode selection, custom overrides |
-| **Row condition builders** | `_RC` enum constants, `buildLeaf`, `buildLiteralLeaf`, `buildMixedOrGroup`, `buildLeafFromSpec`, `buildConditionFromSpec`, `buildRowConditions` |
-| **buildNewBOR** | Builds the BusinessObjectRights dictionary from the loaded config, applying casing variants and field rights |
-| **applyConfig** | Zeros defaults, replaces BOR block, patches row conditions |
-| **YAML reports** | `buildPreYaml`, `buildAppliedYaml` |
-| **installInterceptor** | Hooks `Sys.Net.WebServiceProxy.invoke`, downloads pre-patcher snapshot and YAML, applies payload |
-| **Main flow** | Detects role, fetches GitHub file list, runs wizard, installs interceptor in config or snapshot mode |
-
----
-
 ## The wizard - step by step
 
-When the script is pasted, a modal opens and walks through four steps. The step indicator at the top of the modal shows which step is active and which are complete.
+When the script is pasted, a modal opens and walks through six steps. The step indicator at the top of the modal shows which step is active and which are complete. Every step has an **Abort** button.
 
 ### Step 1 - Version check
 
 The script fetches `version.txt` from the GitHub repo and compares it against the `SCRIPT_VERSION` constant baked into the script.
 
-- **Up to date** - green confirmation, auto-advances to step 2 after a moment
-- **Outdated** - orange warning with a link to the repo and a "Continue anyway" button
+- **Up to date** - green confirmation, auto-advances after a moment
+- **Outdated** - orange warning with a link to request the latest version, plus a "Continue with current version" button
 - **Unreachable** - grey notice, auto-advances after a moment
 
 ### Step 2 - Role config
@@ -148,8 +126,6 @@ The script fetches `version.txt` from the GitHub repo and compares it against th
 The script queries the GitHub API for all `.json` files in `Roles/MinPerms/2026.x/` and presents them in a dropdown. If the role name was auto-detected from the current page (URL, page title, or DOM elements), the matching file is pre-selected.
 
 If no match is found, or if you need a file not yet in the repo, use the manual filename input below the dropdown. Enter the name without the `.json` extension.
-
-Once a file is selected and loaded, the step auto-advances.
 
 ### Step 3 - Mode
 
@@ -159,11 +135,23 @@ Two cards are shown:
 
 **Restore from Snapshot** - applies a previously saved RolePolicy JSON. Selecting this card reveals an inline file picker. The file is validated immediately after selection (BO count shown). Useful for rolling back changes or copying permissions from another role.
 
-### Step 4 - Custom overrides
+### Step 4 - Attachment notice
+
+A reminder that the Attachment business object gets a row condition that limits access to attachments the current user created themselves. If your users need to download attachments added by other users (e.g. service desk staff), you'll need to relax that row condition manually afterward in Admin UI > Users and Permissions > Roles and Permissions > [role] > Attachment > Edit Access Permissions.
+
+### Step 5 - Custom overrides
 
 Optionally add or override individual business object rights on top of the loaded config. Enter a BO name (must include `#`), choose an access level from the dropdown, and click `+ Add`. Added overrides are shown in a running list with a remove button on each row.
 
 Proceed with an empty list to use the config rights as-is.
+
+### Step 6 - System Permissions
+
+Configure the Action / Search / Dashboard "Create (for self) / Edit (for all) / Delete (for all)" checkboxes and the "Allow publishing" role lists for each type. Search - Create (for self) is checked by default to match the standard baseline.
+
+Publish role pickers for a type only become editable once Edit (for all) or Delete (for all) is checked for that type (Reports has no gating checkbox and is always editable). Pick a role from the dropdown, type a custom role name, or choose "All Roles." Add as many roles per target as needed - each shows as a removable chip.
+
+Two additional checkboxes here control "Allow Microsoft Excel download from saved searches" and "Allow email to yourself from saved searches."
 
 Clicking **Arm Interceptor** closes the wizard and installs the hook. Nothing is modified until you tick a checkbox and click Save on the Object Permissions page.
 
@@ -177,11 +165,11 @@ Log into ISM, go to **Admin > Roles**, click your target role, then click the **
 
 ### Step 2 - Paste the script
 
-Paste the entire contents of `AHPatcher-v5.js` into the console and press Enter. The wizard opens immediately.
+Paste the entire contents of `AHPatcher-latest.js` into the console and press Enter. The wizard opens immediately.
 
 ### Step 3 - Work through the wizard
 
-Follow the four steps described above. At step 3, choose Config or Snapshot mode. At step 4, add any overrides or leave the list empty.
+Follow the six steps described above. At step 3, choose Config or Snapshot mode. At step 5, add any overrides or leave the list empty. At step 6, set System Permissions.
 
 ### Step 4 - Arm and trigger
 
@@ -189,7 +177,7 @@ After clicking **Arm Interceptor**, tick or untick any checkbox on the Object Pe
 
 1. Downloads `<RoleID>_pre-patcher_snapshot_<timestamp>.json` - the role's current state
 2. Downloads `<RoleID>_pre-patcher_permissions_<timestamp>.yaml` - a readable summary of the current state
-3. Applies the config or snapshot
+3. Applies the config or snapshot, plus the System Permissions and publish role settings from step 6
 
 On success in config mode, it also downloads `<RoleID>_applied_<timestamp>.yaml`.
 
@@ -203,56 +191,12 @@ A successful config mode run looks like this in the console:
 [AHPatcher] BOR: existing=57, granted=162, locked=31
 [AHPatcher] Row condition preserved: FRS_MyItem#
 [AHPatcher] Row conditions applied: Incident#, ServiceReq#, MyShelfItem#, FRS_Knowledge#, Announcement#, Journal#, Journal#Email, Journal#Notes
+[AHPatcher] System Permissions updated: Search (Global 1→7, User 14→14)
+[AHPatcher] Publish rights updated: Actions: 0 role(s); Searches: 0 role(s); Dashboards: 0 role(s); Reports: 2 role(s)
+[AHPatcher] DownloadRights -> false , EmailSearchRights -> false
 [AHPatcher] PATCHER SUCCEEDED. Navigate away and back to Object Permissions to confirm changes.
 [AHPatcher] Applied YAML saved.
 ```
-
----
-
-## Using AHPatcher-Interceptor-v2.js
-
-### Step 1 - Get to the right page
-
-Admin > Roles > any role > Object Permissions.
-
-### Step 2 - Paste the script
-
-Paste and press Enter. You will see:
-
-```
-[AHCapture] =================================================
-[AHCapture]  AHCapture - Role Permissions Capture
-[AHCapture] -------------------------------------------------
-[AHCapture]  Does NOT modify anything -- pure capture mode.
-[AHCapture]  Re-installs automatically after each save.
-[AHCapture] -------------------------------------------------
-[AHCapture]  1. Tick or untick any checkbox on the page
-[AHCapture]  2. Click Save
-[AHCapture]  3. Check Downloads for .json and .yaml files
-[AHCapture] =================================================
-```
-
-### Step 3 - Trigger the save
-
-Tick or untick any checkbox and click Save. Two files download:
-
-- `<RoleID>_snapshot_<timestamp>.json` - the raw RolePolicy, compatible with AHPatcher-v5.js snapshot mode
-- `<RoleID>_permissions_<timestamp>.yaml` - human-readable BO rights summary including any field-level rights blocks
-
-The interceptor re-installs automatically. Navigate to another role and repeat without re-pasting.
-
-### Using it as a pre-flight check
-
-Run the interceptor on the role you are about to patch. Check the YAML to confirm what is currently set. Then switch to AHPatcher-v5.js for the actual changes.
-
-### Using AHPatcher-v5.js as a permissions copy tool
-
-The target role is determined by which Object Permissions page you are on - not by what is in the snapshot file:
-
-1. Run `AHPatcher-Interceptor-v2.js` on Role A to get `RoleA_snapshot_<ts>.json`
-2. Navigate to Role B's Object Permissions page
-3. Paste `AHPatcher-v5.js`, work through the wizard, at step 3 choose Restore from Snapshot and pick `RoleA_snapshot_<ts>.json`
-4. Role B now has Role A's exact permissions
 
 ---
 
@@ -260,11 +204,11 @@ The target role is determined by which Object Permissions page you are on - not 
 
 The script checks `version.txt` in the GitHub repo each time it runs. To manage versions:
 
-1. Keep `version.txt` containing the current release version, e.g. `5.0.0`
-2. Update `SCRIPT_VERSION` at line 67 of `AHPatcher-v5.js` when publishing a new release
+1. Keep `version.txt` containing the current release version, e.g. `5.3.3`
+2. Update `SCRIPT_VERSION` near the top of `AHPatcher-latest.js` when publishing a new release
 3. Push the updated `version.txt` and script to the repo
 
-Anyone running an older copy of the script will see an orange warning in step 1 of the wizard with a link to the repo.
+Anyone running an older copy of the script will see an orange warning in step 1 of the wizard with a link to request the latest version.
 
 ---
 
@@ -314,39 +258,27 @@ BOs listed in the `field_rights` section of the config get explicit per-field ac
 **Applies row-level conditions**
 Row conditions are built from the `row_conditions` section of the config. `preserve_ootb` entries keep whatever ISM has stored. All other pre-existing row conditions are removed.
 
+**Applies System Permissions (step 6)**
+The Action / Search / Dashboard checkboxes fully replace the corresponding `ModuleRights` bits (unchecked boxes clear their bits, not just leave them alone). Publish role lists fully replace the role list for each target - a role left off the list loses its publish grant. `DownloadRights` and `EmailSearchRights` are patched inside the RolePolicy string, which is the copy ISM actually reads.
+
 ---
 
 ## Troubleshooting
 
-**The wizard does not open or shows a blank modal**
-Check the console for errors. If you see a network error on the GitHub fetch, confirm that `api.github.com` and `raw.githubusercontent.com` are reachable from your browser on the ISM domain.
-
-**Step 2 shows no configs in the dropdown**
-The script could not reach the GitHub API or the directory is empty. Use the manual filename input to enter a role name directly - the script will fetch it from the raw URL.
-
-**The script loads but nothing happens when I click Save**
-ISM will not fire a SaveRole request if it thinks nothing changed. Make sure you have ticked or unticked at least one checkbox before clicking Save.
-
-**The save fails with a server error**
-Check the console for the error message. If you see anything about array serialisation or "StartArray token is expected", you may be running an older version of the script. The current version patches `Array.prototype.toJSON` before serialising row conditions to avoid this.
-
-**The page refreshes but the permissions look wrong**
-Check the downloaded YAML report. It lists every BO that was granted or locked and every row condition that was applied or removed.
-
-**No snapshot or YAML file downloaded**
-Your browser may have blocked the automatic downloads. Check your browser's download settings and make sure downloads are not blocked for the ISM domain.
-
-**I want to target a different role**
-Navigate to that role's Object Permissions page first, then paste the script. The target role is determined entirely by which page you are on.
-
-**I need to change what a role gets permanently**
-Edit the role's JSON file in the GitHub repo. No script changes are needed. The next paste of the script picks up the new config automatically.
-
-**A custom BO added in the wizard did not take effect**
-The script generates casing variants automatically, but compound PascalCase words (e.g. `ServiceReq`) cannot be reconstructed from an all-lowercase input. Use the canonical ISM name when adding custom BOs in the wizard.
-
-**Version check shows outdated but I just updated**
-The version check uses `cache: 'no-store'` so it bypasses the browser cache. If it still shows outdated, confirm `version.txt` in the repo was updated and the push completed.
+| Symptom | Cause / fix |
+|---|---|
+| Wizard doesn't open, or shows a blank modal | Check the console for errors. A network error on the GitHub fetch usually means `api.github.com` or `raw.githubusercontent.com` isn't reachable from the ISM domain. |
+| Step 2 shows no configs in the dropdown | The script couldn't reach the GitHub API, or the directory is empty. Use the manual filename input to fetch a role directly by name. |
+| Nothing happens after clicking Save | ISM won't fire `SaveRole` if it thinks nothing changed. Tick or untick at least one checkbox first. |
+| Save fails with a server error | Check the console message. Errors about array serialization or `"StartArray token is expected"` usually mean an outdated script - the current version patches `Array.prototype.toJSON` before serializing row conditions. |
+| Permissions look wrong after saving | Check the downloaded YAML report - it lists every BO granted or locked and every row condition applied or removed. |
+| No snapshot or YAML file downloaded | The browser likely blocked automatic downloads. Check download settings for the ISM domain. |
+| Need to target a different role | Navigate to that role's Object Permissions page first, then paste the script - the target role is whichever page you're on. |
+| Need a permanent change to what a role gets | Edit that role's JSON file in the GitHub repo. No script changes needed - the next paste picks it up automatically. |
+| A custom BO added in step 5 didn't take effect | Compound PascalCase words (e.g. `ServiceReq`) can't be reconstructed from all-lowercase input. Use the canonical ISM name. |
+| Version check shows outdated right after updating | The check uses `cache: 'no-store'`, so it isn't a caching issue - confirm `version.txt` in the repo was actually updated and pushed. |
+| "Allow Microsoft Excel download" / "Allow email to yourself" checkboxes don't stick | Fixed as of v5.3.1 - these booleans exist in two places in the SaveRole payload; only the copy nested inside RolePolicy is read by ISM, and that's the one now patched. |
+| Create (for self) doesn't apply for Action or Dashboard | Fixed as of v5.3.3 - if a role never had that security type in `ModuleRights` at all, the checkbox was previously a silent no-op. It's now created from a zeroed baseline instead of being skipped. |
 
 ---
 
