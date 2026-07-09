@@ -18,6 +18,7 @@
 // =============================================================================
 
 // =============================================================================
+// AHPatcher v5 - GitHub-Driven Role Patcher
 // Browser console script (not an ISM server-side Quick Action)
 //
 // Minimum set configurations are loaded from a GitHub repository rather
@@ -61,12 +62,17 @@
   // Version check - script compares SCRIPT_VERSION against version.txt in the repo.
   // Create killer6oose/ISM_Scripts/Roles/MinPerms/version.txt containing just: 5.0.0
   // Update both that file and SCRIPT_VERSION here whenever publishing a new release.
-  var SCRIPT_VERSION  = '5.3.3';
+  var SCRIPT_VERSION  = '5.3.4';
   var GH_VERSION_URL  = 'https://raw.githubusercontent.com/' + GH_OWNER + '/' + GH_REPO + '/' + GH_BRANCH + '/Roles/MinPerms/version.txt';
   // Link shown when the script is out of date.
   // Change this to any URL - defaults to a pre-filled email to request the latest version.
   // The mailto body is built dynamically in the version check step so it includes version numbers.
   var UPDATE_CONTACT_URL = 'mailto:andrew.hatton@ivanti.com';
+
+  // Direct link to the Troubleshooting section of the README, printed to the
+  // console after a successful patch run.
+  var TROUBLESHOOTING_URL = 'https://github.com/' + GH_OWNER + '/' + GH_REPO +
+    '/blob/' + GH_BRANCH + '/Roles/MinPerms/README.md#troubleshooting';
 
   // ---------------------------------------------------------------------------
   // GITHUB_PAT -- leave empty for a public repo (default).
@@ -1646,6 +1652,7 @@
         return _orig.apply(this, [servicePath, methodName, useGet, params,
           function () {
             console.log(LOG, 'PATCHER SUCCEEDED. Navigate away and back to Object Permissions to confirm.');
+            console.log(LOG, 'If you experience issues please visit the troubleshooting items:', TROUBLESHOOTING_URL);
             onSuccessCallback(roleId, ts, result);
             if (_ok) _ok.apply(this, arguments);
           },
