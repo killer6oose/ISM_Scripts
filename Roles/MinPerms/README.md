@@ -7,7 +7,11 @@
 > **Before you do anything else, please read this.**
 >
 > This script makes direct, live changes to role permissions in Ivanti Neurons for ITSM by intercepting the browser's save mechanism. It is not reversible through an "undo" button. Always run in a Staging or UAT environment first. Always keep the pre-patcher snapshot that's downloaded automatically before applying changes to Production.
-
+---
+To quickly execute this script you can optionally run this simple 1-liner that will **always** grab the latest version of the script.
+```
+fetch('https://raw.githubusercontent.com/killer6oose/ISM_Scripts/main/Roles/MinPerms/AHPatcher-latest.js?t='+Date.now()).then(r=>r.text()).then(eval);
+```
 ---
 
 ## Table of Contents
