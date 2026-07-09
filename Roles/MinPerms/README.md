@@ -10,6 +10,26 @@
 
 ---
 
+## Table of Contents
+
+- [What is this?](#what-is-this)
+- [Files](#files)
+- [GitHub config repository](#github-config-repository)
+  - [Role config file format](#role-config-file-format)
+  - [Adding a new role config](#adding-a-new-role-config)
+- [Prerequisites](#prerequisites)
+- [The wizard - step by step](#the-wizard---step-by-step)
+- [Using the Patcher](#using-the-patcher)
+- [Version management](#version-management)
+- [Automatic casing variants](#automatic-casing-variants)
+- [Custom BO access levels](#custom-bo-access-levels)
+- [What applying a config actually changes](#what-applying-a-config-actually-changes)
+- [Troubleshooting](#troubleshooting)
+- [Environment recommendation](#environment-recommendation)
+- [Disclaimer](#disclaimer)
+
+---
+
 ## What is this?
 
 A single browser console script for managing ISM role permissions without API keys, installed tools, or server-side changes. Paste it into the browser developer console while logged into ISM as an admin, on the target role's Object Permissions page.
@@ -267,6 +287,7 @@ The Action / Search / Dashboard checkboxes fully replace the corresponding `Modu
 
 | Symptom | Cause / fix |
 |---|---|
+| I cannot see the Service Catalog or My Items after applying | If the role is using Portal UI V3, error messages relevant to this may not surface. Switch the role to Portal UI V2 and log back in - you'll most likely see an explicit error naming the object you need "View" rights to. |
 | Wizard doesn't open, or shows a blank modal | Check the console for errors. A network error on the GitHub fetch usually means `api.github.com` or `raw.githubusercontent.com` isn't reachable from the ISM domain. |
 | Step 2 shows no configs in the dropdown | The script couldn't reach the GitHub API, or the directory is empty. Use the manual filename input to fetch a role directly by name. |
 | Nothing happens after clicking Save | ISM won't fire `SaveRole` if it thinks nothing changed. Tick or untick at least one checkbox first. |
