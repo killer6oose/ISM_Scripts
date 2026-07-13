@@ -235,7 +235,10 @@
     "Journal#RemoteControlSession": 7,
     "Audit_Task#": 7,
     "Frs_def_escalation_setting#": 1,
-    "Frs_def_escalation_schedule#": 1
+    "Frs_def_escalation_schedule#": 1,
+    "EmployeeLanguage#": 1,
+    "Frs_ITFM_Account#": 1,
+    "FRS_LM_NamedLicenseBundle#": 1
   },
   "field_rights": {},
   "row_conditions": {}
