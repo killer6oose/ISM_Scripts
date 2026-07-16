@@ -62,7 +62,7 @@
   // Version check - script compares SCRIPT_VERSION against version.txt in the repo.
   // Create killer6oose/ISM_Scripts/Roles/MinPerms/version.txt containing just: 5.0.0
   // Update both that file and SCRIPT_VERSION here whenever publishing a new release.
-  var SCRIPT_VERSION  = '5.4.0';
+  var SCRIPT_VERSION  = '5.4.2';
   var GH_VERSION_URL  = 'https://raw.githubusercontent.com/' + GH_OWNER + '/' + GH_REPO + '/' + GH_BRANCH + '/Roles/MinPerms/version.txt';
   // Link shown when the script is out of date.
   // Change this to any URL - defaults to a pre-filled email to request the latest version.
@@ -566,9 +566,14 @@
           'display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;' +
           'border-radius:50%;background:' + CLR.grey + ';color:#fff;font-size:10px;font-weight:bold;' +
           'cursor:help;line-height:1;user-select:none;', '?');
+        // Anchored to the icon's LEFT edge (not centered) and opening DOWNWARD,
+        // so it can't extend past the modal's left edge or overlap the notice
+        // banner above the cards -- the modal itself has overflow:hidden, so
+        // anything that goes outside its box gets silently clipped rather than
+        // just looking odd, which is what centering on a 15px icon caused.
         var tip = el('div',
-          'display:none;position:absolute;bottom:22px;left:50%;transform:translateX(-50%);' +
-          'width:250px;background:' + CLR.navy + ';color:#fff;font-size:11px;line-height:1.6;' +
+          'display:none;position:absolute;top:22px;left:0;' +
+          'width:230px;max-width:80vw;background:' + CLR.navy + ';color:#fff;font-size:11px;line-height:1.6;' +
           'padding:8px 10px;border-radius:4px;box-shadow:0 4px 14px rgba(0,0,0,0.3);z-index:20;' +
           'font-weight:normal;text-align:left;');
         tip.innerHTML = tooltipHtml;
@@ -617,7 +622,7 @@
           label: 'Attachment#',
           blurb: 'Restriction: the user can only see and edit attachments they themselves uploaded.',
           help: 'Admin UI &rsaquo; Users and Permissions &rsaquo; Roles and Permissions &rsaquo; ' +
-                '[role] &rsaquo; Attachment &rsaquo; Edit Access Permissions'
+                '[role] &rsaquo; Attachment &rsaquo; Object Permissions'
         },
         {
           key: 'Journal#',
@@ -626,7 +631,7 @@
                  'permissions require PublishToWeb = true. There may still be journals published to web ' +
                  'that the user will technically have access to via the API.',
           help: 'Admin UI &rsaquo; Users and Permissions &rsaquo; Roles and Permissions &rsaquo; ' +
-                '[role] &rsaquo; Journal &rsaquo; Edit Access Permissions'
+                '[role] &rsaquo; Journal &rsaquo; Object Permissions'
         },
         {
           key: 'ServiceReqParam#',
@@ -634,7 +639,7 @@
           blurb: 'Restriction: the user will not be able to see a Service Request in the portal if they ' +
                  'were not the user who submitted the request.',
           help: 'Admin UI &rsaquo; Users and Permissions &rsaquo; Roles and Permissions &rsaquo; ' +
-                '[role] &rsaquo; ServiceReqParam &rsaquo; Edit Access Permissions'
+                '[role] &rsaquo; ServiceReqParam &rsaquo; Object Permissions'
         }
       ];
 
@@ -760,8 +765,21 @@
         var statusEl = el('p', 'font-size:12px;color:#595959;min-height:16px;margin-top:8px;', '');
         bodyEl.appendChild(statusEl);
 
+        // Filled in only when the loaded config has "ready": false at the top
+        // of its JSON -- see the "ready" field note in the README.
+        var notReadyBox = el('div', 'margin-top:8px;');
+        bodyEl.appendChild(notReadyBox);
+
+        // Once a config with "ready": false has been fetched and the warning
+        // shown, the button's job switches from "fetch" to "proceed anyway"
+        // so clicking it again doesn't just re-fetch and re-show the same
+        // warning in a loop.
+        var awaitingNotReadyConfirm = false;
+
         var nextBtn = mkBtn('Load Config ›', true, false);
         nextBtn.addEventListener('click', async function () {
+          if (awaitingNotReadyConfirm) { goToStep(3); return; }
+
           var customName = custInp.value.trim();
           var rawUrl = customName
             ? buildFileUrl(/\.json$/i.test(customName) ? customName : customName + '.json')
@@ -772,6 +790,7 @@
           }
           nextBtn.textContent = 'Loading…'; nextBtn.disabled = true;
           statusEl.style.color = '#595959'; statusEl.textContent = 'Fetching from GitHub…';
+          while (notReadyBox.firstChild) notReadyBox.removeChild(notReadyBox.firstChild);
           try {
             var cfg = await fetchRoleConfig(rawUrl);
             wState.roleConfig     = cfg;
@@ -779,12 +798,42 @@
             statusEl.style.color  = CLR.green;
             statusEl.textContent  = 'Loaded: ' + wState.roleConfigName + ' – ' +
               Object.keys(cfg.business_object_rights || {}).length + ' BOs';
-            setTimeout(function () { goToStep(3); }, 500);
+
+            // "ready" is optional in the config JSON; missing/omitted is
+            // treated as ready (true) so existing configs keep working
+            // unchanged. Only an explicit "ready": false pauses the wizard.
+            if (cfg.ready === false) {
+              notReadyBox.appendChild(notice(
+                'This role\'s object permissions may not be fully ready yet. Some functionality may ' +
+                'not be working as expected.',
+                'warn'));
+              awaitingNotReadyConfirm = true;
+              nextBtn.textContent = 'Continue anyway ›'; nextBtn.disabled = false;
+            } else {
+              setTimeout(function () { goToStep(3); }, 500);
+            }
           } catch (e) {
             nextBtn.textContent = 'Load Config ›'; nextBtn.disabled = false;
             statusEl.style.color = CLR.orange;
             statusEl.textContent = e.message === 'not_found'
               ? 'File not found. Check the name and try again.' : 'Error: ' + e.message;
+          }
+        });
+
+        // Changing the selection after a not-ready warning was shown should
+        // reset the button back to fetch mode for the newly picked file.
+        sel2.addEventListener('change', function () {
+          if (awaitingNotReadyConfirm) {
+            awaitingNotReadyConfirm = false;
+            nextBtn.textContent = 'Load Config ›';
+            while (notReadyBox.firstChild) notReadyBox.removeChild(notReadyBox.firstChild);
+          }
+        });
+        custInp.addEventListener('input', function () {
+          if (awaitingNotReadyConfirm) {
+            awaitingNotReadyConfirm = false;
+            nextBtn.textContent = 'Load Config ›';
+            while (notReadyBox.firstChild) notReadyBox.removeChild(notReadyBox.firstChild);
           }
         });
 
