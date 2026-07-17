@@ -2,6 +2,7 @@
   "role": "GRCAnalyst",
   "version": "2026.x",
   "description": "Minimum privilege set for GRCAnalyst. View-only on all GRC records, CI, Security Incidents, and Approvals. CRUD on Journal and workflow objects so analysts can add notes and participate in workflows.",
+  "ready": false,
   "_notes": {
     "transaction_bos": "GRC, CI, SecurityIncident, Approval core records. Manager=CRUD(15), Analyst=View(1).",
     "lookup_bos": "Reference/status tables. View(1) for both roles.",
