@@ -18,7 +18,7 @@
 // =============================================================================
 
 // =============================================================================
-// AHPatcher v5 - Role Patcher
+// AHPatcher v5 - GitHub-Driven Role Patcher
 // Browser console script (not an ISM server-side Quick Action)
 //
 // Minimum set configurations are loaded from a GitHub repository rather
@@ -50,7 +50,7 @@
   var LOG = '[AHPatcher]';
 
   // ===========================================================================
-  // ROLE DETECTION VIA GetEditRole
+  // ROLE DETECTION VIA GetEditRole INTERCEPT
   // Document title / DOM scraping proved unreliable -- ISM's role editor page
   // title doesn't reliably contain the role name. The one reliable source is
   // the GetEditRole SOAP call ISM fires when an admin clicks a role name from
@@ -89,7 +89,7 @@
   // Version check - script compares SCRIPT_VERSION against version.txt in the repo.
   // Create killer6oose/ISM_Scripts/Roles/MinPerms/version.txt containing just: 5.0.0
   // Update both that file and SCRIPT_VERSION here whenever publishing a new release.
-  var SCRIPT_VERSION  = '5.6.0';
+  var SCRIPT_VERSION  = '5.7.0';
   var GH_VERSION_URL  = 'https://raw.githubusercontent.com/' + GH_OWNER + '/' + GH_REPO + '/' + GH_BRANCH + '/Roles/MinPerms/version.txt';
   // Link shown when the script is out of date.
   // Change this to any URL - defaults to a pre-filled email to request the latest version.
@@ -155,7 +155,7 @@
     { key: 'Publish.Report',      label: 'Reports',    gateKey: null }
   ];
 
-  // Objects covered by the step 4 "Restrictive Object Permissions" alert.
+  // Objects covered by the step 3 "Restrictive Object Permissions" alert.
   // "match" decides which row_conditions keys a "No" answer skips for that
   // object -- Journal# covers its extension objects (Journal#Email,
   // Journal#Notes, etc.) by prefix match since they carry the same
@@ -169,7 +169,7 @@
   ];
 
   // Returns true if bo's row condition should be skipped this run because
-  // the admin answered "No" in step 4 for the object group it belongs to.
+  // the admin answered "No" in step 3 for the object group it belongs to.
   function isRowConditionOptedOut(bo, rcOptOuts) {
     if (!rcOptOuts) return false;
     for (var g = 0; g < ROW_CONDITION_OPT_GROUPS.length; g++) {
@@ -433,8 +433,8 @@
       // registers onNetworkRoleUpdate to refresh this and itself live.
       var detectedRole = initialDetectedRole;
 
-      var STEP_LABELS = ['Version', 'Role Config', 'Mode', 'Notice', 'Overrides', 'Sys Perms'];
-      var TOTAL_STEPS = 6;
+      var STEP_LABELS = ['Version', 'Role Config', 'Notice', 'Overrides', 'Sys Perms'];
+      var TOTAL_STEPS = 5;
 
       var wState = {
         step: 1,
@@ -453,7 +453,7 @@
         },
         downloadRights: false,     // "Allow Microsoft Excel download from saved searches"
         emailSearchRights: false,  // "Allow email to yourself from saved searches"
-        // Step 4 (Restrictive Object Permissions) - whether to apply the
+        // Step 3 (Restrictive Object Permissions) - whether to apply the
         // built-in row condition for each object. true = apply (default),
         // false = skip that object's row condition entirely this run.
         rowConditionOptOuts: {
@@ -596,7 +596,7 @@
 
       // Small "?" circle that reveals a dark hover tooltip. Used to tuck the
       // "where to adjust this manually in ISM" instructions out of the way so
-      // the step 4 alert cards don't get overwhelming with three objects on
+      // the step 3 alert cards don't get overwhelming with three objects on
       // screen at once.
       function helpIcon(tooltipHtml) {
         var wrap = el('span', 'position:relative;display:inline-block;margin-left:6px;vertical-align:middle;');
@@ -623,7 +623,7 @@
       }
 
       // Two-state "Yes / No" pill toggle, styled like a segmented control.
-      // Used on step 4 so the admin can opt a specific object out of having
+      // Used on step 3 so the admin can opt a specific object out of having
       // its row condition applied this run, without unchecking anything.
       function yesNoPills(defaultYes, onChange) {
         var wrap = el('div',
@@ -649,7 +649,7 @@
         return wrap;
       }
 
-      // Wizard-side display text for the step 4 alert cards. The "key" here
+      // Wizard-side display text for the step 3 alert cards. The "key" here
       // matches ROW_CONDITION_OPT_GROUPS (defined at script scope) which
       // owns the actual filtering logic used by buildRowConditions -- kept
       // in one place so the wizard's Yes/No answer and the patch behavior
@@ -770,6 +770,11 @@
 
       // ============================================================
       // STEP 2 - ROLE CONFIG
+      // Both pickers are shown at once -- there's no separate "which mode"
+      // question, since selecting a config vs. browsing a snapshot file
+      // already says what you mean. Whichever one is loaded (config fetch,
+      // config file import, or snapshot file import) sets wState.mode and
+      // unlocks Next.
       // ============================================================
       function renderStep2() {
         renderStepBar(2); clearBody(); clearFooter();
@@ -782,10 +787,21 @@
         onNetworkRoleUpdate = function (roleName) {
           if (wState.step !== 2) return;
           if (wState.roleConfig) return;
-          if (custInp && custInp.value.trim().length > 0) return;
+          if (wState.snapshotJson) return;
           detectedRole = roleName;
           renderStep2();
         };
+
+        function sectionHeading(txt) {
+          return el('p', 'font-size:12px;font-weight:bold;color:#1F3864;margin:14px 0 4px;', txt);
+        }
+
+        // ============================================================
+        // ROLE CONFIG SECTION
+        // ============================================================
+        var cfgSection = el('div', '');
+        bodyEl.appendChild(cfgSection);
+        cfgSection.appendChild(sectionHeading('Role Config'));
 
         var matched = null;
         if (detectedRole) {
@@ -794,53 +810,131 @@
               matched = roleFiles[i]; break;
             }
           }
-          bodyEl.appendChild(notice(
+          cfgSection.appendChild(notice(
             '<strong>Detected role:</strong> ' + detectedRole +
             (matched ? ' – matching config found and pre-selected.'
                      : ' – no matching file found. Select below or enter a filename.'),
             matched ? 'info' : 'warn'));
         }
 
-        bodyEl.appendChild(lbl(roleFiles.length > 0
+        cfgSection.appendChild(lbl(roleFiles.length > 0
           ? 'Select from available configurations:' : 'No configuration files found in repo.'));
 
         var selOpts = [{ v: '', l: '-- select a role --' }];
         roleFiles.forEach(function (f) { selOpts.push({ v: f.rawUrl, l: f.roleName }); });
         var sel2 = selEl(selOpts, matched ? matched.rawUrl : '');
-        bodyEl.appendChild(sel2);
-
-        bodyEl.appendChild(lbl('Or enter a filename manually (without .json), or import a local file:'));
-        var custRow = el('div', 'display:flex;gap:8px;align-items:center;');
-        var custInp = textInp('e.g. GRCManager  –  takes precedence over the dropdown above', '');
-        custInp.style.flex = '1';
-        var browseBtn = el('button',
-          'padding:8px 14px;background:#fff;color:' + CLR.blue + ';border:1px solid ' + CLR.blue + ';' +
-          'border-radius:4px;font-size:12px;font-weight:bold;cursor:pointer;white-space:nowrap;' +
-          'font-family:Arial,sans-serif;', 'Browse…');
-        custRow.appendChild(custInp); custRow.appendChild(browseBtn);
-        bodyEl.appendChild(custRow);
-
-        var fileInput = document.createElement('input');
-        fileInput.type = 'file'; fileInput.accept = '.json,application/json';
-        fileInput.style.display = 'none';
-        document.body.appendChild(fileInput);
-        browseBtn.addEventListener('click', function () { fileInput.click(); });
+        cfgSection.appendChild(sel2);
 
         var statusEl = el('p', 'font-size:12px;color:#595959;min-height:16px;margin-top:8px;', '');
-        bodyEl.appendChild(statusEl);
+        cfgSection.appendChild(statusEl);
 
         // Filled in only when the loaded config has "ready": false at the top
         // of its JSON -- see the "ready" field note in the README.
         var notReadyBox = el('div', 'margin-top:8px;');
-        bodyEl.appendChild(notReadyBox);
+        cfgSection.appendChild(notReadyBox);
+
+        // ============================================================
+        // SNAPSHOT SECTION
+        // ============================================================
+        var snapSection = el('div', '');
+        bodyEl.appendChild(snapSection);
+        snapSection.appendChild(sectionHeading('Or Restore from Snapshot'));
+        snapSection.appendChild(el('p', 'font-size:12px;color:#595959;margin:0 0 8px;',
+          'Select a snapshot JSON file previously saved by AHPatcher (e.g. a "_pre-patcher_snapshot_" or ' +
+          '"_Pre-Rollback_" file), or one captured by AHPatcher-Interceptor. Useful for rolling back or ' +
+          'copying permissions from another role.'));
+
+        var snapZone = el('div',
+          'border:2px dashed ' + CLR.grey + ';border-radius:6px;padding:16px;text-align:center;background:#FAFAFA;');
+        var snapPickBtn = el('button',
+          'padding:7px 16px;background:' + CLR.green + ';color:#fff;border:none;border-radius:4px;' +
+          'font-size:12px;cursor:pointer;font-family:Arial,sans-serif;', 'Choose File');
+        var snapFileInfo = el('p', 'font-size:11px;color:#595959;margin:8px 0 0;min-height:14px;', '');
+        snapZone.appendChild(snapPickBtn); snapZone.appendChild(snapFileInfo);
+        snapSection.appendChild(snapZone);
+
+        var snapInput = document.createElement('input');
+        snapInput.type = 'file'; snapInput.accept = '.json,application/json';
+        snapInput.style.display = 'none'; document.body.appendChild(snapInput);
+        snapPickBtn.addEventListener('click', function () { snapInput.click(); });
+
+        // Only one source can feed the patch, so once either side has
+        // something loaded, hide the other rather than leave a redundant
+        // "Next disabled because the OTHER field is empty" question on
+        // screen. Whichever side is hidden can come back by clearing the
+        // active side (dropdown back to "-- select a role --", or the ✕ on
+        // a loaded snapshot).
+        function updateSectionVisibility() {
+          var configActive   = !!(sel2.value || wState.roleConfig);
+          var snapshotActive = !!wState.snapshotJson;
+          snapSection.style.display = configActive   ? 'none' : '';
+          cfgSection.style.display  = snapshotActive ? 'none' : '';
+        }
+
+        function loadSnapshotFile(fileObj, raw, parsed) {
+          wState.snapshotJson     = raw;
+          wState.snapshotFileName = fileObj.name;
+          wState.mode             = 'snapshot';
+          snapFileInfo.innerHTML = '';
+          var okTxt = el('span', 'color:' + CLR.green + ';', '✓ ' + fileObj.name + ' (' +
+            Object.keys(parsed.BusinessObjectRights || {}).length + ' BOs)');
+          var clearLink = el('span',
+            'margin-left:10px;color:' + CLR.orange + ';cursor:pointer;text-decoration:underline;', '✕ Clear');
+          clearLink.addEventListener('click', function () {
+            wState.snapshotJson = null; wState.snapshotFileName = null;
+            snapFileInfo.textContent = '';
+            updateSectionVisibility();
+            refreshNextBtn();
+          });
+          snapFileInfo.appendChild(okTxt); snapFileInfo.appendChild(clearLink);
+          updateSectionVisibility();
+          refreshNextBtn();
+        }
+
+        snapInput.addEventListener('change', function () {
+          var f = snapInput.files[0]; if (!f) return;
+          snapInput.value = '';
+          var reader = new FileReader();
+          reader.onload = function (evt) {
+            try {
+              var parsed = JSON.parse(evt.target.result);
+              if (!parsed.BusinessObjectRights) throw new Error('Missing BusinessObjectRights');
+              loadSnapshotFile(f, evt.target.result, parsed);
+            } catch (e) {
+              wState.snapshotJson = null;
+              snapFileInfo.style.color = CLR.orange;
+              snapFileInfo.textContent = 'Invalid file: ' + e.message;
+              refreshNextBtn();
+            }
+          };
+          reader.readAsText(f);
+        });
+
+        // ============================================================
+        // NEXT BUTTON -- enabled once either a config or a snapshot is
+        // loaded. Whichever finished loading most recently sets wState.mode
+        // (set inside applyLoadedConfig / loadSnapshotFile), so this only
+        // has to reflect that state, not decide it.
+        // ============================================================
+        var nextBtn = mkBtn('Next ›', true, true);
+
+        // mkBtn() only bakes the disabled look into the inline style at
+        // creation time -- flipping the .disabled property later doesn't
+        // touch opacity/cursor, which left Next looking greyed out even
+        // once it was actually clickable. Update both here.
+        function refreshNextBtn() {
+          var ready = (wState.mode === 'snapshot' && !!wState.snapshotJson) ||
+                      (wState.mode === 'config'   && !!wState.roleConfig);
+          nextBtn.textContent = awaitingNotReadyConfirm ? 'Continue anyway ›' : 'Next ›';
+          nextBtn.disabled      = !ready;
+          nextBtn.style.opacity = ready ? '1' : '0.5';
+          nextBtn.style.cursor  = ready ? 'pointer' : 'not-allowed';
+        }
 
         // Once a config with "ready": false has been loaded and the warning
-        // shown, the button's job switches from "fetch" to "proceed anyway"
-        // so clicking it again doesn't just re-fetch and re-show the same
-        // warning in a loop.
+        // shown, Next's job switches from "advance" to "proceed anyway" so
+        // clicking it doesn't just silently skip past the same warning.
         var awaitingNotReadyConfirm = false;
-
-        var nextBtn = mkBtn('Load Config ›', true, false);
 
         // Shared by both the GitHub fetch path and the local-file-import path
         // so the "ready" check and the auto-advance/pause behavior can never
@@ -848,6 +942,7 @@
         function applyLoadedConfig(cfg, displayName) {
           wState.roleConfig     = cfg;
           wState.roleConfigName = cfg.role || displayName;
+          wState.mode           = 'config';
           statusEl.style.color  = CLR.green;
           statusEl.textContent  = 'Loaded: ' + wState.roleConfigName + ' – ' +
             Object.keys(cfg.business_object_rights || {}).length + ' BOs';
@@ -863,261 +958,81 @@
               'not be working as expected.',
               'warn'));
             awaitingNotReadyConfirm = true;
-            nextBtn.textContent = 'Continue anyway ›'; nextBtn.disabled = false;
           } else {
             awaitingNotReadyConfirm = false;
-            nextBtn.textContent = 'Load Config ›'; nextBtn.disabled = false;
-            setTimeout(function () {
-              if (document.body.contains(fileInput)) document.body.removeChild(fileInput);
-              goToStep(3);
-            }, 500);
           }
+          updateSectionVisibility();
+          refreshNextBtn();
         }
 
-        nextBtn.addEventListener('click', async function () {
-          if (awaitingNotReadyConfirm) {
-            if (document.body.contains(fileInput)) document.body.removeChild(fileInput);
-            goToStep(3);
+        // Auto-fetches the moment a role is picked from the dropdown -- no
+        // separate "Load Config" click needed.
+        sel2.addEventListener('change', async function () {
+          awaitingNotReadyConfirm = false;
+          while (notReadyBox.firstChild) notReadyBox.removeChild(notReadyBox.firstChild);
+
+          var rawUrl = sel2.value;
+          if (!rawUrl) {
+            wState.roleConfig = null;
+            statusEl.style.color = '#595959';
+            statusEl.textContent = '';
+            updateSectionVisibility();
+            refreshNextBtn();
             return;
           }
 
-          var customName = custInp.value.trim();
-          var rawUrl = customName
-            ? buildFileUrl(/\.json$/i.test(customName) ? customName : customName + '.json')
-            : sel2.value;
-          if (!rawUrl) {
-            statusEl.style.color = CLR.orange;
-            statusEl.textContent = 'Select a role, enter a filename, or browse for a local file.'; return;
-          }
-          nextBtn.textContent = 'Loading…'; nextBtn.disabled = true;
           statusEl.style.color = '#595959'; statusEl.textContent = 'Fetching from GitHub…';
-          while (notReadyBox.firstChild) notReadyBox.removeChild(notReadyBox.firstChild);
+          updateSectionVisibility();
           try {
             var cfg = await fetchRoleConfig(rawUrl);
-            applyLoadedConfig(cfg, customName || rawUrl.split('/').pop().replace(/\.json$/i, ''));
+            applyLoadedConfig(cfg, rawUrl.split('/').pop().replace(/\.json$/i, ''));
           } catch (e) {
-            nextBtn.textContent = 'Load Config ›'; nextBtn.disabled = false;
             statusEl.style.color = CLR.orange;
             statusEl.textContent = e.message === 'not_found'
               ? 'File not found. Check the name and try again.' : 'Error: ' + e.message;
           }
         });
 
-        // Local file import -- reads a role config JSON straight off disk
-        // instead of fetching it from GitHub. Runs through the same
-        // validation fetchRoleConfig() applies (business_object_rights must
-        // be present) and the same applyLoadedConfig() path as a GitHub fetch.
-        fileInput.addEventListener('change', function () {
-          var f = fileInput.files[0];
-          fileInput.value = ''; // allow re-picking the same file later
-          if (!f) return;
-          statusEl.style.color = '#595959'; statusEl.textContent = 'Reading ' + f.name + '…';
-          while (notReadyBox.firstChild) notReadyBox.removeChild(notReadyBox.firstChild);
-          var reader = new FileReader();
-          reader.onload = function (evt) {
-            try {
-              var parsed = JSON.parse(evt.target.result);
-
-              // The file most users will actually have on disk is the
-              // pre-patcher/Interceptor snapshot (raw ISM RolePolicy --
-              // capitalized BusinessObjectRights, ModuleRights, etc.), not an
-              // AHPatcher role config (lowercase business_object_rights).
-              // Rather than reject that as invalid, detect the shape and
-              // route straight into snapshot-restore mode -- it's exactly
-              // the file Step 3's snapshot picker expects, so there's no
-              // reason to bounce the user back to pick a different button.
-              if (parsed.BusinessObjectRights && typeof parsed.BusinessObjectRights === 'object') {
-                wState.snapshotJson     = evt.target.result;
-                wState.snapshotFileName = f.name;
-                wState.mode             = 'snapshot';
-                statusEl.style.color = CLR.green;
-                statusEl.textContent = 'Loaded snapshot: ' + f.name + ' (' +
-                  Object.keys(parsed.BusinessObjectRights).length + ' BOs) - skipping to mode selection';
-                console.log(LOG, 'Browsed file is a RolePolicy snapshot, not a config -- routing to snapshot-restore mode.');
-                setTimeout(function () {
-                  if (document.body.contains(fileInput)) document.body.removeChild(fileInput);
-                  goToStep(3);
-                }, 500);
-                return;
-              }
-
-              if (!parsed.business_object_rights || typeof parsed.business_object_rights !== 'object') {
-                throw new Error('"business_object_rights" key missing -- is this an AHPatcher config file?');
-              }
-              custInp.value = '';
-              applyLoadedConfig(parsed, f.name.replace(/\.json$/i, ''));
-            } catch (e) {
-              statusEl.style.color = CLR.orange;
-              statusEl.textContent = 'Invalid file: ' + e.message;
-            }
-          };
-          reader.onerror = function () {
-            statusEl.style.color = CLR.orange;
-            statusEl.textContent = 'Could not read ' + f.name + '.';
-          };
-          reader.readAsText(f);
-        });
-
-        // Changing the selection after a not-ready warning was shown should
-        // reset the button back to fetch mode for the newly picked file.
-        sel2.addEventListener('change', function () {
-          if (awaitingNotReadyConfirm) {
-            awaitingNotReadyConfirm = false;
-            nextBtn.textContent = 'Load Config ›';
-            while (notReadyBox.firstChild) notReadyBox.removeChild(notReadyBox.firstChild);
-          }
-        });
-        custInp.addEventListener('input', function () {
-          if (awaitingNotReadyConfirm) {
-            awaitingNotReadyConfirm = false;
-            nextBtn.textContent = 'Load Config ›';
-            while (notReadyBox.firstChild) notReadyBox.removeChild(notReadyBox.firstChild);
-          }
-        });
-
-        custInp.addEventListener('keydown', function (e) { if (e.key === 'Enter') nextBtn.click(); });
-
-        var backBtn = mkBtn('‹ Back', false);
-        backBtn.addEventListener('click', function () {
-          if (document.body.contains(fileInput)) document.body.removeChild(fileInput);
-          goToStep(1);
-        });
-        footerEl.appendChild(abortBtn()); footerEl.appendChild(backBtn); footerEl.appendChild(nextBtn);
-      }
-
-      // ============================================================
-      // STEP 3 - MODE SELECTION
-      // ============================================================
-      function renderStep3() {
-        renderStepBar(3); clearBody(); clearFooter();
-
-        bodyEl.appendChild(el('p', 'font-size:12px;color:#595959;margin:0 0 14px;',
-          'Apply the loaded config, or restore a previously saved snapshot?'));
-
-        // Card builder
-        function card(iconChar, title, desc, accentColor, bgColor) {
-          var c = el('div',
-            'border:2px solid ' + CLR.border + ';border-radius:6px;padding:14px 16px;cursor:pointer;' +
-            'margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;background:#fff;');
-          var ico = el('div', 'font-size:22px;flex-shrink:0;color:' + accentColor + ';padding-top:1px;', iconChar);
-          var wrap = el('div', 'flex:1;');
-          wrap.appendChild(el('div', 'font-size:13px;font-weight:bold;color:#1F3864;margin-bottom:4px;', title));
-          wrap.appendChild(el('div', 'font-size:12px;color:#595959;line-height:1.5;', desc));
-          c.appendChild(ico); c.appendChild(wrap);
-          c.addEventListener('mouseenter', function () {
-            if (!c._sel) { c.style.borderColor = accentColor; c.style.background = bgColor; }
-          });
-          c.addEventListener('mouseleave', function () {
-            if (!c._sel) { c.style.borderColor = CLR.border; c.style.background = '#fff'; }
-          });
-          c._accentColor = accentColor; c._bgColor = bgColor;
-          return c;
+        // If the dropdown already has a matching selection pre-filled (auto-
+        // detected role), fire the fetch immediately instead of waiting for
+        // the user to manually reselect it.
+        if (sel2.value) {
+          sel2.dispatchEvent(new Event('change'));
         }
 
-        var cfgCard = card('⚙', 'Apply Config: ' + (wState.roleConfigName || 'loaded config'),
-          'Replaces all current permissions with the loaded configuration. This is the standard patching path.',
-          CLR.blue, CLR.bgblue);
-
-        var snapCard = card('⏳', 'Restore from Snapshot',
-          'Apply a previously saved RolePolicy JSON. Useful for rolling back or copying permissions from another role.',
-          CLR.green, CLR.bggreen);
-
-        // File zone (shown only when snapshot selected)
-        var fileZone = el('div',
-          'display:none;border:2px dashed ' + CLR.grey + ';border-radius:6px;' +
-          'padding:16px;text-align:center;margin-top:-4px;margin-bottom:10px;background:#FAFAFA;');
-        fileZone.appendChild(el('p', 'font-size:12px;color:#595959;margin:0 0 8px;',
-          'Select a snapshot JSON file captured by AHPatcher-Interceptor'));
-        var filePickBtn = el('button',
-          'padding:7px 16px;background:' + CLR.green + ';color:#fff;border:none;border-radius:4px;' +
-          'font-size:12px;cursor:pointer;font-family:Arial,sans-serif;', 'Choose File');
-        var fileInfo = el('p', 'font-size:11px;color:#595959;margin:8px 0 0;min-height:14px;', '');
-        fileZone.appendChild(filePickBtn); fileZone.appendChild(fileInfo);
-
-        var hiddenInput = document.createElement('input');
-        hiddenInput.type = 'file'; hiddenInput.accept = '.json,application/json';
-        hiddenInput.style.display = 'none'; document.body.appendChild(hiddenInput);
-
-        filePickBtn.addEventListener('click', function () { hiddenInput.click(); });
-        hiddenInput.addEventListener('change', function () {
-          var f = hiddenInput.files[0]; if (!f) return;
-          var reader = new FileReader();
-          reader.onload = function (evt) {
-            try {
-              var parsed = JSON.parse(evt.target.result);
-              if (!parsed.BusinessObjectRights) throw new Error('Missing BusinessObjectRights');
-              wState.snapshotJson     = evt.target.result;
-              wState.snapshotFileName = f.name;
-              fileInfo.style.color    = CLR.green;
-              fileInfo.textContent    = '✓ ' + f.name + ' (' +
-                Object.keys(parsed.BusinessObjectRights).length + ' BOs)';
-              nextBtn.disabled = false;
-            } catch (e) {
-              wState.snapshotJson = null;
-              fileInfo.style.color = CLR.orange;
-              fileInfo.textContent = 'Invalid file: ' + e.message;
-              nextBtn.disabled = true;
-            }
-          };
-          reader.readAsText(f);
-        });
-
-        function selectMode(mode) {
-          wState.mode = mode;
-          cfgCard._sel  = (mode === 'config');
-          snapCard._sel = (mode === 'snapshot');
-          cfgCard.style.borderColor  = mode === 'config'   ? CLR.blue  : CLR.border;
-          cfgCard.style.background   = mode === 'config'   ? CLR.bgblue : '#fff';
-          snapCard.style.borderColor = mode === 'snapshot' ? CLR.green : CLR.border;
-          snapCard.style.background  = mode === 'snapshot' ? CLR.bggreen : '#fff';
-          fileZone.style.display = mode === 'snapshot' ? 'block' : 'none';
-          nextBtn.disabled = (mode === 'snapshot' && !wState.snapshotJson);
-        }
-
-        cfgCard.addEventListener('click', function ()  { selectMode('config');   nextBtn.disabled = false; });
-        snapCard.addEventListener('click', function ()  { selectMode('snapshot'); });
-        bodyEl.appendChild(cfgCard); bodyEl.appendChild(snapCard); bodyEl.appendChild(fileZone);
-
-        var nextBtn = mkBtn('Next ›', true, false);
-        nextBtn.addEventListener('click', function () {
-          if (document.body.contains(hiddenInput)) document.body.removeChild(hiddenInput);
-          goToStep(4);   // -> Attachment notice
-        });
-
-        // If Step 2's Browse button already loaded a snapshot file (the user
-        // picked a pre-patcher/Interceptor capture instead of a role config),
-        // wState.snapshotJson/snapshotFileName/mode arrive here pre-filled --
-        // reflect that in the UI instead of defaulting back to config mode.
-        if (wState.mode === 'snapshot' && wState.snapshotJson) {
-          selectMode('snapshot');
+        // If a snapshot was already loaded on a previous visit to this step
+        // (e.g. Back from the Notice step), reflect it immediately. Must run
+        // after nextBtn/refreshNextBtn exist since loadSnapshotFile calls them.
+        if (wState.snapshotJson) {
           try {
             var preParsed = JSON.parse(wState.snapshotJson);
-            fileInfo.style.color = CLR.green;
-            fileInfo.textContent = '✓ ' + wState.snapshotFileName + ' (' +
-              Object.keys(preParsed.BusinessObjectRights || {}).length + ' BOs)';
+            loadSnapshotFile({ name: wState.snapshotFileName }, wState.snapshotJson, preParsed);
           } catch (_) {}
-          nextBtn.disabled = false;
-        } else {
-          selectMode('config');
         }
 
+        updateSectionVisibility();
+        refreshNextBtn();
+
+        function cleanupInputs() {
+          if (document.body.contains(snapInput)) document.body.removeChild(snapInput);
+        }
+
+        nextBtn.addEventListener('click', function () { cleanupInputs(); goToStep(3); });
+
         var backBtn = mkBtn('‹ Back', false);
-        backBtn.addEventListener('click', function () {
-          if (document.body.contains(hiddenInput)) document.body.removeChild(hiddenInput);
-          goToStep(2);
-        });
+        backBtn.addEventListener('click', function () { cleanupInputs(); goToStep(1); });
         footerEl.appendChild(abortBtn()); footerEl.appendChild(backBtn); footerEl.appendChild(nextBtn);
       }
 
       // ============================================================
-      // STEP 4 - RESTRICTIVE OBJECT PERMISSIONS
+      // STEP 3 - RESTRICTIVE OBJECT PERMISSIONS
       // Warns about row-level restrictions on Attachment#, Journal# (and its
       // extension objects), and ServiceReqParam# that may be too tight for
       // some users, and lets the admin opt any of them out for this run via
       // a Yes/No pill per object (default: Yes, apply the restriction).
       // ============================================================
-      function renderStep4() {
-        renderStepBar(4); clearBody(); clearFooter();
+      function renderStep3() {
+        renderStepBar(3); clearBody(); clearFooter();
 
         var roleName = wState.roleConfigName || 'the selected role';
 
@@ -1164,19 +1079,19 @@
           'on the record.'));
 
         var backBtn = mkBtn('‹ Back', false);
-        backBtn.addEventListener('click', function () { goToStep(3); });
+        backBtn.addEventListener('click', function () { goToStep(2); });
 
         var nextBtn = mkBtn('Understood, continue ›', true);
-        nextBtn.addEventListener('click', function () { goToStep(5); });
+        nextBtn.addEventListener('click', function () { goToStep(4); });
 
         footerEl.appendChild(abortBtn()); footerEl.appendChild(backBtn); footerEl.appendChild(nextBtn);
       }
 
       // ============================================================
-      // STEP 5 - CUSTOM OVERRIDES
+      // STEP 4 - CUSTOM OVERRIDES
       // ============================================================
-      function renderStep5() {
-        renderStepBar(5); clearBody(); clearFooter();
+      function renderStep4() {
+        renderStepBar(4); clearBody(); clearFooter();
 
         var LVL = { 0:'0 - No access', 1:'1 - View', 3:'3 - View + Add',
                     5:'5 - View + Edit', 7:'7 - View + Add + Edit', 15:'15 - Full (CRUD)' };
@@ -1252,20 +1167,20 @@
         boInp.addEventListener('keydown', function (e) { if (e.key === 'Enter') tryAdd(); });
 
         var backBtn = mkBtn('‹ Back', false);
-        backBtn.addEventListener('click', function () { goToStep(4); });   // back to Attachment notice
+        backBtn.addEventListener('click', function () { goToStep(3); });   // back to Attachment notice
 
         var nextBtn = mkBtn('Next ›', true);
-        nextBtn.addEventListener('click', function () { goToStep(6); });   // -> System Permissions
+        nextBtn.addEventListener('click', function () { goToStep(5); });   // -> System Permissions
 
         footerEl.appendChild(abortBtn()); footerEl.appendChild(backBtn); footerEl.appendChild(nextBtn);
       }
 
       // ============================================================
-      // STEP 6 - SYSTEM PERMISSIONS
+      // STEP 5 - SYSTEM PERMISSIONS
       // Action/Search/Dashboard checkboxes + Allow Publishing role lists.
       // ============================================================
-      function renderStep6() {
-        renderStepBar(6); clearBody(); clearFooter();
+      function renderStep5() {
+        renderStepBar(5); clearBody(); clearFooter();
 
         bodyEl.appendChild(el('p', 'font-size:12px;color:#595959;margin:0 0 12px;',
           'Configure System Permissions for this role. Search – Create (for self) is checked by ' +
@@ -1420,7 +1335,7 @@
         ));
 
         var backBtn = mkBtn('‹ Back', false);
-        backBtn.addEventListener('click', function () { goToStep(5); });
+        backBtn.addEventListener('click', function () { goToStep(4); });
 
         var armBtn = mkBtn('Start Patching →', true);
         armBtn.addEventListener('click', function () {
@@ -1446,7 +1361,6 @@
         if (n === 3) renderStep3();
         if (n === 4) renderStep4();
         if (n === 5) renderStep5();
-        if (n === 6) renderStep6();
       }
 
       goToStep(1);
@@ -1557,7 +1471,7 @@
       var bo   = specKeys[i];
       var spec = rcSpec[bo];
 
-      // Step 4 opt-out: admin answered "No" for this object's group, so
+      // Step 3 opt-out: admin answered "No" for this object's group, so
       // leave its row condition out of the new set entirely -- access then
       // falls back to whatever the BusinessObjectRights bitmask allows.
       if (isRowConditionOptedOut(bo, rcOptOuts)) {
@@ -1586,7 +1500,7 @@
       if (!newRC.hasOwnProperty(curKeys[k])) removed.push(curKeys[k]);
     }
     if (removed.length > 0) console.log(LOG, 'Row conditions removed:', removed.join(', '));
-    if (skipped.length > 0) console.log(LOG, 'Row conditions skipped (opted out in step 4):', skipped.join(', '));
+    if (skipped.length > 0) console.log(LOG, 'Row conditions skipped (opted out in step 3):', skipped.join(', '));
 
     return { rc: newRC, applied: applied, removed: removed };
   }
@@ -1937,7 +1851,7 @@
   // ===========================================================================
   // INTERCEPTOR INSTALLER
   // ===========================================================================
-  function installInterceptor(getPayload, onSuccessCallback, readyMsg, sysBooleans) {
+  function installInterceptor(getPayload, onSuccessCallback, readyMsg, sysBooleans, isRollback) {
     var _orig = Sys.Net.WebServiceProxy.invoke;
     Sys.Net.WebServiceProxy.invoke = function (servicePath, methodName, useGet, params, onSuccess, onFailure, userContext, timeout, enableJsonp, jsonpCallbackParameter) {
       if (methodName === 'SaveRole' && params && params.data) {
@@ -1947,9 +1861,15 @@
         var currentPolicy = params.data.RolePolicy;
         console.log(LOG, 'Intercepted SaveRole for:', roleId);
 
-        // Save pre-change state
-        downloadFile(roleId + '_pre-patcher_snapshot_' + ts + '.json', currentPolicy, 'application/json');
-        console.log(LOG, 'Pre-patcher snapshot saved.');
+        // Save pre-change state. When applying FROM a backup/snapshot file
+        // (a rollback), name this file "_Pre-Rollback_" instead of the usual
+        // "_pre-patcher_snapshot_" so it's obvious later that this capture
+        // was taken right before rolling the role back to an older state --
+        // otherwise it's easy to mix up with the many other pre-patcher
+        // snapshots a role accumulates over time.
+        var preFileTag = isRollback ? '_Pre-Rollback_' : '_pre-patcher_snapshot_';
+        downloadFile(roleId + preFileTag + ts + '.json', currentPolicy, 'application/json');
+        console.log(LOG, isRollback ? 'Pre-rollback snapshot saved.' : 'Pre-patcher snapshot saved.');
 
         var result = getPayload(currentPolicy, roleId, ts);
 
@@ -2082,7 +2002,8 @@
         console.log(LOG, 'Snapshot applied. Pre-patcher files are your record of what changed.');
       },
       [' Mode   : SNAPSHOT', ' File   : ' + wResult.snapshotFileName, ' Custom : ' + custCount],
-      sysBooleans
+      sysBooleans,
+      true // isRollback -- names the pre-change backup "_Pre-Rollback_" instead of "_pre-patcher_snapshot_"
     );
 
   } else {
