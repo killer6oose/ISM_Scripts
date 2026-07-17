@@ -2,6 +2,7 @@
   "role": "SelfServiceMobile",
   "version": "2026.x",
   "description": "Minimum privilege set for the SelfServiceMobile role. Covers self-service portal, knowledge base, service catalog, incidents, and journal access.",
+  "ready": true,
   "business_object_rights": {
     "Frs_def_role#": 1,
     "Incident#": 7,
@@ -185,8 +186,8 @@
         },
         {
           "kind": "function",
-          "field": "Owner",
-          "fn": "CurrentLoginId"
+          "field": "AlternateContactLink",
+          "fn": "CurrentUserRecId"
         },
         {
           "kind": "function",
@@ -207,8 +208,8 @@
         },
         {
           "kind": "function",
-          "field": "Owner",
-          "fn": "CurrentLoginId"
+          "field": "AlternateContactLink",
+          "fn": "CurrentUserRecId"
         },
         {
           "kind": "function",
