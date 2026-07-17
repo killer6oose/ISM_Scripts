@@ -50,7 +50,7 @@
   var LOG = '[AHPatcher]';
 
   // ===========================================================================
-  // ROLE DETECTION VIA GetEditRole INTERCEPT
+  // ROLE DETECTION VIA GetEditRole
   // Document title / DOM scraping proved unreliable -- ISM's role editor page
   // title doesn't reliably contain the role name. The one reliable source is
   // the GetEditRole SOAP call ISM fires when an admin clicks a role name from
@@ -1422,7 +1422,7 @@
         var backBtn = mkBtn('‹ Back', false);
         backBtn.addEventListener('click', function () { goToStep(5); });
 
-        var armBtn = mkBtn('Arm Interceptor →', true);
+        var armBtn = mkBtn('Start Patching →', true);
         armBtn.addEventListener('click', function () {
           cleanup();
           resolve({
