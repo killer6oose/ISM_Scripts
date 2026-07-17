@@ -18,7 +18,7 @@
 // =============================================================================
 
 // =============================================================================
-// AHPatcher v5 - GitHub-Driven Role Patcher
+// AHPatcher v5 - Role Patcher
 // Browser console script (not an ISM server-side Quick Action)
 //
 // Minimum set configurations are loaded from a GitHub repository rather
@@ -50,6 +50,33 @@
   var LOG = '[AHPatcher]';
 
   // ===========================================================================
+  // ROLE DETECTION VIA GetEditRole INTERCEPT
+  // Document title / DOM scraping proved unreliable -- ISM's role editor page
+  // title doesn't reliably contain the role name. The one reliable source is
+  // the GetEditRole SOAP call ISM fires when an admin clicks a role name from
+  // Settings > Roles and Permissions to open its editor: the request payload
+  // is {"strRef":"<RoleName>","_csrfToken":"..."}. This hook is installed
+  // immediately (before anything else runs) and stays live for the whole
+  // session -- Settings pages in ISM swap panels via AJAX rather than full
+  // page reloads, so if this script is pasted before clicking into a role
+  // (or before switching to a different one), the click that follows will
+  // still fire GetEditRole and get captured here.
+  // ===========================================================================
+  var networkDetectedRole  = null;
+  var onNetworkRoleUpdate  = null; // set by Step 2 render to live-refresh the dropdown
+  try {
+    var _origInvokeForDetect = Sys.Net.WebServiceProxy.invoke;
+    Sys.Net.WebServiceProxy.invoke = function (servicePath, methodName, useGet, params, onSuccess, onFailure, userContext, timeout, enableJsonp, jsonpCallbackParameter) {
+      if (methodName === 'GetEditRole' && params && params.data && params.data.strRef) {
+        networkDetectedRole = params.data.strRef;
+        console.log(LOG, 'Detected role from GetEditRole call:', networkDetectedRole);
+        if (typeof onNetworkRoleUpdate === 'function') onNetworkRoleUpdate(networkDetectedRole);
+      }
+      return _origInvokeForDetect.apply(this, [servicePath, methodName, useGet, params, onSuccess, onFailure, userContext, timeout, enableJsonp, jsonpCallbackParameter]);
+    };
+  } catch (_) {}
+
+  // ===========================================================================
   // GITHUB CONFIG
   // ===========================================================================
   var GH_OWNER  = 'killer6oose';
@@ -62,7 +89,7 @@
   // Version check - script compares SCRIPT_VERSION against version.txt in the repo.
   // Create killer6oose/ISM_Scripts/Roles/MinPerms/version.txt containing just: 5.0.0
   // Update both that file and SCRIPT_VERSION here whenever publishing a new release.
-  var SCRIPT_VERSION  = '5.4.2';
+  var SCRIPT_VERSION  = '5.6.0';
   var GH_VERSION_URL  = 'https://raw.githubusercontent.com/' + GH_OWNER + '/' + GH_REPO + '/' + GH_BRANCH + '/Roles/MinPerms/version.txt';
   // Link shown when the script is out of date.
   // Change this to any URL - defaults to a pre-filled email to request the latest version.
@@ -240,6 +267,11 @@
   // ===========================================================================
   function detectRoleFromPage() {
 
+    // Pattern 0: GetEditRole network capture (see hook near top of file) --
+    // by far the most reliable source since it's the exact strRef ISM itself
+    // uses to load the role, not a scraped label.
+    if (networkDetectedRole) return networkDetectedRole;
+
     // Pattern 1: URL query parameters
     try {
       var params = new URLSearchParams(window.location.search);
@@ -392,8 +424,14 @@
     return 0;
   }
 
-  function showWizard(detectedRole, roleFiles) {
+  function showWizard(initialDetectedRole, roleFiles) {
     return new Promise(function (resolve) {
+
+      // Reassignable copy -- the GetEditRole hook (top of file) can still
+      // fire after the wizard is already open (e.g. this script was pasted
+      // from the role list before clicking into a role), so renderStep2
+      // registers onNetworkRoleUpdate to refresh this and itself live.
+      var detectedRole = initialDetectedRole;
 
       var STEP_LABELS = ['Version', 'Role Config', 'Mode', 'Notice', 'Overrides', 'Sys Perms'];
       var TOTAL_STEPS = 6;
@@ -622,7 +660,7 @@
           label: 'Attachment#',
           blurb: 'Restriction: the user can only see and edit attachments they themselves uploaded.',
           help: 'Admin UI &rsaquo; Users and Permissions &rsaquo; Roles and Permissions &rsaquo; ' +
-                '[role] &rsaquo; Attachment &rsaquo; Object Permissions'
+                '[role] &rsaquo; Attachment &rsaquo; Edit Access Permissions'
         },
         {
           key: 'Journal#',
@@ -631,7 +669,7 @@
                  'permissions require PublishToWeb = true. There may still be journals published to web ' +
                  'that the user will technically have access to via the API.',
           help: 'Admin UI &rsaquo; Users and Permissions &rsaquo; Roles and Permissions &rsaquo; ' +
-                '[role] &rsaquo; Journal &rsaquo; Object Permissions'
+                '[role] &rsaquo; Journal &rsaquo; Edit Access Permissions'
         },
         {
           key: 'ServiceReqParam#',
@@ -639,7 +677,7 @@
           blurb: 'Restriction: the user will not be able to see a Service Request in the portal if they ' +
                  'were not the user who submitted the request.',
           help: 'Admin UI &rsaquo; Users and Permissions &rsaquo; Roles and Permissions &rsaquo; ' +
-                '[role] &rsaquo; ServiceReqParam &rsaquo; Object Permissions'
+                '[role] &rsaquo; ServiceReqParam &rsaquo; Edit Access Permissions'
         }
       ];
 
@@ -736,6 +774,19 @@
       function renderStep2() {
         renderStepBar(2); clearBody(); clearFooter();
 
+        // If the GetEditRole click hasn't fired yet when this step first
+        // renders (script pasted mid-navigation), pick it up the moment it
+        // does -- but only while the user hasn't already picked/typed/loaded
+        // something themselves, so a late-arriving detection never clobbers
+        // a choice already in progress.
+        onNetworkRoleUpdate = function (roleName) {
+          if (wState.step !== 2) return;
+          if (wState.roleConfig) return;
+          if (custInp && custInp.value.trim().length > 0) return;
+          detectedRole = roleName;
+          renderStep2();
+        };
+
         var matched = null;
         if (detectedRole) {
           for (var i = 0; i < roleFiles.length; i++) {
@@ -758,9 +809,22 @@
         var sel2 = selEl(selOpts, matched ? matched.rawUrl : '');
         bodyEl.appendChild(sel2);
 
-        bodyEl.appendChild(lbl('Or enter a filename manually (without .json):'));
+        bodyEl.appendChild(lbl('Or enter a filename manually (without .json), or import a local file:'));
+        var custRow = el('div', 'display:flex;gap:8px;align-items:center;');
         var custInp = textInp('e.g. GRCManager  –  takes precedence over the dropdown above', '');
-        bodyEl.appendChild(custInp);
+        custInp.style.flex = '1';
+        var browseBtn = el('button',
+          'padding:8px 14px;background:#fff;color:' + CLR.blue + ';border:1px solid ' + CLR.blue + ';' +
+          'border-radius:4px;font-size:12px;font-weight:bold;cursor:pointer;white-space:nowrap;' +
+          'font-family:Arial,sans-serif;', 'Browse…');
+        custRow.appendChild(custInp); custRow.appendChild(browseBtn);
+        bodyEl.appendChild(custRow);
+
+        var fileInput = document.createElement('input');
+        fileInput.type = 'file'; fileInput.accept = '.json,application/json';
+        fileInput.style.display = 'none';
+        document.body.appendChild(fileInput);
+        browseBtn.addEventListener('click', function () { fileInput.click(); });
 
         var statusEl = el('p', 'font-size:12px;color:#595959;min-height:16px;margin-top:8px;', '');
         bodyEl.appendChild(statusEl);
@@ -770,15 +834,52 @@
         var notReadyBox = el('div', 'margin-top:8px;');
         bodyEl.appendChild(notReadyBox);
 
-        // Once a config with "ready": false has been fetched and the warning
+        // Once a config with "ready": false has been loaded and the warning
         // shown, the button's job switches from "fetch" to "proceed anyway"
         // so clicking it again doesn't just re-fetch and re-show the same
         // warning in a loop.
         var awaitingNotReadyConfirm = false;
 
         var nextBtn = mkBtn('Load Config ›', true, false);
+
+        // Shared by both the GitHub fetch path and the local-file-import path
+        // so the "ready" check and the auto-advance/pause behavior can never
+        // drift apart between the two ways of getting a config into wState.
+        function applyLoadedConfig(cfg, displayName) {
+          wState.roleConfig     = cfg;
+          wState.roleConfigName = cfg.role || displayName;
+          statusEl.style.color  = CLR.green;
+          statusEl.textContent  = 'Loaded: ' + wState.roleConfigName + ' – ' +
+            Object.keys(cfg.business_object_rights || {}).length + ' BOs';
+
+          while (notReadyBox.firstChild) notReadyBox.removeChild(notReadyBox.firstChild);
+
+          // "ready" is optional in the config JSON; missing/omitted is
+          // treated as ready (true) so existing configs keep working
+          // unchanged. Only an explicit "ready": false pauses the wizard.
+          if (cfg.ready === false) {
+            notReadyBox.appendChild(notice(
+              'This role\'s object permissions may not be fully ready yet. Some functionality may ' +
+              'not be working as expected.',
+              'warn'));
+            awaitingNotReadyConfirm = true;
+            nextBtn.textContent = 'Continue anyway ›'; nextBtn.disabled = false;
+          } else {
+            awaitingNotReadyConfirm = false;
+            nextBtn.textContent = 'Load Config ›'; nextBtn.disabled = false;
+            setTimeout(function () {
+              if (document.body.contains(fileInput)) document.body.removeChild(fileInput);
+              goToStep(3);
+            }, 500);
+          }
+        }
+
         nextBtn.addEventListener('click', async function () {
-          if (awaitingNotReadyConfirm) { goToStep(3); return; }
+          if (awaitingNotReadyConfirm) {
+            if (document.body.contains(fileInput)) document.body.removeChild(fileInput);
+            goToStep(3);
+            return;
+          }
 
           var customName = custInp.value.trim();
           var rawUrl = customName
@@ -786,38 +887,75 @@
             : sel2.value;
           if (!rawUrl) {
             statusEl.style.color = CLR.orange;
-            statusEl.textContent = 'Select a role or enter a filename.'; return;
+            statusEl.textContent = 'Select a role, enter a filename, or browse for a local file.'; return;
           }
           nextBtn.textContent = 'Loading…'; nextBtn.disabled = true;
           statusEl.style.color = '#595959'; statusEl.textContent = 'Fetching from GitHub…';
           while (notReadyBox.firstChild) notReadyBox.removeChild(notReadyBox.firstChild);
           try {
             var cfg = await fetchRoleConfig(rawUrl);
-            wState.roleConfig     = cfg;
-            wState.roleConfigName = cfg.role || (customName || rawUrl.split('/').pop().replace(/\.json$/i, ''));
-            statusEl.style.color  = CLR.green;
-            statusEl.textContent  = 'Loaded: ' + wState.roleConfigName + ' – ' +
-              Object.keys(cfg.business_object_rights || {}).length + ' BOs';
-
-            // "ready" is optional in the config JSON; missing/omitted is
-            // treated as ready (true) so existing configs keep working
-            // unchanged. Only an explicit "ready": false pauses the wizard.
-            if (cfg.ready === false) {
-              notReadyBox.appendChild(notice(
-                'This role\'s object permissions may not be fully ready yet. Some functionality may ' +
-                'not be working as expected.',
-                'warn'));
-              awaitingNotReadyConfirm = true;
-              nextBtn.textContent = 'Continue anyway ›'; nextBtn.disabled = false;
-            } else {
-              setTimeout(function () { goToStep(3); }, 500);
-            }
+            applyLoadedConfig(cfg, customName || rawUrl.split('/').pop().replace(/\.json$/i, ''));
           } catch (e) {
             nextBtn.textContent = 'Load Config ›'; nextBtn.disabled = false;
             statusEl.style.color = CLR.orange;
             statusEl.textContent = e.message === 'not_found'
               ? 'File not found. Check the name and try again.' : 'Error: ' + e.message;
           }
+        });
+
+        // Local file import -- reads a role config JSON straight off disk
+        // instead of fetching it from GitHub. Runs through the same
+        // validation fetchRoleConfig() applies (business_object_rights must
+        // be present) and the same applyLoadedConfig() path as a GitHub fetch.
+        fileInput.addEventListener('change', function () {
+          var f = fileInput.files[0];
+          fileInput.value = ''; // allow re-picking the same file later
+          if (!f) return;
+          statusEl.style.color = '#595959'; statusEl.textContent = 'Reading ' + f.name + '…';
+          while (notReadyBox.firstChild) notReadyBox.removeChild(notReadyBox.firstChild);
+          var reader = new FileReader();
+          reader.onload = function (evt) {
+            try {
+              var parsed = JSON.parse(evt.target.result);
+
+              // The file most users will actually have on disk is the
+              // pre-patcher/Interceptor snapshot (raw ISM RolePolicy --
+              // capitalized BusinessObjectRights, ModuleRights, etc.), not an
+              // AHPatcher role config (lowercase business_object_rights).
+              // Rather than reject that as invalid, detect the shape and
+              // route straight into snapshot-restore mode -- it's exactly
+              // the file Step 3's snapshot picker expects, so there's no
+              // reason to bounce the user back to pick a different button.
+              if (parsed.BusinessObjectRights && typeof parsed.BusinessObjectRights === 'object') {
+                wState.snapshotJson     = evt.target.result;
+                wState.snapshotFileName = f.name;
+                wState.mode             = 'snapshot';
+                statusEl.style.color = CLR.green;
+                statusEl.textContent = 'Loaded snapshot: ' + f.name + ' (' +
+                  Object.keys(parsed.BusinessObjectRights).length + ' BOs) - skipping to mode selection';
+                console.log(LOG, 'Browsed file is a RolePolicy snapshot, not a config -- routing to snapshot-restore mode.');
+                setTimeout(function () {
+                  if (document.body.contains(fileInput)) document.body.removeChild(fileInput);
+                  goToStep(3);
+                }, 500);
+                return;
+              }
+
+              if (!parsed.business_object_rights || typeof parsed.business_object_rights !== 'object') {
+                throw new Error('"business_object_rights" key missing -- is this an AHPatcher config file?');
+              }
+              custInp.value = '';
+              applyLoadedConfig(parsed, f.name.replace(/\.json$/i, ''));
+            } catch (e) {
+              statusEl.style.color = CLR.orange;
+              statusEl.textContent = 'Invalid file: ' + e.message;
+            }
+          };
+          reader.onerror = function () {
+            statusEl.style.color = CLR.orange;
+            statusEl.textContent = 'Could not read ' + f.name + '.';
+          };
+          reader.readAsText(f);
         });
 
         // Changing the selection after a not-ready warning was shown should
@@ -840,7 +978,10 @@
         custInp.addEventListener('keydown', function (e) { if (e.key === 'Enter') nextBtn.click(); });
 
         var backBtn = mkBtn('‹ Back', false);
-        backBtn.addEventListener('click', function () { goToStep(1); });
+        backBtn.addEventListener('click', function () {
+          if (document.body.contains(fileInput)) document.body.removeChild(fileInput);
+          goToStep(1);
+        });
         footerEl.appendChild(abortBtn()); footerEl.appendChild(backBtn); footerEl.appendChild(nextBtn);
       }
 
@@ -942,7 +1083,23 @@
           if (document.body.contains(hiddenInput)) document.body.removeChild(hiddenInput);
           goToStep(4);   // -> Attachment notice
         });
-        selectMode('config');
+
+        // If Step 2's Browse button already loaded a snapshot file (the user
+        // picked a pre-patcher/Interceptor capture instead of a role config),
+        // wState.snapshotJson/snapshotFileName/mode arrive here pre-filled --
+        // reflect that in the UI instead of defaulting back to config mode.
+        if (wState.mode === 'snapshot' && wState.snapshotJson) {
+          selectMode('snapshot');
+          try {
+            var preParsed = JSON.parse(wState.snapshotJson);
+            fileInfo.style.color = CLR.green;
+            fileInfo.textContent = '✓ ' + wState.snapshotFileName + ' (' +
+              Object.keys(preParsed.BusinessObjectRights || {}).length + ' BOs)';
+          } catch (_) {}
+          nextBtn.disabled = false;
+        } else {
+          selectMode('config');
+        }
 
         var backBtn = mkBtn('‹ Back', false);
         backBtn.addEventListener('click', function () {
@@ -1863,6 +2020,14 @@
     roleFiles.forEach(function (f) { console.log(LOG, '  -', f.roleName); });
   } catch (e) {
     console.warn(LOG, 'GitHub role list fetch failed:', e.message);
+  }
+
+  // Re-check right before the wizard opens -- the GitHub fetch above gives
+  // the GetEditRole hook a real window to catch a click that happened after
+  // this script was pasted (see hook near top of file).
+  if (!detectedRole && networkDetectedRole) {
+    detectedRole = networkDetectedRole;
+    console.log(LOG, 'Detected role from GetEditRole (post-fetch):', detectedRole);
   }
 
   // Run wizard (version check -> role config -> mode -> overrides)
