@@ -2,6 +2,7 @@
   "role": "GRCManager",
   "version": "2026.x",
   "description": "Minimum privilege set for GRCManager. Full CRUD on all GRC records, CI, Security Incidents, Approvals, and Attachments. View on all lookup/reference tables and platform support objects.",
+  "ready": false,
   "_notes": {
     "transaction_bos": "GRC, CI, SecurityIncident, Approval core records. Manager=CRUD(15), Analyst=View(1).",
     "lookup_bos": "Reference/status tables. View(1) for both roles.",
