@@ -144,6 +144,8 @@
     "JournalNotesSource#": 1,
     "ivnt_SecurityIncident#": 7,
     "ivnt_SecurityIncidentSource#": 1,
+    "ivnt_securityincidentcausecode#": 1,
+    "nrn_AITSMFeedback#": 1,
     "ivnt_SecurityIncidentStatus#": 1,
     "ivnt_HRCase#": 7,
     "HRCaseStatusWorkflow#": 1,
