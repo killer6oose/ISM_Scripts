@@ -60,6 +60,8 @@
     "ServiceReqSubscription#": 1,
     "ServiceReqSubscriptionParam#": 1,
     "Frs_ITFM_Recurring_Service_Subscription#": 5,
+    "Frs_ITFM_Account#": 1,
+    "ivnt_OfferStatus#": 1,
     "OrganizationalUnit#": 1,
     "OrganizationalUnitType#": 1,
     "ServiceAgreement#": 1,
