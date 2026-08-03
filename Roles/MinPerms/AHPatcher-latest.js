@@ -91,6 +91,10 @@
   // Update both that file and SCRIPT_VERSION here whenever publishing a new release.
   var SCRIPT_VERSION  = '5.7.0';
   var GH_VERSION_URL  = 'https://raw.githubusercontent.com/' + GH_OWNER + '/' + GH_REPO + '/' + GH_BRANCH + '/Roles/MinPerms/version.txt';
+  // JSON array of all OOTB BO names, e.g. ["Incident#","ServiceReq#","Audit_DataRequests#",...]
+  // Create this file in the repo at Roles/MinPerms/business_objects.json.
+  // If the file does not exist yet, the Add Rights UI falls back to manual input only.
+  var GH_BO_LIST_URL  = 'https://raw.githubusercontent.com/' + GH_OWNER + '/' + GH_REPO + '/' + GH_BRANCH + '/Roles/MinPerms/business_objects.json';
   // Link shown when the script is out of date.
   // Change this to any URL - defaults to a pre-filled email to request the latest version.
   // The mailto body is built dynamically in the version check step so it includes version numbers.
@@ -436,6 +440,14 @@
       var STEP_LABELS = ['Version', 'Role Config', 'Notice', 'Overrides', 'Sys Perms'];
       var TOTAL_STEPS = 5;
 
+      // In add-rights mode the wizard is only 3 steps: Version, Role Config, Add Rights.
+      // Everything else (row-condition opt-outs, custom overrides, sys perms) is irrelevant
+      // when we are just adding/updating individual BOs without touching defaults or RCs.
+      function getStepConfig() {
+        if (wState.mode === 'add') return { total: 3, labels: ['Version', 'Role Config', 'Add Rights'] };
+        return { total: TOTAL_STEPS, labels: STEP_LABELS };
+      }
+
       var wState = {
         step: 1,
         versionOk: null, latestVersion: null,
@@ -443,6 +455,10 @@
         mode: 'config',
         snapshotJson: null, snapshotFileName: null,
         customObjects: {},
+        // Add-rights mode state
+        addQueue: {},         // { 'BO#': rightsInt } -- what to add/update
+        allBOs: [],           // flat sorted list from pre-capture pass
+        addPreCaptured: false,// true once the pre-capture SaveRole has fired
         sysPerms: {
           'Fusion.Security.AutoTasks':    { createSelf: false, editAll: false, deleteAll: false },
           'Fusion.Security.SearchGroups': { createSelf: true,  editAll: false, deleteAll: false },
@@ -519,7 +535,8 @@
       // ---- Step indicator ----
       function renderStepBar(current) {
         while (stepBar.firstChild) stepBar.removeChild(stepBar.firstChild);
-        for (var i = 0; i < TOTAL_STEPS; i++) {
+        var sc = getStepConfig();
+        for (var i = 0; i < sc.total; i++) {
           var n = i + 1, done = n < current, active = n === current;
           var wrap = el('div', 'display:flex;flex-direction:column;align-items:center;gap:3px;');
           var bubble = el('div',
@@ -532,10 +549,10 @@
           var lbl = el('div',
             'font-size:10px;white-space:nowrap;margin-bottom:8px;' +
             (done ? 'color:rgba(255,255,255,0.65);' : active ? 'color:#fff;font-weight:bold;' : 'color:rgba(255,255,255,0.3);'),
-            STEP_LABELS[i]);
+            sc.labels[i]);
           wrap.appendChild(bubble); wrap.appendChild(lbl);
           stepBar.appendChild(wrap);
-          if (i < TOTAL_STEPS - 1) {
+          if (i < sc.total - 1) {
             stepBar.appendChild(el('div',
               'flex:1;height:2px;margin-bottom:20px;margin:0 4px 20px;' +
               (done ? 'background:#375623;' : 'background:rgba(255,255,255,0.18);'), ''));
@@ -858,18 +875,116 @@
         snapInput.style.display = 'none'; document.body.appendChild(snapInput);
         snapPickBtn.addEventListener('click', function () { snapInput.click(); });
 
+        // ---- Reset bar (shown at top of body when a selection is active) ----
+        var resetBar = el('div',
+          'display:none;background:#F0F4F8;border:1px solid #C8D8E8;border-radius:4px;' +
+          'padding:8px 12px;margin-bottom:10px;display:none;font-size:12px;color:#1F3864;' +
+          'display:flex;align-items:center;justify-content:space-between;');
+        var resetLabel = el('span', '', '');
+        var resetLink  = el('span',
+          'cursor:pointer;color:#2E75B6;text-decoration:underline;white-space:nowrap;',
+          '\u2190 Choose a different option');
+        resetBar.appendChild(resetLabel);
+        resetBar.appendChild(resetLink);
+        resetBar.style.display = 'none';
+        bodyEl.appendChild(resetBar);
+
+        function resetSelection() {
+          wState.mode           = 'config';   // back to "nothing chosen" initial state
+          wState.roleConfig     = null;
+          wState.roleConfigName = null;
+          wState.snapshotJson   = null;
+          wState.snapshotFileName = null;
+          sel2.value = '';
+          statusEl.textContent = '';
+          snapFileInfo.innerHTML = '';
+          awaitingNotReadyConfirm = false;
+          while (notReadyBox.firstChild) notReadyBox.removeChild(notReadyBox.firstChild);
+          addCard.style.borderColor = '#E0E0E0';
+          addCard.style.background  = '#fff';
+          addSelectedIndicator.style.display = 'none';
+          updateSectionVisibility();
+          refreshNextBtn();
+        }
+        resetLink.addEventListener('click', resetSelection);
+
         // Only one source can feed the patch, so once either side has
         // something loaded, hide the other rather than leave a redundant
         // "Next disabled because the OTHER field is empty" question on
-        // screen. Whichever side is hidden can come back by clearing the
-        // active side (dropdown back to "-- select a role --", or the ✕ on
-        // a loaded snapshot).
+        // screen. The reset bar at the top lets the user unselect and start over.
         function updateSectionVisibility() {
           var configActive   = !!(sel2.value || wState.roleConfig);
           var snapshotActive = !!wState.snapshotJson;
-          snapSection.style.display = configActive   ? 'none' : '';
-          cfgSection.style.display  = snapshotActive ? 'none' : '';
+          var addActive      = wState.mode === 'add';
+          var anyActive      = !!(wState.roleConfig) || snapshotActive || addActive;
+
+          // Reset bar: show label of what's active so user knows what they picked
+          if (anyActive) {
+            resetLabel.textContent = addActive      ? '\u2795  Add rights to existing role selected'
+                                   : snapshotActive ? '\u23f3  Snapshot: ' + (wState.snapshotFileName || 'loaded')
+                                   :                  '\u2699  Config: ' + (wState.roleConfigName || 'loaded');
+            resetBar.style.display = 'flex';
+          } else {
+            resetBar.style.display = 'none';
+          }
+
+          snapSection.style.display  = (configActive || addActive)  ? 'none' : '';
+          cfgSection.style.display   = (snapshotActive || addActive) ? 'none' : '';
+          addSection.style.display   = (configActive || snapshotActive) ? 'none' : '';
         }
+
+        // ============================================================
+        // ADD RIGHTS SECTION
+        // ============================================================
+        var addSection = el('div', '');
+        bodyEl.appendChild(addSection);
+        addSection.appendChild(sectionHeading('Or Add Rights to Existing Role'));
+        addSection.appendChild(el('p', 'font-size:12px;color:#595959;margin:0 0 10px;',
+          'Grant or update rights on specific business objects without touching the rest ' +
+          'of the role. Global defaults, all other BO rights, and row conditions are left ' +
+          'exactly as they are. Useful for targeted grants like adding edit rights to a ' +
+          'single audit object.'));
+
+        var addCard = el('div',
+          'border:2px solid #E0E0E0;border-radius:6px;padding:12px 14px;cursor:pointer;' +
+          'display:flex;gap:12px;align-items:flex-start;background:#fff;');
+        var addIcon = el('div', 'font-size:22px;flex-shrink:0;color:#7030A0;padding-top:1px;', '\u2795');
+        var addCardText = el('div', 'flex:1;');
+        addCardText.appendChild(el('div', 'font-size:13px;font-weight:bold;color:#1F3864;margin-bottom:4px;',
+          'Add / update rights on specific objects'));
+        addCardText.appendChild(el('div', 'font-size:12px;color:#595959;line-height:1.5;',
+          'You will search and select business objects from a live list pulled from the role itself, ' +
+          'choose their access level, and apply. Everything else on the role is untouched.'));
+        addCard.appendChild(addIcon); addCard.appendChild(addCardText);
+
+        var addSelectedIndicator = el('p',
+          'font-size:12px;color:#7030A0;margin:8px 0 0;font-weight:bold;display:none;',
+          '\u2714 Add rights mode selected - click Next to continue');
+
+        addCard.addEventListener('mouseenter', function () {
+          if (wState.mode !== 'add') { addCard.style.borderColor = '#7030A0'; addCard.style.background = '#F5EEFF'; }
+        });
+        addCard.addEventListener('mouseleave', function () {
+          if (wState.mode !== 'add') { addCard.style.borderColor = '#E0E0E0'; addCard.style.background = '#fff'; }
+        });
+        addCard.addEventListener('click', function () {
+          // Clear any loaded config / snapshot and switch to add mode
+          wState.mode           = 'add';
+          wState.roleConfig     = null;
+          wState.snapshotJson   = null;
+          wState.snapshotFileName = null;
+          sel2.value = '';
+          statusEl.textContent = '';
+          while (notReadyBox.firstChild) notReadyBox.removeChild(notReadyBox.firstChild);
+          addCard.style.borderColor = '#7030A0';
+          addCard.style.background  = '#F5EEFF';
+          addSelectedIndicator.style.display = '';
+          updateSectionVisibility();
+          refreshNextBtn();
+        });
+
+        addSection.appendChild(addCard);
+        addSection.appendChild(addSelectedIndicator);
 
         function loadSnapshotFile(fileObj, raw, parsed) {
           wState.snapshotJson     = raw;
@@ -924,7 +1039,8 @@
         // once it was actually clickable. Update both here.
         function refreshNextBtn() {
           var ready = (wState.mode === 'snapshot' && !!wState.snapshotJson) ||
-                      (wState.mode === 'config'   && !!wState.roleConfig);
+                      (wState.mode === 'config'   && !!wState.roleConfig)   ||
+                      (wState.mode === 'add');
           nextBtn.textContent = awaitingNotReadyConfirm ? 'Continue anyway ›' : 'Next ›';
           nextBtn.disabled      = !ready;
           nextBtn.style.opacity = ready ? '1' : '0.5';
@@ -1031,17 +1147,26 @@
       // some users, and lets the admin opt any of them out for this run via
       // a Yes/No pill per object (default: Yes, apply the restriction).
       // ============================================================
+      // ============================================================
+      // STEP 3 - context-aware:
+      //   add mode   -> Add Rights UI (pre-capture then searchable queue)
+      //   config/snapshot -> Restrictive Object Permissions notice
+      // ============================================================
       function renderStep3() {
+        if (wState.mode === 'add') { renderStep3AddRights(); return; }
+        renderStep3RestrictiveNotice();
+      }
+
+      // ---- Step 3: Restrictive Object Permissions (config/snapshot mode) ----
+      function renderStep3RestrictiveNotice() {
         renderStepBar(3); clearBody(); clearFooter();
 
         var roleName = wState.roleConfigName || 'the selected role';
 
-        // Heading
         bodyEl.appendChild(el('p',
           'font-size:13px;font-weight:bold;color:#1F3864;margin:0 0 10px;',
-          '⚠️  Restrictive Object Permissions'));
+          '\u26a0\ufe0f  Restrictive Object Permissions'));
 
-        // Main notice
         bodyEl.appendChild(notice(
           'This script applies row-level restrictions to the three objects below that may become ' +
           '<strong>too restrictive</strong> for some users\' needs. Review each one and choose whether ' +
@@ -1078,13 +1203,217 @@
           'access is then governed only by its business object rights, not by who created or is named ' +
           'on the record.'));
 
-        var backBtn = mkBtn('‹ Back', false);
+        var backBtn = mkBtn('\u2039 Back', false);
         backBtn.addEventListener('click', function () { goToStep(2); });
 
-        var nextBtn = mkBtn('Understood, continue ›', true);
+        var nextBtn = mkBtn('Understood, continue \u203a', true);
         nextBtn.addEventListener('click', function () { goToStep(4); });
 
         footerEl.appendChild(abortBtn()); footerEl.appendChild(backBtn); footerEl.appendChild(nextBtn);
+      }
+
+      // ---- Step 3: Add Rights UI (add mode) ----
+      async function renderStep3AddRights() {
+        renderStepBar(3); clearBody(); clearFooter();
+
+        var LVL = { 0:'0 - No access', 1:'1 - View', 3:'3 - View + Add',
+                    5:'5 - View + Edit', 7:'7 - View + Add + Edit', 15:'15 - Full (CRUD)' };
+
+        bodyEl.appendChild(el('p',
+          'font-size:13px;font-weight:bold;color:#7030A0;margin:0 0 6px;',
+          '\u2795  Add Rights to Existing Role'));
+
+        bodyEl.appendChild(notice(
+          'Select business objects from the list below or type a custom name. ' +
+          'Choose an access level, click <strong>+ Add</strong> to queue each one, ' +
+          'then click <strong>Arm Patcher</strong>. ' +
+          'Tick any checkbox on the page and click <strong>Save</strong> - the queued rights ' +
+          'will be merged into the role without changing anything else.',
+          'info'));
+
+        // ---- Fetch OOTB BO list ----
+        var oootbBOs = [];
+        var listStatus = el('p', 'font-size:11px;color:#595959;margin:6px 0;font-style:italic;',
+          'Loading OOTB business object list from GitHub\u2026');
+        bodyEl.appendChild(listStatus);
+
+        try {
+          var resp = await fetch(GH_BO_LIST_URL, { cache: 'no-store' });
+          if (resp.ok) {
+            var raw = await resp.json();
+            oootbBOs = Array.isArray(raw)
+              ? raw.map(function (x) { return typeof x === 'string' ? x : (x.name || ''); }).filter(Boolean)
+              : Object.keys(raw);  // also accept { "BO#": ... } shape
+            oootbBOs.sort(function (a, b) { return a.toLowerCase().localeCompare(b.toLowerCase()); });
+            listStatus.textContent = 'Loaded ' + oootbBOs.length + ' OOTB business objects from repo.';
+            listStatus.style.color = '#375623';
+          } else {
+            listStatus.textContent = 'business_objects.json not found in repo - using manual input only.';
+          }
+        } catch (_) {
+          listStatus.textContent = 'Could not reach GitHub - using manual input only.';
+        }
+
+        // ---- Searchable dropdown ----
+        bodyEl.appendChild(lbl('Select or search for a business object:'));
+        var searchWrap = el('div', 'position:relative;');
+
+        var searchInp = el('input',
+          'width:100%;padding:8px 10px;border:1px solid #BFBFBF;border-radius:4px;font-size:13px;' +
+          'color:#1F1F1F;background:#fff;box-sizing:border-box;font-family:Arial,sans-serif;');
+        searchInp.placeholder = oootbBOs.length
+          ? 'Type to filter OOTB BOs, or enter a custom name\u2026'
+          : 'Type a business object name (e.g. Audit_DataRequests)';
+        searchWrap.appendChild(searchInp);
+
+        var dropList = el('div',
+          'position:absolute;top:100%;left:0;right:0;max-height:200px;overflow-y:auto;' +
+          'background:#fff;border:1px solid #BFBFBF;border-top:none;border-radius:0 0 4px 4px;' +
+          'z-index:100;display:none;box-shadow:0 4px 10px rgba(0,0,0,0.12);');
+        searchWrap.appendChild(dropList);
+        bodyEl.appendChild(searchWrap);
+
+        var selectedBO = '';
+
+        function populateDrop(filter) {
+          while (dropList.firstChild) dropList.removeChild(dropList.firstChild);
+          if (!oootbBOs.length) { dropList.style.display = 'none'; return; }
+
+          var term = filter.toLowerCase().replace(/#\s*$/, '').trim();
+          var matches = oootbBOs.filter(function (bo) {
+            return !term || bo.toLowerCase().replace(/#.*/, '').indexOf(term) !== -1;
+          });
+
+          if (!matches.length) {
+            var hint = el('div',
+              'padding:10px 12px;font-size:12px;color:#BFBFBF;font-style:italic;',
+              'No OOTB match - the typed name will be used as a custom BO');
+            dropList.appendChild(hint);
+          } else {
+            var shown = matches.slice(0, 20);
+            shown.forEach(function (bo) {
+              var item = el('div',
+                'padding:8px 12px;font-size:12px;cursor:pointer;color:#1F3864;' +
+                'border-bottom:1px solid #F0F0F0;font-family:Arial,sans-serif;', bo);
+              item.addEventListener('mouseenter', function () { item.style.background = '#EDE4F5'; });
+              item.addEventListener('mouseleave', function () { item.style.background = ''; });
+              item.addEventListener('mousedown', function (e) {
+                e.preventDefault();  // prevent blur on input before we process the click
+                searchInp.value = bo;
+                selectedBO = bo;
+                dropList.style.display = 'none';
+              });
+              dropList.appendChild(item);
+            });
+            if (matches.length > 20) {
+              dropList.appendChild(el('div',
+                'padding:8px 12px;font-size:11px;color:#BFBFBF;font-style:italic;',
+                '\u2026 ' + (matches.length - 20) + ' more - keep typing to narrow down'));
+            }
+          }
+          dropList.style.display = '';
+        }
+
+        searchInp.addEventListener('input',  function () { selectedBO = ''; populateDrop(searchInp.value); });
+        searchInp.addEventListener('focus',  function () { if (oootbBOs.length) populateDrop(searchInp.value); });
+        searchInp.addEventListener('blur',   function () { setTimeout(function () { dropList.style.display = 'none'; }, 150); });
+
+        // ---- Access level + Add button ----
+        var addRow = el('div', 'display:flex;gap:8px;align-items:center;margin-top:8px;');
+        var lvlSel = el('select',
+          'flex:1;padding:8px 10px;border:1px solid #BFBFBF;border-radius:4px;font-size:12px;' +
+          'color:#1F1F1F;background:#fff;font-family:Arial,sans-serif;');
+        [0,1,3,5,7,15].forEach(function (v) {
+          var o = document.createElement('option');
+          o.value = v; o.textContent = LVL[v];
+          if (v === 7) o.selected = true;
+          lvlSel.appendChild(o);
+        });
+        var addBtn = el('button',
+          'padding:8px 18px;background:#7030A0;color:#fff;border:none;border-radius:4px;' +
+          'font-size:13px;font-weight:bold;cursor:pointer;white-space:nowrap;', '+ Add');
+        addRow.appendChild(lvlSel); addRow.appendChild(addBtn);
+        bodyEl.appendChild(addRow);
+
+        var addErrEl = el('p', 'font-size:12px;color:#C55A11;min-height:14px;margin:5px 0 0;', '');
+        bodyEl.appendChild(addErrEl);
+
+        // ---- Queue ----
+        bodyEl.appendChild(lbl('Queued (rights will be added/updated on next Save):'));
+        var queueWrap = el('div',
+          'border:1px solid #E0E0E0;border-radius:4px;min-height:50px;max-height:130px;' +
+          'overflow-y:auto;background:#FAFAFA;');
+        var queueEmpty = el('div',
+          'padding:12px;font-size:12px;color:#BFBFBF;font-style:italic;',
+          'Nothing queued yet');
+        bodyEl.appendChild(queueWrap);
+
+        // Pre-populate queue from any previous visit to this step
+        if (Object.keys(wState.addQueue).length) {
+          // Fall through to renderQueue
+        }
+
+        function renderQueue() {
+          while (queueWrap.firstChild) queueWrap.removeChild(queueWrap.firstChild);
+          var keys = Object.keys(wState.addQueue);
+          if (!keys.length) { queueWrap.appendChild(queueEmpty); armBtn.disabled = true; armBtn.style.opacity = '0.5'; armBtn.style.cursor = 'not-allowed'; return; }
+          keys.forEach(function (bo) {
+            var rights = wState.addQueue[bo];
+            var row = el('div', 'display:flex;align-items:center;padding:7px 10px;border-bottom:1px solid #EFEFEF;');
+            row.appendChild(el('span', 'flex:1;font-size:12px;font-weight:bold;color:#7030A0;', bo));
+            row.appendChild(el('span', 'font-size:12px;color:#595959;margin:0 10px;', LVL[rights] || 'Rights_' + rights));
+            var del = el('button', 'background:none;border:none;cursor:pointer;color:#C00000;font-size:14px;font-weight:bold;padding:0 4px;', '\u00d7');
+            del.addEventListener('click', function () { delete wState.addQueue[bo]; renderQueue(); });
+            row.appendChild(del);
+            queueWrap.appendChild(row);
+          });
+          armBtn.disabled = false; armBtn.style.opacity = '1'; armBtn.style.cursor = 'pointer';
+        }
+
+        function tryAddBO() {
+          addErrEl.textContent = '';
+          // Use the dropdown selection if available, otherwise use the typed text
+          var rawName = (selectedBO || searchInp.value).trim();
+          if (!rawName) { addErrEl.textContent = 'Enter or select a business object name.'; searchInp.focus(); return; }
+          // Auto-append # if missing
+          var bo = rawName.indexOf('#') === -1 ? rawName + '#' : rawName;
+          var lvl = parseInt(lvlSel.value, 10);
+          if ([0,1,3,5,7,15].indexOf(lvl) === -1) { addErrEl.textContent = 'Select a valid access level.'; return; }
+          wState.addQueue[bo] = lvl;
+          console.log(LOG, 'Add queue:', bo, '->', LVL[lvl]);
+          renderQueue();
+          searchInp.value = ''; selectedBO = ''; dropList.style.display = 'none';
+          searchInp.focus();
+        }
+
+        addBtn.addEventListener('click', tryAddBO);
+        searchInp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); tryAddBO(); } });
+
+        // ---- Footer ----
+        var backBtn = mkBtn('\u2039 Back', false);
+        backBtn.addEventListener('click', function () { goToStep(2); });
+
+        var armBtn = mkBtn('Arm Patcher \u2192', true, true);
+        armBtn.addEventListener('click', function () {
+          if (!Object.keys(wState.addQueue).length) return;
+          cleanup();
+          resolve({
+            mode: 'add', addQueue: wState.addQueue,
+            roleConfig: null, roleConfigName: null,
+            snapshotJson: null, snapshotFileName: null,
+            customObjects: {},
+            sysPerms: wState.sysPerms,
+            publishRoles: wState.publishRoles,
+            downloadRights: wState.downloadRights,
+            emailSearchRights: wState.emailSearchRights,
+            rowConditionOptOuts: wState.rowConditionOptOuts
+          });
+        });
+
+        footerEl.appendChild(abortBtn()); footerEl.appendChild(backBtn); footerEl.appendChild(armBtn);
+
+        // Render queue (enables arm button if there's already something queued from a prior Back)
+        renderQueue();
       }
 
       // ============================================================
@@ -1157,7 +1486,8 @@
           var bo = boInp.value.trim(), lvl = parseInt(lvlSel.value, 10);
           errEl.textContent = '';
           if (!bo) { errEl.textContent = 'Enter a business object name.'; boInp.focus(); return; }
-          if (bo.indexOf('#') === -1) { errEl.textContent = 'Name should include the # symbol.'; boInp.focus(); return; }
+          // Auto-append # if the user left it off - no need to require the convention
+          if (bo.indexOf('#') === -1) bo = bo + '#';
           if ([0,1,3,5,7,15].indexOf(lvl) === -1) { errEl.textContent = 'Select a valid access level.'; return; }
           wState.customObjects[bo] = lvl;
           console.log(LOG, 'Custom BO queued:', bo, '->', LVL[lvl]);
@@ -1738,7 +2068,49 @@
   }
 
   // ===========================================================================
-  // YAML REPORTS
+  // APPLY ADD RIGHTS
+  // Adds or updates individual BO rights WITHOUT touching:
+  //   - DefaultBusinessObjectRights
+  //   - DefaultBusinessObjectFieldRights
+  //   - BusinessObjectRowConditions
+  //   - Any BO not in the queue
+  //
+  // Called only when wResult.mode === 'add'.
+  // Casing variants are applied for each queued BO so all ISM lookup paths hit.
+  // ===========================================================================
+  function applyAddRights(rpStr, addQueue) {
+    var BOR_KEY = '"BusinessObjectRights":';
+    var bkIdx   = rpStr.indexOf(BOR_KEY);
+    if (bkIdx === -1) throw new Error('BusinessObjectRights not found in RolePolicy');
+    var bStart = bkIdx + BOR_KEY.length;
+    while (bStart < rpStr.length && (rpStr[bStart] === ' ' || rpStr[bStart] === '\t')) bStart++;
+    if (rpStr[bStart] !== '{') throw new Error('Expected { at start of BusinessObjectRights');
+    var bEnd = findObjectEnd(rpStr, bStart);
+    if (bEnd === -1) throw new Error('Could not find closing } for BusinessObjectRights');
+
+    var currentBOR = JSON.parse(rpStr.slice(bStart, bEnd));
+    var queueKeys  = Object.keys(addQueue);
+    var added = [], updated = [];
+
+    for (var i = 0; i < queueKeys.length; i++) {
+      var bo     = queueKeys[i];
+      var rights = addQueue[bo];
+      var variants = getCasingVariants(bo);
+      for (var vi = 0; vi < variants.length; vi++) {
+        var vbo = variants[vi];
+        var existed = currentBOR.hasOwnProperty(vbo) && currentBOR[vbo].Rights > 0;
+        currentBOR[vbo] = { Rights: rights, FieldRights: null, DefaultFieldRights: rights > 0 ? 5 : null };
+        if (vi === 0) { (existed ? updated : added).push(vbo + ' -> ' + rights); }
+      }
+    }
+
+    console.log(LOG, 'Add rights: ' + added.length + ' added, ' + updated.length + ' updated');
+    if (added.length)   console.log(LOG, '  Added:',   added.join(', '));
+    if (updated.length) console.log(LOG, '  Updated:', updated.join(', '));
+
+    rpStr = rpStr.slice(0, bStart) + JSON.stringify(currentBOR) + rpStr.slice(bEnd);
+    return { patched: rpStr, added: added, updated: updated };
+  }
   // ===========================================================================
   function buildPreYaml(roleId, rp, ts, replacedBy) {
     var lines = [];
@@ -1967,7 +2339,30 @@
   }
 
   // ---- Install interceptor based on mode ----
-  if (wResult.mode === 'snapshot') {
+  if (wResult.mode === 'add') {
+
+    var addQueue = wResult.addQueue || {};
+    console.log(LOG, 'Add mode: ' + Object.keys(addQueue).length + ' BO(s) queued:',
+      Object.keys(addQueue).map(function (b) { return b + '=' + addQueue[b]; }).join(', '));
+
+    installInterceptor(
+      function (currentPolicy, roleId, ts) {
+        var result = applyAddRights(currentPolicy, addQueue);
+        console.log(LOG, 'Add rights applied -- sending to server...');
+        return {
+          policy: result.patched,
+          replacedBy: 'add-rights (' + Object.keys(addQueue).join(', ') + ')',
+          mode: 'add', customObjects: {}
+        };
+      },
+      function (roleId, ts, result) {
+        console.log(LOG, 'Rights added successfully.');
+      },
+      [' Mode   : ADD RIGHTS',
+       ' BOs    : ' + Object.keys(addQueue).map(function (b) { return b + ' (' + addQueue[b] + ')'; }).join(', ')]
+    );
+
+  } else if (wResult.mode === 'snapshot') {
 
     var snapshotJson = wResult.snapshotJson;
 
