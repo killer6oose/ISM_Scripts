@@ -91,7 +91,7 @@
   // Update both that file and SCRIPT_VERSION here whenever publishing a new release.
   var SCRIPT_VERSION  = '5.8.0';
   var GH_VERSION_URL  = 'https://raw.githubusercontent.com/' + GH_OWNER + '/' + GH_REPO + '/' + GH_BRANCH + '/Roles/MinPerms/version.txt';
-  // JSON array of all OOTB BO names, e.g. ["Incident#","ServiceReq#","Audit_DataRequests#",...]
+  // JSON array of all OOTB BO names, e.g. ["Incident#","ServiceReq#","Audit_ServiceReq#",...]
   // Create this file in the repo at Roles/MinPerms/business_objects.json.
   // If the file does not exist yet, the Add Rights UI falls back to manual input only.
   var GH_BO_LIST_URL  = 'https://raw.githubusercontent.com/' + GH_OWNER + '/' + GH_REPO + '/' + GH_BRANCH + '/Roles/MinPerms/business_objects.json';
@@ -1263,7 +1263,7 @@
           'color:#1F1F1F;background:#fff;box-sizing:border-box;font-family:Arial,sans-serif;');
         searchInp.placeholder = oootbBOs.length
           ? 'Type to filter OOTB BOs, or enter a custom name\u2026'
-          : 'Type a business object name (e.g. Audit_DataRequests)';
+          : 'Type a business object name (e.g. Audit_ServiceReq)';
         searchWrap.appendChild(searchInp);
 
         var dropList = el('div',
