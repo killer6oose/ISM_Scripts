@@ -89,7 +89,7 @@
   // Version check - script compares SCRIPT_VERSION against version.txt in the repo.
   // Create killer6oose/ISM_Scripts/Roles/MinPerms/version.txt containing just: 5.0.0
   // Update both that file and SCRIPT_VERSION here whenever publishing a new release.
-  var SCRIPT_VERSION  = '5.7.0';
+  var SCRIPT_VERSION  = '5.8.0';
   var GH_VERSION_URL  = 'https://raw.githubusercontent.com/' + GH_OWNER + '/' + GH_REPO + '/' + GH_BRANCH + '/Roles/MinPerms/version.txt';
   // JSON array of all OOTB BO names, e.g. ["Incident#","ServiceReq#","Audit_DataRequests#",...]
   // Create this file in the repo at Roles/MinPerms/business_objects.json.
