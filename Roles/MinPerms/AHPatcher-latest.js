@@ -89,7 +89,7 @@
   // Version check - script compares SCRIPT_VERSION against version.txt in the repo.
   // Create killer6oose/ISM_Scripts/Roles/MinPerms/version.txt containing just: 5.0.0
   // Update both that file and SCRIPT_VERSION here whenever publishing a new release.
-  var SCRIPT_VERSION  = '5.8.0';
+  var SCRIPT_VERSION  = '5.9.0';
   var GH_VERSION_URL  = 'https://raw.githubusercontent.com/' + GH_OWNER + '/' + GH_REPO + '/' + GH_BRANCH + '/Roles/MinPerms/version.txt';
   // JSON array of all OOTB BO names, e.g. ["Incident#","ServiceReq#","Audit_ServiceReq#",...]
   // Create this file in the repo at Roles/MinPerms/business_objects.json.
@@ -883,7 +883,7 @@
         var resetLabel = el('span', '', '');
         var resetLink  = el('span',
           'cursor:pointer;color:#2E75B6;text-decoration:underline;white-space:nowrap;',
-          '\u2190 Choose a different option');
+          '← Choose a different option');
         resetBar.appendChild(resetLabel);
         resetBar.appendChild(resetLink);
         resetBar.style.display = 'none';
@@ -920,9 +920,9 @@
 
           // Reset bar: show label of what's active so user knows what they picked
           if (anyActive) {
-            resetLabel.textContent = addActive      ? '\u2795  Add rights to existing role selected'
-                                   : snapshotActive ? '\u23f3  Snapshot: ' + (wState.snapshotFileName || 'loaded')
-                                   :                  '\u2699  Config: ' + (wState.roleConfigName || 'loaded');
+            resetLabel.textContent = addActive      ? '➕  Add rights to existing role selected'
+                                   : snapshotActive ? '⏳  Snapshot: ' + (wState.snapshotFileName || 'loaded')
+                                   :                  '⚙  Config: ' + (wState.roleConfigName || 'loaded');
             resetBar.style.display = 'flex';
           } else {
             resetBar.style.display = 'none';
@@ -948,7 +948,7 @@
         var addCard = el('div',
           'border:2px solid #E0E0E0;border-radius:6px;padding:12px 14px;cursor:pointer;' +
           'display:flex;gap:12px;align-items:flex-start;background:#fff;');
-        var addIcon = el('div', 'font-size:22px;flex-shrink:0;color:#7030A0;padding-top:1px;', '\u2795');
+        var addIcon = el('div', 'font-size:22px;flex-shrink:0;color:#7030A0;padding-top:1px;', '➕');
         var addCardText = el('div', 'flex:1;');
         addCardText.appendChild(el('div', 'font-size:13px;font-weight:bold;color:#1F3864;margin-bottom:4px;',
           'Add / update rights on specific objects'));
@@ -959,7 +959,7 @@
 
         var addSelectedIndicator = el('p',
           'font-size:12px;color:#7030A0;margin:8px 0 0;font-weight:bold;display:none;',
-          '\u2714 Add rights mode selected - click Next to continue');
+          '✔ Add rights mode selected - click Next to continue');
 
         addCard.addEventListener('mouseenter', function () {
           if (wState.mode !== 'add') { addCard.style.borderColor = '#7030A0'; addCard.style.background = '#F5EEFF'; }
@@ -1165,7 +1165,7 @@
 
         bodyEl.appendChild(el('p',
           'font-size:13px;font-weight:bold;color:#1F3864;margin:0 0 10px;',
-          '\u26a0\ufe0f  Restrictive Object Permissions'));
+          '⚠️  Restrictive Object Permissions'));
 
         bodyEl.appendChild(notice(
           'This script applies row-level restrictions to the three objects below that may become ' +
@@ -1203,10 +1203,10 @@
           'access is then governed only by its business object rights, not by who created or is named ' +
           'on the record.'));
 
-        var backBtn = mkBtn('\u2039 Back', false);
+        var backBtn = mkBtn('‹ Back', false);
         backBtn.addEventListener('click', function () { goToStep(2); });
 
-        var nextBtn = mkBtn('Understood, continue \u203a', true);
+        var nextBtn = mkBtn('Understood, continue ›', true);
         nextBtn.addEventListener('click', function () { goToStep(4); });
 
         footerEl.appendChild(abortBtn()); footerEl.appendChild(backBtn); footerEl.appendChild(nextBtn);
@@ -1221,12 +1221,12 @@
 
         bodyEl.appendChild(el('p',
           'font-size:13px;font-weight:bold;color:#7030A0;margin:0 0 6px;',
-          '\u2795  Add Rights to Existing Role'));
+          '➕  Add Rights to Existing Role'));
 
         bodyEl.appendChild(notice(
-          'Select business objects from the list below or type a custom name. ' +
-          'Choose an access level, click <strong>+ Add</strong> to queue each one, ' +
-          'then click <strong>Arm Patcher</strong>. ' +
+          'Select business objects from the list below or type a custom name, or upload a JSON file ' +
+          'of rights to queue in bulk. Choose an access level, click <strong>+ Add</strong> to queue each ' +
+          'one, then click <strong>Arm Patcher</strong>. ' +
           'Tick any checkbox on the page and click <strong>Save</strong> - the queued rights ' +
           'will be merged into the role without changing anything else.',
           'info'));
@@ -1234,7 +1234,7 @@
         // ---- Fetch OOTB BO list ----
         var oootbBOs = [];
         var listStatus = el('p', 'font-size:11px;color:#595959;margin:6px 0;font-style:italic;',
-          'Loading OOTB business object list from GitHub\u2026');
+          'Loading OOTB business object list from GitHub…');
         bodyEl.appendChild(listStatus);
 
         try {
@@ -1262,7 +1262,7 @@
           'width:100%;padding:8px 10px;border:1px solid #BFBFBF;border-radius:4px;font-size:13px;' +
           'color:#1F1F1F;background:#fff;box-sizing:border-box;font-family:Arial,sans-serif;');
         searchInp.placeholder = oootbBOs.length
-          ? 'Type to filter OOTB BOs, or enter a custom name\u2026'
+          ? 'Type to filter OOTB BOs, or enter a custom name…'
           : 'Type a business object name (e.g. Audit_ServiceReq)';
         searchWrap.appendChild(searchInp);
 
@@ -1308,7 +1308,7 @@
             if (matches.length > 20) {
               dropList.appendChild(el('div',
                 'padding:8px 12px;font-size:11px;color:#BFBFBF;font-style:italic;',
-                '\u2026 ' + (matches.length - 20) + ' more - keep typing to narrow down'));
+                '… ' + (matches.length - 20) + ' more - keep typing to narrow down'));
             }
           }
           dropList.style.display = '';
@@ -1338,6 +1338,94 @@
         var addErrEl = el('p', 'font-size:12px;color:#C55A11;min-height:14px;margin:5px 0 0;', '');
         bodyEl.appendChild(addErrEl);
 
+        // ---- Upload rights JSON ----
+        // Bulk alternative to the search/add row above: a JSON file whose keys
+        // are business object names (or a config-shaped file with a
+        // business_object_rights / BusinessObjectRights wrapper) and whose
+        // values are rights ints (or { Rights: N } objects, matching a raw
+        // snapshot's BOR shape). Every entry merges into the SAME addQueue the
+        // manual row above builds, so uploading one file and then adding a
+        // couple of one-off BOs by hand both land in one queue, and Arm
+        // Patcher applies them together via applyAddRights -- which only
+        // touches the queued BOs and leaves the rest of the role alone.
+        bodyEl.appendChild(lbl('Or upload a rights JSON file:'));
+        var uploadZone = el('div',
+          'border:2px dashed ' + CLR.grey + ';border-radius:6px;padding:14px;text-align:center;background:#FAFAFA;');
+        var uploadPickBtn = el('button',
+          'padding:7px 16px;background:#7030A0;color:#fff;border:none;border-radius:4px;' +
+          'font-size:12px;cursor:pointer;font-family:Arial,sans-serif;', 'Choose Rights JSON');
+        var uploadInfo = el('p', 'font-size:11px;color:#595959;margin:8px 0 0;min-height:14px;', '');
+        uploadZone.appendChild(uploadPickBtn); uploadZone.appendChild(uploadInfo);
+        bodyEl.appendChild(uploadZone);
+        bodyEl.appendChild(el('p',
+          'font-size:11px;color:#BFBFBF;margin:5px 0 0;font-style:italic;',
+          'Accepts a flat { "BO#": rights } map, a config file ("business_object_rights"), or a role ' +
+          'snapshot ("BusinessObjectRights"). Entries merge into the queue below - existing role rights ' +
+          'for objects NOT in the file are left untouched.'));
+
+        var uploadInput = document.createElement('input');
+        uploadInput.type = 'file'; uploadInput.accept = '.json,application/json';
+        uploadInput.style.display = 'none'; document.body.appendChild(uploadInput);
+        uploadPickBtn.addEventListener('click', function () { uploadInput.click(); });
+
+        // Pulls a { "BO#": rightsInt } map out of any of the JSON shapes this
+        // uploader accepts. Returns null (with no throw) for anything it
+        // can't make sense of so the caller can show a clear error.
+        function extractRightsMap(parsed) {
+          if (!parsed || typeof parsed !== 'object') return null;
+          var src = parsed;
+          if (parsed.business_object_rights && typeof parsed.business_object_rights === 'object') {
+            src = parsed.business_object_rights;
+          } else if (parsed.BusinessObjectRights && typeof parsed.BusinessObjectRights === 'object') {
+            src = parsed.BusinessObjectRights;
+          }
+          var map = {}, count = 0;
+          Object.keys(src).forEach(function (k) {
+            var v = src[k], rights;
+            if (typeof v === 'number') rights = v;
+            else if (typeof v === 'string' && v.trim() !== '' && !isNaN(parseInt(v, 10))) rights = parseInt(v, 10);
+            else if (v && typeof v === 'object' && typeof v.Rights === 'number') rights = v.Rights;
+            else return; // skip anything unrecognized rather than fail the whole file
+            var bo = k.indexOf('#') === -1 ? k + '#' : k;
+            map[bo] = rights;
+            count++;
+          });
+          return count > 0 ? map : null;
+        }
+
+        uploadInput.addEventListener('change', function () {
+          var f = uploadInput.files[0]; if (!f) return;
+          uploadInput.value = '';
+          var reader = new FileReader();
+          reader.onload = function (evt) {
+            var map;
+            try {
+              var parsed = JSON.parse(evt.target.result);
+              map = extractRightsMap(parsed);
+            } catch (e) {
+              uploadInfo.style.color = CLR.orange;
+              uploadInfo.textContent = 'Invalid JSON: ' + e.message;
+              return;
+            }
+            if (!map) {
+              uploadInfo.style.color = CLR.orange;
+              uploadInfo.textContent = 'No recognizable business object rights found in ' + f.name + '.';
+              return;
+            }
+            var added = 0, updated = 0;
+            Object.keys(map).forEach(function (bo) {
+              if (wState.addQueue.hasOwnProperty(bo)) updated++; else added++;
+              wState.addQueue[bo] = map[bo];
+            });
+            uploadInfo.style.color = CLR.green;
+            uploadInfo.textContent = '✓ ' + f.name + ' - ' + added + ' queued, ' +
+              updated + ' updated (' + Object.keys(map).length + ' total in file)';
+            console.log(LOG, 'Add-rights JSON uploaded:', f.name, '-', added, 'new,', updated, 'updated');
+            renderQueue();
+          };
+          reader.readAsText(f);
+        });
+
         // ---- Queue ----
         bodyEl.appendChild(lbl('Queued (rights will be added/updated on next Save):'));
         var queueWrap = el('div',
@@ -1362,7 +1450,7 @@
             var row = el('div', 'display:flex;align-items:center;padding:7px 10px;border-bottom:1px solid #EFEFEF;');
             row.appendChild(el('span', 'flex:1;font-size:12px;font-weight:bold;color:#7030A0;', bo));
             row.appendChild(el('span', 'font-size:12px;color:#595959;margin:0 10px;', LVL[rights] || 'Rights_' + rights));
-            var del = el('button', 'background:none;border:none;cursor:pointer;color:#C00000;font-size:14px;font-weight:bold;padding:0 4px;', '\u00d7');
+            var del = el('button', 'background:none;border:none;cursor:pointer;color:#C00000;font-size:14px;font-weight:bold;padding:0 4px;', '×');
             del.addEventListener('click', function () { delete wState.addQueue[bo]; renderQueue(); });
             row.appendChild(del);
             queueWrap.appendChild(row);
@@ -1390,13 +1478,14 @@
         searchInp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); tryAddBO(); } });
 
         // ---- Footer ----
-        var backBtn = mkBtn('\u2039 Back', false);
+        var backBtn = mkBtn('‹ Back', false);
         backBtn.addEventListener('click', function () { goToStep(2); });
 
-        var armBtn = mkBtn('Arm Patcher \u2192', true, true);
+        var armBtn = mkBtn('Arm Patcher →', true, true);
         armBtn.addEventListener('click', function () {
           if (!Object.keys(wState.addQueue).length) return;
           cleanup();
+          if (document.body.contains(uploadInput)) document.body.removeChild(uploadInput);
           resolve({
             mode: 'add', addQueue: wState.addQueue,
             roleConfig: null, roleConfigName: null,
@@ -2075,7 +2164,12 @@
   //   - BusinessObjectRowConditions
   //   - Any BO not in the queue
   //
-  // Called only when wResult.mode === 'add'.
+  // Called only when wResult.mode === 'add'. This is what makes both the
+  // manual search/add row and the JSON uploader ADDITIVE: the existing
+  // role's BusinessObjectRights block is parsed as-is, only the BOs present
+  // in addQueue (whichever way they got there) are written into it, and
+  // every other key -- including ones this run never mentions -- is left
+  // exactly as it already was on the role.
   // Casing variants are applied for each queued BO so all ISM lookup paths hit.
   // ===========================================================================
   function applyAddRights(rpStr, addQueue) {
