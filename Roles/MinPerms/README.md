@@ -1,7 +1,7 @@
 # ISM Role Permission Patcher
 
 **Author:** Andrew Hatton - [That's me!](https://andrewhatton.com)
-##### **Issues/Contact:** Use the Issues, or andrew.hatton@ivanti.com
+##### **Issues/Contact:** Use the Issues, or andrew.hatton@cronotech.us
 ---
 
 > **Before you do anything else, please read this.**
