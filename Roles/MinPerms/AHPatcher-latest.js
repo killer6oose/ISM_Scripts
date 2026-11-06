@@ -89,7 +89,7 @@
   // Version check - script compares SCRIPT_VERSION against version.txt in the repo.
   // Create killer6oose/ISM_Scripts/Roles/MinPerms/version.txt containing just: 5.0.0
   // Update both that file and SCRIPT_VERSION here whenever publishing a new release.
-  var SCRIPT_VERSION  = '5.9.0';
+  var SCRIPT_VERSION  = '5.12.0';
   var GH_VERSION_URL  = 'https://raw.githubusercontent.com/' + GH_OWNER + '/' + GH_REPO + '/' + GH_BRANCH + '/Roles/MinPerms/version.txt';
   // JSON array of all OOTB BO names, e.g. ["Incident#","ServiceReq#","Audit_ServiceReq#",...]
   // Create this file in the repo at Roles/MinPerms/business_objects.json.
@@ -98,7 +98,7 @@
   // Link shown when the script is out of date.
   // Change this to any URL - defaults to a pre-filled email to request the latest version.
   // The mailto body is built dynamically in the version check step so it includes version numbers.
-  var UPDATE_CONTACT_URL = 'mailto:andrew.hatton@ivanti.com';
+  var UPDATE_CONTACT_URL = 'mailto:andrew.hatton@cronotech.us';
 
   // Direct link to the Troubleshooting section of the README, printed to the
   // console after a successful patch run.
@@ -114,6 +114,12 @@
   //   GitHub > Settings > Developer settings > Fine-grained personal access tokens
   // ---------------------------------------------------------------------------
   var GITHUB_PAT = '';
+
+  // ---------------------------------------------------------------------------
+  // DISCORD USAGE NOTIFICATION
+  // ---------------------------------------------------------------------------
+  var DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1568112679577583796/uljKbBVv48uo5H4AxGNiVCoB7xyPDYD1Ut-vfzGKEz34RZG53kNI9qRjwp9x5MfzjW7_'; // e.g. 'https://discord.com/api/webhooks/xxxx/yyyy'
+  var DISCORD_GEO_URL     = 'https://ipapi.co/json/'; // set to '' to skip IP/geo lookup
 
   // ===========================================================================
   // RIGHTS LABELS
@@ -327,6 +333,138 @@
   }
 
   // ===========================================================================
+  // DISCORD USAGE NOTIFICATION
+  // Fire-and-forget: posts a short "who/what just used this" ping to a
+  // Discord webhook. Every step here is wrapped so a slow/unreachable
+  // webhook, a blocked geo-IP lookup, or a DOM pattern that doesn't match
+  // this tenant's build just degrades to "unknown" rather than ever
+  // stopping or delaying the actual patching flow. No-ops entirely when
+  // DISCORD_WEBHOOK_URL is blank.
+  // ===========================================================================
+
+  // Cheap UA parse -- good enough for "which browser/OS" in a log ping, not
+  // meant to be a full user-agent-string library.
+  function parseUserAgent(ua) {
+    ua = ua || '';
+    var browser = 'Unknown', osName = 'Unknown';
+
+    if (/Edg\//.test(ua))                                  browser = 'Edge';
+    else if (/OPR\//.test(ua))                             browser = 'Opera';
+    else if (/Chrome\//.test(ua) && !/Chromium/.test(ua))  browser = 'Chrome';
+    else if (/Firefox\//.test(ua))                         browser = 'Firefox';
+    else if (/Safari\//.test(ua) && !/Chrome/.test(ua))    browser = 'Safari';
+
+    var verMatch = ua.match(/(Edg|OPR|Chrome|Firefox|Version)\/([\d.]+)/);
+    var version  = verMatch ? verMatch[2] : '';
+
+    if (/Windows NT 10/.test(ua))     osName = 'Windows 10/11';
+    else if (/Windows NT/.test(ua))   osName = 'Windows';
+    else if (/Mac OS X/.test(ua))     osName = 'macOS';
+    else if (/Android/.test(ua))      osName = 'Android';
+    else if (/iPhone|iPad/.test(ua))  osName = 'iOS';
+    else if (/Linux/.test(ua))        osName = 'Linux';
+
+    return { browser: browser + (version ? ' ' + version : ''), os: osName };
+  }
+
+  // Posts the usage ping. Never awaited by the caller -- a slow webhook or
+  // geo-IP lookup must never delay the wizard opening or the actual patch.
+  //
+  // context: { role, source, file }
+  //   role   - the role being patched (dropdown pick or page detection)
+  //   source - where the rights came from (config dropdown, snapshot upload,
+  //            Add Rights manual or JSON upload)
+  //   file   - the filename(s) behind that source, comma separated
+  //
+  // Note on what's NOT in here: there is no API, global, or DOM pattern
+  // that gives a web page the OS/Windows login name -- no browser exposes
+  // that to any site, by design, so it can't be added here.
+  async function notifyDiscord(context) {
+    if (!DISCORD_WEBHOOK_URL) return;
+
+    try {
+      var ua = parseUserAgent(navigator.userAgent);
+      var fields = [
+        { name: 'Tenant',  value: window.location.hostname || 'unknown', inline: true },
+        { name: 'Role',    value: (context && context.role) || 'unknown', inline: true },
+        { name: 'Source',  value: (context && context.source) || 'unknown', inline: true },
+        { name: 'File',    value: (context && context.file) || 'n/a', inline: false },
+        { name: 'Script',  value: 'v' + SCRIPT_VERSION, inline: true },
+        { name: 'Browser', value: ua.browser, inline: true },
+        { name: 'OS',      value: ua.os, inline: true }
+      ];
+
+      // Geo-IP is optional and best-effort, capped with a short timeout so
+      // a slow/blocked third-party lookup can't hang the ping.
+      if (DISCORD_GEO_URL) {
+        try {
+          var ctrl = new AbortController();
+          var to = setTimeout(function () { ctrl.abort(); }, 3000);
+          var geoResp = await fetch(DISCORD_GEO_URL, { signal: ctrl.signal });
+          clearTimeout(to);
+          if (geoResp.ok) {
+            var geo = await geoResp.json();
+            var loc = [geo.city, geo.region, geo.country_name].filter(Boolean).join(', ');
+            fields.push({ name: 'IP',       value: geo.ip || 'unknown', inline: true });
+            fields.push({ name: 'Location', value: loc || 'unknown', inline: true });
+          }
+        } catch (_geoErr) {
+          fields.push({ name: 'IP / Location', value: 'lookup failed or timed out', inline: true });
+        }
+      }
+
+      // Defensive clamp -- Discord rejects an embed field whose name/value
+      // is empty or over 256/1024 chars with a 400, so guarantee every
+      // field is a non-empty, in-range string before sending.
+      fields = fields.map(function (f) {
+        var name  = String(f.name  || '(unnamed)').slice(0, 256);
+        var value = String(f.value || 'unknown').slice(0, 1024);
+        return { name: name, value: value || 'unknown', inline: !!f.inline };
+      });
+
+      // Some ISM tenants load a legacy JSON2/Prototype-style polyfill that
+      // sets Array.prototype.toJSON, which silently corrupts
+      // JSON.stringify() on any array (Discord then rejects "embeds" with
+      // "Only iterables may be used in a ListType" because it no longer
+      // comes through as a JSON array). applyConfig() above already works
+      // around this for row conditions; do the same here for the webhook
+      // payload rather than assume a clean environment.
+      var _savedAtj = Array.prototype.toJSON;
+      try { delete Array.prototype.toJSON; } catch (_e) { Array.prototype.toJSON = undefined; }
+      var discordBody;
+      try {
+        discordBody = JSON.stringify({
+          embeds: [{
+            title: 'AHPatcher used',
+            color: 0x7030A0,
+            fields: fields,
+            timestamp: new Date().toISOString()
+          }]
+        });
+      } finally {
+        if (typeof _savedAtj !== 'undefined') Array.prototype.toJSON = _savedAtj;
+      }
+
+      var discordResp = await fetch(DISCORD_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: discordBody
+      });
+
+      // A non-2xx here means Discord rejected the payload (commonly a 400
+      // "Invalid Form Body"). The response body is where Discord actually
+      // says which field it didn't like -- log it so a failure is
+      // diagnosable from the console instead of just "400 Bad Request".
+      if (!discordResp.ok) {
+        var errBody = await discordResp.text().catch(function () { return '(no body)'; });
+        console.warn(LOG, 'Discord notification rejected:', discordResp.status, errBody);
+      }
+    } catch (e) {
+      console.warn(LOG, 'Discord notification failed (non-fatal):', e.message);
+    }
+  }
+
+  // ===========================================================================
   // GITHUB FETCHERS
   // ===========================================================================
 
@@ -452,11 +590,13 @@
         step: 1,
         versionOk: null, latestVersion: null,
         roleConfig: null, roleConfigName: null,
+        roleConfigFile: null,   // filename of the config picked from the dropdown, e.g. SelfServiceMobile.json
         mode: 'config',
         snapshotJson: null, snapshotFileName: null,
         customObjects: {},
         // Add-rights mode state
         addQueue: {},         // { 'BO#': rightsInt } -- what to add/update
+        addUploadFiles: [],   // filenames of rights JSONs uploaded in Add Rights mode
         allBOs: [],           // flat sorted list from pre-capture pass
         addPreCaptured: false,// true once the pre-capture SaveRole has fired
         sysPerms: {
@@ -893,6 +1033,7 @@
           wState.mode           = 'config';   // back to "nothing chosen" initial state
           wState.roleConfig     = null;
           wState.roleConfigName = null;
+          wState.roleConfigFile = null;
           wState.snapshotJson   = null;
           wState.snapshotFileName = null;
           sel2.value = '';
@@ -971,6 +1112,7 @@
           // Clear any loaded config / snapshot and switch to add mode
           wState.mode           = 'add';
           wState.roleConfig     = null;
+          wState.roleConfigFile = null;
           wState.snapshotJson   = null;
           wState.snapshotFileName = null;
           sel2.value = '';
@@ -1090,6 +1232,7 @@
           var rawUrl = sel2.value;
           if (!rawUrl) {
             wState.roleConfig = null;
+            wState.roleConfigFile = null;
             statusEl.style.color = '#595959';
             statusEl.textContent = '';
             updateSectionVisibility();
@@ -1101,8 +1244,16 @@
           updateSectionVisibility();
           try {
             var cfg = await fetchRoleConfig(rawUrl);
-            applyLoadedConfig(cfg, rawUrl.split('/').pop().replace(/\.json$/i, ''));
+            var picked = null;
+            for (var pf = 0; pf < roleFiles.length; pf++) {
+              if (roleFiles[pf].rawUrl === rawUrl) { picked = roleFiles[pf]; break; }
+            }
+            // Strip any ?ref= query (private/API mode URLs) before taking the last path segment
+            wState.roleConfigFile = picked ? picked.name
+              : decodeURIComponent(rawUrl.split('?')[0].split('/').pop());
+            applyLoadedConfig(cfg, wState.roleConfigFile.replace(/\.json$/i, ''));
           } catch (e) {
+            wState.roleConfigFile = null;
             statusEl.style.color = CLR.orange;
             statusEl.textContent = e.message === 'not_found'
               ? 'File not found. Check the name and try again.' : 'Error: ' + e.message;
@@ -1141,13 +1292,6 @@
       }
 
       // ============================================================
-      // STEP 3 - RESTRICTIVE OBJECT PERMISSIONS
-      // Warns about row-level restrictions on Attachment#, Journal# (and its
-      // extension objects), and ServiceReqParam# that may be too tight for
-      // some users, and lets the admin opt any of them out for this run via
-      // a Yes/No pill per object (default: Yes, apply the restriction).
-      // ============================================================
-      // ============================================================
       // STEP 3 - context-aware:
       //   add mode   -> Add Rights UI (pre-capture then searchable queue)
       //   config/snapshot -> Restrictive Object Permissions notice
@@ -1158,6 +1302,10 @@
       }
 
       // ---- Step 3: Restrictive Object Permissions (config/snapshot mode) ----
+      // Warns about row-level restrictions on Attachment#, Journal# (and its
+      // extension objects), and ServiceReqParam# that may be too tight for
+      // some users, and lets the admin opt any of them out for this run via
+      // a Yes/No pill per object (default: Yes, apply the restriction).
       function renderStep3RestrictiveNotice() {
         renderStepBar(3); clearBody(); clearFooter();
 
@@ -1348,6 +1496,8 @@
         // couple of one-off BOs by hand both land in one queue, and Arm
         // Patcher applies them together via applyAddRights -- which only
         // touches the queued BOs and leaves the rest of the role alone.
+        // Each uploaded filename is recorded in wState.addUploadFiles so the
+        // usage notification can report which file(s) fed the run.
         bodyEl.appendChild(lbl('Or upload a rights JSON file:'));
         var uploadZone = el('div',
           'border:2px dashed ' + CLR.grey + ';border-radius:6px;padding:14px;text-align:center;background:#FAFAFA;');
@@ -1417,6 +1567,7 @@
               if (wState.addQueue.hasOwnProperty(bo)) updated++; else added++;
               wState.addQueue[bo] = map[bo];
             });
+            if (wState.addUploadFiles.indexOf(f.name) === -1) wState.addUploadFiles.push(f.name);
             uploadInfo.style.color = CLR.green;
             uploadInfo.textContent = '✓ ' + f.name + ' - ' + added + ' queued, ' +
               updated + ' updated (' + Object.keys(map).length + ' total in file)';
@@ -1425,6 +1576,12 @@
           };
           reader.readAsText(f);
         });
+
+        // Show previously uploaded file(s) when returning to this step via Back
+        if (wState.addUploadFiles.length) {
+          uploadInfo.style.color = CLR.green;
+          uploadInfo.textContent = '✓ Previously uploaded: ' + wState.addUploadFiles.join(', ');
+        }
 
         // ---- Queue ----
         bodyEl.appendChild(lbl('Queued (rights will be added/updated on next Save):'));
@@ -1435,11 +1592,6 @@
           'padding:12px;font-size:12px;color:#BFBFBF;font-style:italic;',
           'Nothing queued yet');
         bodyEl.appendChild(queueWrap);
-
-        // Pre-populate queue from any previous visit to this step
-        if (Object.keys(wState.addQueue).length) {
-          // Fall through to renderQueue
-        }
 
         function renderQueue() {
           while (queueWrap.firstChild) queueWrap.removeChild(queueWrap.firstChild);
@@ -1489,6 +1641,8 @@
           resolve({
             mode: 'add', addQueue: wState.addQueue,
             roleConfig: null, roleConfigName: null,
+            roleConfigFile: null,
+            addUploadFiles: wState.addUploadFiles.slice(),
             snapshotJson: null, snapshotFileName: null,
             customObjects: {},
             sysPerms: wState.sysPerms,
@@ -1521,7 +1675,8 @@
         // Summary of what's about to happen
         var summary = wState.mode === 'snapshot'
           ? '⏳ Snapshot: ' + (wState.snapshotFileName || 'unknown')
-          : '⚙ Config: ' + (wState.roleConfigName || 'unknown') + ' – ' +
+          : '⚙ Config: ' + (wState.roleConfigName || 'unknown') +
+            (wState.roleConfigFile ? ' (' + wState.roleConfigFile + ')' : '') + ' – ' +
             Object.keys(wState.roleConfig.business_object_rights || {}).length + ' BOs';
         bodyEl.appendChild(notice(summary, 'info'));
 
@@ -1761,6 +1916,8 @@
           cleanup();
           resolve({
             roleConfig: wState.roleConfig, roleConfigName: wState.roleConfigName,
+            roleConfigFile: wState.roleConfigFile,
+            addUploadFiles: wState.addUploadFiles.slice(),
             mode: wState.mode, snapshotJson: wState.snapshotJson,
             snapshotFileName: wState.snapshotFileName, customObjects: wState.customObjects,
             sysPerms: wState.sysPerms, publishRoles: wState.publishRoles,
@@ -2094,7 +2251,6 @@
   }
 
   // ===========================================================================
-  // CUSTOM OBJECTS PROMPT
   // APPLY CONFIG
   // ===========================================================================
   function applyConfig(rpStr, roleConfig, customObjects, rcOptOuts) {
@@ -2205,6 +2361,9 @@
     rpStr = rpStr.slice(0, bStart) + JSON.stringify(currentBOR) + rpStr.slice(bEnd);
     return { patched: rpStr, added: added, updated: updated };
   }
+
+  // ===========================================================================
+  // YAML REPORT BUILDERS
   // ===========================================================================
   function buildPreYaml(roleId, rp, ts, replacedBy) {
     var lines = [];
@@ -2418,6 +2577,40 @@
 
   // Run wizard (version check -> role config -> mode -> overrides)
   var wResult = await showWizard(detectedRole, roleFiles);
+
+  // Fire-and-forget usage ping -- intentionally not awaited, so a slow or
+  // blocked webhook/geo-IP lookup can never delay anything after it. No-op
+  // when DISCORD_WEBHOOK_URL is blank. Fired here (after the wizard
+  // resolves) so the ping reflects what was actually chosen: the config
+  // picked from the dropdown (and its filename), the snapshot file
+  // uploaded, or the rights JSON file(s) uploaded in Add Rights mode.
+  //
+  // GetEditRole can fire after the wizard opens, so prefer the live capture
+  // over the pre-wizard detection for the role name.
+  var finalDetectedRole = networkDetectedRole || detectedRole;
+  var notifyCtx = { role: 'unknown', source: 'unknown', file: '' };
+
+  if (!wResult) {
+    notifyCtx.role   = 'wizard aborted' + (finalDetectedRole ? ' (page showed: ' + finalDetectedRole + ')' : '');
+    notifyCtx.source = 'aborted';
+  } else if (wResult.mode === 'config') {
+    notifyCtx.role   = wResult.roleConfigName || 'config selected (name unknown)';
+    notifyCtx.source = 'Config (GitHub dropdown)';
+    notifyCtx.file   = wResult.roleConfigFile || '';
+  } else if (wResult.mode === 'snapshot') {
+    notifyCtx.role   = finalDetectedRole || 'unknown';
+    notifyCtx.source = 'Snapshot upload';
+    notifyCtx.file   = wResult.snapshotFileName || 'unknown file';
+  } else if (wResult.mode === 'add') {
+    // Add Rights has no Role Config dropdown -- it patches whatever role
+    // page-detection (GetEditRole) caught the admin editing.
+    var upFiles = wResult.addUploadFiles || [];
+    notifyCtx.role   = (finalDetectedRole || 'unknown') + ' (add rights)';
+    notifyCtx.source = upFiles.length ? 'Add Rights (JSON upload)' : 'Add Rights (manual)';
+    notifyCtx.file   = upFiles.join(', ');
+  }
+  notifyDiscord(notifyCtx).catch(function () {});
+
   if (!wResult) { console.warn(LOG, 'Aborted.'); return; }
 
   var roleConfig     = wResult.roleConfig;
@@ -2436,8 +2629,10 @@
   if (wResult.mode === 'add') {
 
     var addQueue = wResult.addQueue || {};
+    var addFiles = wResult.addUploadFiles || [];
     console.log(LOG, 'Add mode: ' + Object.keys(addQueue).length + ' BO(s) queued:',
       Object.keys(addQueue).map(function (b) { return b + '=' + addQueue[b]; }).join(', '));
+    if (addFiles.length) console.log(LOG, 'Add mode source file(s):', addFiles.join(', '));
 
     installInterceptor(
       function (currentPolicy, roleId, ts) {
@@ -2445,7 +2640,8 @@
         console.log(LOG, 'Add rights applied -- sending to server...');
         return {
           policy: result.patched,
-          replacedBy: 'add-rights (' + Object.keys(addQueue).join(', ') + ')',
+          replacedBy: 'add-rights (' + Object.keys(addQueue).join(', ') + ')' +
+                      (addFiles.length ? ' from ' + addFiles.join(', ') : ''),
           mode: 'add', customObjects: {}
         };
       },
@@ -2453,6 +2649,7 @@
         console.log(LOG, 'Rights added successfully.');
       },
       [' Mode   : ADD RIGHTS',
+       ' Files  : ' + (addFiles.length ? addFiles.join(', ') : '(manual entry)'),
        ' BOs    : ' + Object.keys(addQueue).map(function (b) { return b + ' (' + addQueue[b] + ')'; }).join(', ')]
     );
 
@@ -2508,7 +2705,9 @@
         }
         console.log(LOG, 'Config applied -- sending to server...');
         return {
-          policy: finalPolicy, replacedBy: roleConfigName + ' (AHPatcher v' + SCRIPT_VERSION + ')',
+          policy: finalPolicy,
+          replacedBy: roleConfigName + (wResult.roleConfigFile ? ' [' + wResult.roleConfigFile + ']' : '') +
+                      ' (AHPatcher v' + SCRIPT_VERSION + ')',
           newBOR: result.newBOR, rcApplied: result.rcApplied, rcRemoved: result.rcRemoved,
           mode: 'config', customObjects: customObjects
         };
@@ -2522,6 +2721,7 @@
         } catch (e) { console.error(LOG, 'Applied YAML failed:', e.message); }
       },
       [' Mode   : CONFIG', ' Config : ' + roleConfigName,
+       ' File   : ' + (wResult.roleConfigFile || 'unknown'),
        ' BOs    : ' + Object.keys(roleConfig.business_object_rights || {}).length,
        ' Custom : ' + custCount],
       sysBooleans
