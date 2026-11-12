@@ -1,0 +1,158 @@
+name: AHPatcher - Bug report
+description: Report a problem with the ISM Role Permission Patcher (AHPatcher)
+title: "[AHPatcher] "
+labels: ["bug", "AHPatcher"]
+assignees:
+  - killer6oose
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting an issue with **AHPatcher**. Fields marked with a red asterisk are required.
+
+        > **Issues are public.** Anything you type or attach here (including uploaded files) can be viewed by anyone.
+        > Redact tenant names, user names and anything else sensitive before submitting.
+        > If you can't share your files publicly, email them to andrew.hatton@cronotech.us instead and reference this issue number.
+
+        Before submitting, please check the [Troubleshooting section](https://github.com/killer6oose/ISM_Scripts/blob/main/Roles/MinPerms/README.md#troubleshooting).
+
+  - type: input
+    id: tenant-url
+    attributes:
+      label: Tenant URL
+      description: Optional. Your ISM tenant URL (redact if you prefer).
+      placeholder: https://yourtenant.saasit.com
+    validations:
+      required: false
+
+  - type: input
+    id: contact-email
+    attributes:
+      label: Contact email
+      description: Optional. Only needed if you'd like me to follow up by email.
+      placeholder: you@example.com
+    validations:
+      required: false
+
+  - type: input
+    id: version
+    attributes:
+      label: Script version
+      description: Shown in step 1 of the wizard, or the SCRIPT_VERSION line near the top of the script. Enter "latest" if you used the 1-liner fetch.
+      placeholder: latest, 5.12.0, etc.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      options:
+        - Dev / Sandbox
+        - Staging / UAT
+        - Production
+    validations:
+      required: true
+
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Mode used
+      options:
+        - Apply Config
+        - Restore from Snapshot
+        - Add Rights
+        - Didn't get that far
+    validations:
+      required: true
+
+  - type: input
+    id: role
+    attributes:
+      label: Role and config file
+      description: The role you were targeting and the config JSON chosen in step 2.
+      placeholder: "Role: SelfServiceMobile / Config: SelfServiceMobile.json"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: failed-step
+    attributes:
+      label: Which step did the script fail on?
+      options:
+        - Before the wizard opened (paste / load)
+        - Step 1 - Version check
+        - Step 2 - Role config
+        - Step 3 - Mode / Restrictive Object Permissions notice
+        - Custom overrides / Add Rights
+        - System Permissions
+        - Arm Interceptor
+        - Clicking Save on Object Permissions
+        - After save - permissions look wrong
+        - Other (describe below)
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the issue
+      description: What happened, what you expected to happen, and the steps to reproduce.
+      placeholder: |
+        1. Opened Object Permissions for role X
+        2. Pasted the script, chose Apply Config
+        3. Clicked Save and got...
+
+        Expected: ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: console
+    attributes:
+      label: Console output
+      description: Copy everything starting with [AHPatcher] plus any red errors from the browser console (F12 > Console). Formatted as code automatically.
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: files
+    attributes:
+      label: Downloaded files
+      description: |
+        Drag and drop the files the script downloaded (if it got that far):
+        - `<RoleID>_pre-patcher_snapshot_<timestamp>.json` (or `_Pre-Rollback_` in Snapshot mode)
+        - `<RoleID>_pre-patcher_permissions_<timestamp>.yaml`
+        - `<RoleID>_applied_<timestamp>.yaml` (only created on success)
+
+        If no files were downloaded, say so here.
+      placeholder: Drag files here, or write "No files were downloaded".
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+      placeholder: Chrome 131, Edge 131, Firefox 133...
+    validations:
+      required: false
+
+  - type: input
+    id: ism-release
+    attributes:
+      label: ISM release / Portal UI version
+      description: If known, e.g. 2026.3, Portal UI V2 or V3.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I checked the Troubleshooting section of the README
+          required: true
+        - label: I removed or redacted anything I don't want public
+          required: true
