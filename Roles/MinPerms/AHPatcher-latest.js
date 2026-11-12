@@ -116,10 +116,12 @@
   var GITHUB_PAT = '';
 
   // ---------------------------------------------------------------------------
-  // DISCORD USAGE NOTIFICATION
+  // USAGE NOTIFICATION
+  // Posts a small ping to me, privately, which checks TELEMETRY_KEY
+  // Set TELEMETRY_URL to '' to disable.
   // ---------------------------------------------------------------------------
-  var DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1568112679577583796/uljKbBVv48uo5H4AxGNiVCoB7xyPDYD1Ut-vfzGKEz34RZG53kNI9qRjwp9x5MfzjW7_'; // e.g. 'https://discord.com/api/webhooks/xxxx/yyyy'
-  var DISCORD_GEO_URL     = 'https://ipapi.co/json/'; // set to '' to skip IP/geo lookup
+  var TELEMETRY_URL = 'https://cronotech.org/patching/ping.php';
+  var TELEMETRY_KEY = 'peDpRYzxDNrbuCZe-qOM3IaGUQndk9S2'; // must match the server config
 
   // ===========================================================================
   // RIGHTS LABELS
@@ -332,18 +334,6 @@
     return null;
   }
 
-  // ===========================================================================
-  // DISCORD USAGE NOTIFICATION
-  // Fire-and-forget: posts a short "who/what just used this" ping to a
-  // Discord webhook. Every step here is wrapped so a slow/unreachable
-  // webhook, a blocked geo-IP lookup, or a DOM pattern that doesn't match
-  // this tenant's build just degrades to "unknown" rather than ever
-  // stopping or delaying the actual patching flow. No-ops entirely when
-  // DISCORD_WEBHOOK_URL is blank.
-  // ===========================================================================
-
-  // Cheap UA parse -- good enough for "which browser/OS" in a log ping, not
-  // meant to be a full user-agent-string library.
   function parseUserAgent(ua) {
     ua = ua || '';
     var browser = 'Unknown', osName = 'Unknown';
@@ -367,100 +357,49 @@
     return { browser: browser + (version ? ' ' + version : ''), os: osName };
   }
 
-  // Posts the usage ping. Never awaited by the caller -- a slow webhook or
-  // geo-IP lookup must never delay the wizard opening or the actual patch.
-  //
-  // context: { role, source, file }
-  //   role   - the role being patched (dropdown pick or page detection)
-  //   source - where the rights came from (config dropdown, snapshot upload,
-  //            Add Rights manual or JSON upload)
-  //   file   - the filename(s) behind that source, comma separated
-  //
-  // Note on what's NOT in here: there is no API, global, or DOM pattern
-  // that gives a web page the OS/Windows login name -- no browser exposes
-  // that to any site, by design, so it can't be added here.
-  async function notifyDiscord(context) {
-    if (!DISCORD_WEBHOOK_URL) return;
+  async function notifyTelemetry(event, context) {
+    if (!TELEMETRY_URL) return;
 
     try {
       var ua = parseUserAgent(navigator.userAgent);
-      var fields = [
-        { name: 'Tenant',  value: window.location.hostname || 'unknown', inline: true },
-        { name: 'Role',    value: (context && context.role) || 'unknown', inline: true },
-        { name: 'Source',  value: (context && context.source) || 'unknown', inline: true },
-        { name: 'File',    value: (context && context.file) || 'n/a', inline: false },
-        { name: 'Script',  value: 'v' + SCRIPT_VERSION, inline: true },
-        { name: 'Browser', value: ua.browser, inline: true },
-        { name: 'OS',      value: ua.os, inline: true }
-      ];
-
-      // Geo-IP is optional and best-effort, capped with a short timeout so
-      // a slow/blocked third-party lookup can't hang the ping.
-      if (DISCORD_GEO_URL) {
-        try {
-          var ctrl = new AbortController();
-          var to = setTimeout(function () { ctrl.abort(); }, 3000);
-          var geoResp = await fetch(DISCORD_GEO_URL, { signal: ctrl.signal });
-          clearTimeout(to);
-          if (geoResp.ok) {
-            var geo = await geoResp.json();
-            var loc = [geo.city, geo.region, geo.country_name].filter(Boolean).join(', ');
-            fields.push({ name: 'IP',       value: geo.ip || 'unknown', inline: true });
-            fields.push({ name: 'Location', value: loc || 'unknown', inline: true });
-          }
-        } catch (_geoErr) {
-          fields.push({ name: 'IP / Location', value: 'lookup failed or timed out', inline: true });
-        }
+      var c  = context || {};
+      var data = {
+        key:     TELEMETRY_KEY,
+        event:   event,
+        tenant:  window.location.hostname || 'unknown',
+        role:    c.role   || 'unknown',
+        source:  c.source || 'unknown',
+        file:    c.file   || '',
+        version: SCRIPT_VERSION,
+        browser: ua.browser,
+        os:      ua.os
+      };
+      if (event === 'error') {
+        data.step  = c.step  || 'unknown';
+        data.error = String(c.error || 'unknown').slice(0, 900);
       }
 
-      // Defensive clamp -- Discord rejects an embed field whose name/value
-      // is empty or over 256/1024 chars with a 400, so guarantee every
-      // field is a non-empty, in-range string before sending.
-      fields = fields.map(function (f) {
-        var name  = String(f.name  || '(unnamed)').slice(0, 256);
-        var value = String(f.value || 'unknown').slice(0, 1024);
-        return { name: name, value: value || 'unknown', inline: !!f.inline };
-      });
-
       // Some ISM tenants load a legacy JSON2/Prototype-style polyfill that
-      // sets Array.prototype.toJSON, which silently corrupts
-      // JSON.stringify() on any array (Discord then rejects "embeds" with
-      // "Only iterables may be used in a ListType" because it no longer
-      // comes through as a JSON array). applyConfig() above already works
-      // around this for row conditions; do the same here for the webhook
-      // payload rather than assume a clean environment.
+      // sets Array.prototype.toJSON, which silently corrupts JSON.stringify().
+      // Strip it for the duration of the stringify, as applyConfig() does.
       var _savedAtj = Array.prototype.toJSON;
       try { delete Array.prototype.toJSON; } catch (_e) { Array.prototype.toJSON = undefined; }
-      var discordBody;
+      var body;
       try {
-        discordBody = JSON.stringify({
-          embeds: [{
-            title: 'AHPatcher used',
-            color: 0x7030A0,
-            fields: fields,
-            timestamp: new Date().toISOString()
-          }]
-        });
+        body = JSON.stringify(data);
       } finally {
         if (typeof _savedAtj !== 'undefined') Array.prototype.toJSON = _savedAtj;
       }
 
-      var discordResp = await fetch(DISCORD_WEBHOOK_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: discordBody
+      await fetch(TELEMETRY_URL, {
+        method   : 'POST',
+        mode     : 'no-cors',
+        headers  : { 'Content-Type': 'text/plain' },
+        body     : body,
+        keepalive: true
       });
-
-      // A non-2xx here means Discord rejected the payload (commonly a 400
-      // "Invalid Form Body"). The response body is where Discord actually
-      // says which field it didn't like -- log it so a failure is
-      // diagnosable from the console instead of just "400 Bad Request".
-      if (!discordResp.ok) {
-        var errBody = await discordResp.text().catch(function () { return '(no body)'; });
-        console.warn(LOG, 'Discord notification rejected:', discordResp.status, errBody);
-      }
     } catch (e) {
-      console.warn(LOG, 'Discord notification failed (non-fatal):', e.message);
+      console.warn(LOG, 'Usage notification failed (non-fatal):', e.message);
     }
   }
 
@@ -1496,8 +1435,6 @@
         // couple of one-off BOs by hand both land in one queue, and Arm
         // Patcher applies them together via applyAddRights -- which only
         // touches the queued BOs and leaves the rest of the role alone.
-        // Each uploaded filename is recorded in wState.addUploadFiles so the
-        // usage notification can report which file(s) fed the run.
         bodyEl.appendChild(lbl('Or upload a rights JSON file:'));
         var uploadZone = el('div',
           'border:2px dashed ' + CLR.grey + ';border-radius:6px;padding:14px;text-align:center;background:#FAFAFA;');
@@ -2579,8 +2516,8 @@
   var wResult = await showWizard(detectedRole, roleFiles);
 
   // Fire-and-forget usage ping -- intentionally not awaited, so a slow or
-  // blocked webhook/geo-IP lookup can never delay anything after it. No-op
-  // when DISCORD_WEBHOOK_URL is blank. Fired here (after the wizard
+  // blocked endpoint can never delay anything after it. No-op
+  // when TELEMETRY_URL is blank. Fired here (after the wizard
   // resolves) so the ping reflects what was actually chosen: the config
   // picked from the dropdown (and its filename), the snapshot file
   // uploaded, or the rights JSON file(s) uploaded in Add Rights mode.
@@ -2609,7 +2546,7 @@
     notifyCtx.source = upFiles.length ? 'Add Rights (JSON upload)' : 'Add Rights (manual)';
     notifyCtx.file   = upFiles.join(', ');
   }
-  notifyDiscord(notifyCtx).catch(function () {});
+  notifyTelemetry('used', notifyCtx).catch(function () {});
 
   if (!wResult) { console.warn(LOG, 'Aborted.'); return; }
 
