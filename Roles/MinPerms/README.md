@@ -1,7 +1,7 @@
 # ISM Role Permission Patcher
 
 **Author:** Andrew Hatton - [That's me!](https://andrewhatton.com)
-##### **Issues/Contact:** Use the Issues, or andrew.hatton@cronotech.us
+##### **Issues/Contact:** [Open an issue](https://github.com/killer6oose/ISM_Scripts/issues/new?template=ahpatcher-bug.yml) or [email me](mailto:andrew.hatton@cronotech.us?subject=AHPatcher%20Issue%20-%20%5Bshort%20summary%5D&body=Hi%20Andrew%2C%0D%0A%0D%0AI%27ve%20hit%20an%20issue%20with%20AHPatcher.%20Details%20below%20%28%2A%20%3D%20required%29.%0D%0A%0D%0ATenant%20URL%3A%0D%0AContact%20email%3A%0D%0A%2A%20Script%20version%20%28latest%2C%205.12.0%2C%20etc.%29%3A%0D%0A%2A%20Environment%20%28Dev%20%2F%20UAT%20%2F%20Production%29%3A%0D%0A%2A%20Mode%20%28Apply%20Config%20%2F%20Restore%20from%20Snapshot%20%2F%20Add%20Rights%29%3A%0D%0ARole%20and%20config%20file%3A%0D%0A%2A%20Which%20step%20did%20the%20script%20fail%20on%3F%3A%0D%0A%2A%20Describe%20the%20issue%20%28what%20happened%2C%20what%20you%20expected%2C%20steps%20to%20reproduce%29%3A%0D%0A%0D%0A%0D%0AConsole%20output%20%28%5BAHPatcher%5D%20lines%20and%20any%20red%20errors%29%3A%0D%0A%0D%0A%0D%0ABrowser%20and%20version%3A%0D%0AISM%20release%20%2F%20Portal%20UI%20version%3A%0D%0A%0D%0A%2A%20ATTACHMENTS%20-%20please%20attach%20the%20files%20the%20script%20downloaded%20%28if%20it%20got%20that%20far%29%3A%0D%0A-%20%3CRoleID%3E_pre-patcher_snapshot_%3Ctimestamp%3E.json%0D%0A-%20%3CRoleID%3E_pre-patcher_permissions_%3Ctimestamp%3E.yaml%0D%0A-%20%3CRoleID%3E_applied_%3Ctimestamp%3E.yaml%0D%0A)
 ---
 
 > **Before you do anything else, please read this.**
@@ -28,7 +28,9 @@ fetch('https://raw.githubusercontent.com/killer6oose/ISM_Scripts/main/Roles/MinP
 - [Automatic casing variants](#automatic-casing-variants)
 - [Custom BO access levels](#custom-bo-access-levels)
 - [What applying a config actually changes](#what-applying-a-config-actually-changes)
+- [Usage notification](#usage-notification)
 - [Troubleshooting](#troubleshooting)
+  - [Still stuck?](#still-stuck)
 - [Environment recommendation](#environment-recommendation)
 - [Disclaimer](#disclaimer)
 
@@ -287,6 +289,14 @@ The Action / Search / Dashboard checkboxes fully replace the corresponding `Modu
 
 ---
 
+## Usage
+
+When the wizard finishes (or is aborted), the script sends a one-off notification to `https://cronotech.org/patching/ping.php`, which forwards it to me privately with whether the script was successful or not. It's fire-and-forget: if it's blocked or fails, the script carries on as normal.
+
+No user names or credentials are sent. To opt out, use a local copy of the script instead of the 1-liner and set `TELEMETRY_URL` to `''`.
+
+---
+
 ## Troubleshooting
 
 | Symptom | Cause / fix |
@@ -305,6 +315,13 @@ The Action / Search / Dashboard checkboxes fully replace the corresponding `Modu
 | "Allow Microsoft Excel download" / "Allow email to yourself" checkboxes don't stick | Fixed as of v5.3.1 - these booleans exist in two places in the SaveRole payload; only the copy nested inside RolePolicy is read by ISM, and that's the one now patched. |
 | Create (for self) doesn't apply for Action or Dashboard | Fixed as of v5.3.3 - if a role never had that security type in `ModuleRights` at all, the checkbox was previously a silent no-op. It's now created from a zeroed baseline instead of being skipped. |
 
+### Still stuck?
+
+Report it using either option below. Both ask for the same details, and you'll need to attach the files the script downloaded (if it got that far).
+
+- **[Open a GitHub issue](https://github.com/killer6oose/ISM_Scripts/issues/new?template=ahpatcher-bug.yml)** - public, so redact anything sensitive first
+- **[Email me](mailto:andrew.hatton@cronotech.us?subject=AHPatcher%20Issue%20-%20%5Bshort%20summary%5D&body=Hi%20Andrew%2C%0D%0A%0D%0AI%27ve%20hit%20an%20issue%20with%20AHPatcher.%20Details%20below%20%28%2A%20%3D%20required%29.%0D%0A%0D%0ATenant%20URL%3A%0D%0AContact%20email%3A%0D%0A%2A%20Script%20version%20%28latest%2C%205.12.0%2C%20etc.%29%3A%0D%0A%2A%20Environment%20%28Dev%20%2F%20UAT%20%2F%20Production%29%3A%0D%0A%2A%20Mode%20%28Apply%20Config%20%2F%20Restore%20from%20Snapshot%20%2F%20Add%20Rights%29%3A%0D%0ARole%20and%20config%20file%3A%0D%0A%2A%20Which%20step%20did%20the%20script%20fail%20on%3F%3A%0D%0A%2A%20Describe%20the%20issue%20%28what%20happened%2C%20what%20you%20expected%2C%20steps%20to%20reproduce%29%3A%0D%0A%0D%0A%0D%0AConsole%20output%20%28%5BAHPatcher%5D%20lines%20and%20any%20red%20errors%29%3A%0D%0A%0D%0A%0D%0ABrowser%20and%20version%3A%0D%0AISM%20release%20%2F%20Portal%20UI%20version%3A%0D%0A%0D%0A%2A%20ATTACHMENTS%20-%20please%20attach%20the%20files%20the%20script%20downloaded%20%28if%20it%20got%20that%20far%29%3A%0D%0A-%20%3CRoleID%3E_pre-patcher_snapshot_%3Ctimestamp%3E.json%0D%0A-%20%3CRoleID%3E_pre-patcher_permissions_%3Ctimestamp%3E.yaml%0D%0A-%20%3CRoleID%3E_applied_%3Ctimestamp%3E.yaml%0D%0A)** - private; attach the files to the email
+
 ---
 
 ## Environment recommendation
@@ -319,7 +336,7 @@ The Action / Search / Dashboard checkboxes fully replace the corresponding `Modu
 
 ## Disclaimer
 
-**Author:** Andrew Hatton - Andrew.Hatton@ivanti.com | Andrew.Hatton@cronotech.us
+**Author:** Andrew Hatton - Andrew.Hatton@cronotech.us
 
 THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE. IMPORTANT: Please take care when executing this script on a live database or system. It is recommended that a full backup is first performed.
 
